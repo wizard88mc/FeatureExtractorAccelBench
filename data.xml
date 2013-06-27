@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<listOfExamples>
+<!--<example>
+	<fileTemplate>20120314093000</fileTemplate>
+	<description>Test con iPad, scale, pausa e infine di nuovo scale</description>
+</example>-->
+<example>
+	<fileTemplate>20130201165836</fileTemplate>
+	<description>Stato di quiete dell'ipad</description>
+</example>
+<example>
+	<fileTemplate>20130201170024</fileTemplate>
+	<description>Scale con ipad in braccio</description>
+</example>
+<example>
+	<fileTemplate>20130203212007</fileTemplate>
+	<description>Camminata con ipad in braccio</description>
+</example>
+<example>
+	<fileTemplate>20130203212039</fileTemplate>
+	<description>Scale su e giù</description>
+</example>
+</listOfExamples>
