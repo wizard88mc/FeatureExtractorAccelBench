@@ -7,14 +7,17 @@ package featureextractor;
 import de.erichseifert.gral.data.DataSeries;
 import de.erichseifert.gral.data.DataTable;
 import de.erichseifert.gral.plots.BarPlot;
+import de.erichseifert.gral.plots.Plot;
 import de.erichseifert.gral.plots.XYPlot;
 import de.erichseifert.gral.plots.axes.AxisRenderer;
+import de.erichseifert.gral.plots.legends.Legend;
 import de.erichseifert.gral.plots.lines.DefaultLineRenderer2D;
 import de.erichseifert.gral.plots.lines.LineRenderer;
 import de.erichseifert.gral.plots.points.DefaultPointRenderer2D;
 import de.erichseifert.gral.plots.points.PointRenderer;
 import de.erichseifert.gral.ui.InteractivePanel;
 import de.erichseifert.gral.util.Insets2D;
+import de.erichseifert.gral.util.Orientation;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -47,11 +50,12 @@ public class AxisValuesGraph extends JFrame {
         
         XYPlot plot = new XYPlot(seriesX, seriesY, seriesZ);
         
-        double insetsTop = 10.0, insetsLeft = 70.0, insetsBottom = 60.0, insetsRight = 10.0;
+        double insetsTop = 10.0, insetsLeft = 70.0, insetsBottom = 60.0, insetsRight = 20.0;
         
         plot.setInsets(new Insets2D.Double(insetsTop, insetsLeft, insetsBottom, insetsRight));
         
         plot.setSetting(BarPlot.TITLE, "Valori registrati");
+        plot.setSetting(Plot.LEGEND, true);
         plot.getAxisRenderer(XYPlot.AXIS_X).setSetting(AxisRenderer.LABEL, "Tempo (ms)");
         plot.getAxisRenderer(XYPlot.AXIS_Y).setSetting(AxisRenderer.LABEL, "Accelerazione (m/s*2)");
         
@@ -75,6 +79,8 @@ public class AxisValuesGraph extends JFrame {
         lineZ.setSetting(LineRenderer.COLOR, new Color(0.0f, 0.0f, 1.0f));
         plot.setPointRenderer(seriesZ, pointsZ);
         plot.setLineRenderer(seriesZ, lineZ);
+        
+        plot.getLegend().setSetting(Legend.ORIENTATION, Orientation.VERTICAL);
         
         getContentPane().add(new InteractivePanel(plot), BorderLayout.CENTER);
     }
