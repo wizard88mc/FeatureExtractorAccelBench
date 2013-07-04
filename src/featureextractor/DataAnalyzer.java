@@ -1,5 +1,7 @@
 package featureextractor;
 
+import featureextractor.model.Sample;
+import featureextractor.model.CoupleTimeData;
 import java.util.ArrayList;
 /**
  *
@@ -16,7 +18,7 @@ public class DataAnalyzer {
     private ArrayList<Double> varianceValues = new ArrayList<Double>();
     private Double meanDeltaTimes = new Double(0);
     
-    public DataAnalyzer(ArrayList<TimeDataValues> values) {
+    public DataAnalyzer(ArrayList<Sample> values) {
         
         this.dataSets.add(0, new ArrayList<CoupleTimeData>());
         this.dataSets.add(1, new ArrayList<CoupleTimeData>());
@@ -69,8 +71,7 @@ public class DataAnalyzer {
         }
     }
     
-    public void normalize() {
-        
+    public void normalize() {        
         for (int i = 0; i < this.dataSets.size(); i++) {
             this.normalizeListValue(this.dataSets.get(i));
         }
