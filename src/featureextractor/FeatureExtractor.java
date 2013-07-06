@@ -36,6 +36,8 @@ public class FeatureExtractor extends JFrame {
                 }
                 String db_path = args[0];
                 String action = args[1];
+                System.out.println("Detected db path: "+args[0]);
+                System.out.println("Detected action: "+args[1]);
                 DbExtractor dbExtractor = new DbExtractor(new File(db_path));
                 valuesExtracted = dbExtractor.extract(action);
             } else {
