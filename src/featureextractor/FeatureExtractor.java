@@ -43,14 +43,14 @@ public class FeatureExtractor extends JFrame {
                 valuesExtracted = dbExtractor.extract(action);
                 int i=1;
                 for(ArrayList<Sample> batch: valuesExtracted) {
-                    System.out.println("\tBatch "+i+" ("+batch.size()+" samples)");
-                    DataAnalyzer analyzer = new DataAnalyzer(batch);
-                    analyzer.searchForMaxOrMin();
-                    analyzer.normalize();
-                    analyzer.evaluateDeltaTimes();
-                    analyzer.calculateFeatures();
-                    System.out.println("Risultati: ");
-                    System.out.println(analyzer);
+                    System.out.println("\n*** Batch "+i+" *** ("+batch.size()+" samples)");
+//                    DataAnalyzer analyzer = new DataAnalyzer(batch);
+//                    analyzer.searchForMaxOrMin();
+//                    analyzer.normalize();
+//                    analyzer.evaluateDeltaTimes();
+//                    analyzer.calculateFeatures();
+//                    System.out.println("Risultati: ");
+//                    System.out.println(analyzer);
                     SamplesBatch samplesBatch=new SamplesBatch(batch);
                     samplesBatch.getFeatures();
                     i++;

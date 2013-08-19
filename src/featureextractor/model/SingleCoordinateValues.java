@@ -29,12 +29,36 @@ public class SingleCoordinateValues {
         this.values.add(ctd);
     }
     
+    public double getMax() {
+        return Collections.max(this.values, new CoupleTimeDataComparator()).getValue();
+    }
+
+    public double getMin() {
+        return Collections.min(this.values, new CoupleTimeDataComparator()).getValue();
+    }
+    
+    
     public void normalize() {
          CoupleTimeData max=Collections.max(this.values, new CoupleTimeDataComparator());
          CoupleTimeData min=Collections.min(this.values, new CoupleTimeDataComparator());
+         this.normalize(min.getValue(), max.getValue());
+    }
+    
+    public void normalize(double min, double max) {
          for(CoupleTimeData ctd: this.values) {
-             ctd.normalize(min.getValue(), max.getValue());
+             ctd.normalize(min, max);
          }
+    }
+    
+    public void normalize(ArrayList<SingleCoordinateValues> values) {
+        ArrayList<Double> maxmin=new ArrayList<Double>();
+        for(int i=0; i<values.size(); i++) {
+            maxmin.add(values.get(i).getMin());
+            maxmin.add(values.get(i).getMax());        
+        }
+        for(int i=0; i<values.size(); i++) {
+            values.get(i).normalize(Collections.min(maxmin).doubleValue(), Collections.max(maxmin).doubleValue());
+        }
     }
     
     public double getMean() {

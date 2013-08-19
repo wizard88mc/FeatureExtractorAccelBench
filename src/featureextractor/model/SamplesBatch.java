@@ -4,6 +4,7 @@
  */
 package featureextractor.model;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
@@ -34,8 +35,15 @@ public class SamplesBatch {
     
     public void getFeatures() {
         for(int i=0; i<values.size(); i++) {
+            values.get(i).normalize(values);
+            System.out.println(coordinates_mapping.get(i)+"\tMEAN: "+values.get(i).getMean()+"\tVARIANCE: "+values.get(i).getVariance()+"\tSTD: "+values.get(i).getStandardDeviation());
+        }
+    }
+    
+    public void getFeatures2() {
+        for(int i=0; i<values.size(); i++) {
             values.get(i).normalize();
-            System.out.println(coordinates_mapping.get(i)+"\tMEAN: "+values.get(i).getMean()+" VARIANCE: "+values.get(i).getVariance()+" STD: "+values.get(i).getStandardDeviation());
+            System.out.println(coordinates_mapping.get(i)+"\tMEAN: "+values.get(i).getMean()+"\tVARIANCE: "+values.get(i).getVariance()+"\tSTD: "+values.get(i).getStandardDeviation());
         }
     }
     
