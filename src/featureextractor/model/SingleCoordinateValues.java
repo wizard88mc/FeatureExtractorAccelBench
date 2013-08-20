@@ -82,4 +82,8 @@ public class SingleCoordinateValues {
         return Math.sqrt(this.getVariance());
     }
     
+    public int size() {
+        return this.values.size();
+    }
+    
 }

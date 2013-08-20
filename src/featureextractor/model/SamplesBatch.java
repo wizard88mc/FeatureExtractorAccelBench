@@ -6,6 +6,7 @@ package featureextractor.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -20,9 +21,14 @@ public class SamplesBatch {
         coordinates_mapping.put(0, "X");
         coordinates_mapping.put(1, "Y");
         coordinates_mapping.put(2, "Z");
+        coordinates_mapping.put(3, "SUM");
     }
     
-    public SamplesBatch(ArrayList<Sample> samples) {
+    public int size() {
+        return values.get(0).size();
+    }
+    
+    public SamplesBatch(List<Sample> samples) {
         for(int i=0; i<3; i++) {
             values.add(new SingleCoordinateValues());
         }

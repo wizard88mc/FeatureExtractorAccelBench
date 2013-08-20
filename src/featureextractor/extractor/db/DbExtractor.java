@@ -48,7 +48,23 @@ public class DbExtractor {
         return rs.getInt("numsamples");
     }
     
-    public ArrayList<ArrayList<Sample>> extract(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
+        public ArrayList<Sample> extract(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
+        this.connect();
+ 
+        if (checkActionExistence(action)==0) throw new AccelBenchException("No sample for action '"+action+"'");
+        String query = "SELECT ROWID,x,y,z,timestamp,timestamp/1000000 as parsedtimestamp FROM samples WHERE action=? ORDER BY ROWID";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setString(1, action);
+        ResultSet rs = ps.executeQuery();
+        ArrayList<Sample> values=new ArrayList<Sample>();
+        while (rs.next()) {
+            values.add(new Sample(rs.getDouble("timestamp"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z")));
+        }
+        if (values.isEmpty()) throw new AccelBenchException("No sample detected");
+        return values;
+    }
+        
+    public ArrayList<ArrayList<Sample>> extractByBatch(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
         this.connect();
  
         if (checkActionExistence(action)==0) throw new AccelBenchException("No sample for action '"+action+"'");
@@ -62,8 +78,45 @@ public class DbExtractor {
         double last_timestamp=0.00;
         double time_diff=0.00;
         boolean first=true;
+        double first_timestamp=0.00;
         while (rs.next()) {
             if (first) {
+                first_timestamp=rs.getDouble("timestamp");
+                last_timestamp=rs.getDouble("timestamp");
+                first=false;
+            }
+            time_diff=(rs.getDouble("timestamp")-last_timestamp);
+            if (time_diff>min_diff_for_next_batch) {
+                Date date=new Date(rs.getLong("parsedtimestamp"));
+                System.out.println("Rilevato nuovo batch [timestamp: "+date+" diff: "+time_diff/1000000+"] (#"+rs.getInt("ROWID")+")");
+                batches.add(batch);
+                batch=new ArrayList<Sample>();
+            }
+            last_timestamp=rs.getDouble("timestamp");
+            batch.add(new Sample(last_timestamp, rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z")));
+        }
+        if (batches.isEmpty()) throw new AccelBenchException("No sample detected");
+        return batches;
+    }
+    
+        public ArrayList<ArrayList<Sample>> extract2(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
+        this.connect();
+ 
+        if (checkActionExistence(action)==0) throw new AccelBenchException("No sample for action '"+action+"'");
+        String query = "SELECT ROWID,x,y,z,timestamp,timestamp/1000000 as parsedtimestamp FROM samples WHERE action=? ORDER BY ROWID";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setString(1, action);
+        ResultSet rs = ps.executeQuery();
+//        ArrayList<Sample> valuesExtracted=new ArrayList<Sample>();
+        ArrayList<ArrayList<Sample>> batches=new ArrayList<ArrayList<Sample>>();
+        ArrayList<Sample> batch=new ArrayList<Sample>();
+        double last_timestamp=0.00;
+        double time_diff=0.00;
+        boolean first=true;
+        double first_timestamp=0.00;
+        while (rs.next()) {
+            if (first) {
+                first_timestamp=rs.getDouble("timestamp");
                 last_timestamp=rs.getDouble("timestamp");
                 first=false;
             }

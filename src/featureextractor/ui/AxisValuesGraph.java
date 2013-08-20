@@ -48,6 +48,7 @@ public class AxisValuesGraph extends JFrame {
         DataSeries seriesX = new DataSeries("X Axis", graphData, 0, 1);
         DataSeries seriesY = new DataSeries("Y Axis", graphData, 0, 2);
         DataSeries seriesZ = new DataSeries("Z axis", graphData, 0, 3);
+        DataSeries seriesV = new DataSeries("|V|", graphData, 0, 4);
         
         XYPlot plot = new XYPlot(seriesX, seriesY, seriesZ);
         

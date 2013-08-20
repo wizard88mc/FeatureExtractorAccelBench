@@ -10,8 +10,10 @@ import featureextractor.ui.DeltaTimesGraph;
 import featureextractor.ui.AxisValuesGraph;
 import featureextractor.extractor.text.FileContentExtractor;
 import featureextractor.model.SamplesBatch;
+import featureextractor.packager.BatchCreator;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JFrame;
 
 /**
@@ -20,7 +22,7 @@ import javax.swing.JFrame;
  */
 public class FeatureExtractor extends JFrame {
 
-    private static ArrayList<ArrayList<Sample>> valuesExtracted;
+    private static ArrayList<Sample> valuesExtracted;
     private static boolean dbMode = true;
 
     /**
@@ -37,13 +39,14 @@ public class FeatureExtractor extends JFrame {
                 }
                 String db_path = args[0];
                 String action = args[1];
-                System.out.println("Detected db path: "+args[0]);
-                System.out.println("Detected action: "+args[1]);
+                System.out.println("Detected db path: " + args[0]);
+                System.out.println("Detected action: " + args[1]);
                 DbExtractor dbExtractor = new DbExtractor(new File(db_path));
                 valuesExtracted = dbExtractor.extract(action);
-                int i=1;
-                for(ArrayList<Sample> batch: valuesExtracted) {
-                    System.out.println("\n*** Batch "+i+" *** ("+batch.size()+" samples)");
+                int i = 1;
+                List<SamplesBatch> batches=BatchCreator.getBatchesBySamplesNum(valuesExtracted, 25);
+                for (SamplesBatch batch : batches) {
+                    System.out.println("\n*** Batch " + i + " *** (" + batch.size() + " samples)");
 //                    DataAnalyzer analyzer = new DataAnalyzer(batch);
 //                    analyzer.searchForMaxOrMin();
 //                    analyzer.normalize();
@@ -51,11 +54,17 @@ public class FeatureExtractor extends JFrame {
 //                    analyzer.calculateFeatures();
 //                    System.out.println("Risultati: ");
 //                    System.out.println(analyzer);
-                    SamplesBatch samplesBatch=new SamplesBatch(batch);
-                    samplesBatch.getFeatures();
+                 //   SamplesBatch samplesBatch = new SamplesBatch(batch);
+                    batch.getFeatures();
+//                    DeltaTimesGraph graph = new DeltaTimesGraph(analyzer.startingData.get(0));
+//                    graph.setVisible(true);
+
+//                    AxisValuesGraph timeGraph = new AxisValuesGraph(analyzer.startingData);
+//                    timeGraph.setTitle("Batch "+i);
+//                    timeGraph.setVisible(true);
                     i++;
                 }
-            } 
+            }
 //            else {
 //                if (args.length < 1) {
 //                    throw new Exception("Text mode: 1 argument required");
@@ -68,13 +77,9 @@ public class FeatureExtractor extends JFrame {
 //                valuesExtracted = extractor.extractValueFromFile();
 //            }
 
-            
 
-//            DeltaTimesGraph graph = new DeltaTimesGraph(analyzer.startingData.get(0));
-//            graph.setVisible(true);
 
-//            AxisValuesGraph timeGraph = new AxisValuesGraph(analyzer.startingData);
-//            timeGraph.setVisible(true);
+
         } catch (Exception e) {
             System.err.println("ECCEZIONE: " + e.getMessage());
             System.exit(-1);
