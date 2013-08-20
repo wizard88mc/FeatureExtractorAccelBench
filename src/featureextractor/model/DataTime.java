@@ -8,12 +8,12 @@ package featureextractor.model;
  *
  * @author po
  */
-public class CoupleTimeData {
+public class DataTime {
     
     public double time;
     public double value;
     
-    public CoupleTimeData(double time, double value) {
+    public DataTime(double time, double value) {
         this.time = time; this.value = value;
     }
 

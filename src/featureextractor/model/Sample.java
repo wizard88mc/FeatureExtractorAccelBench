@@ -10,17 +10,21 @@ package featureextractor.model;
  */
 public class Sample {
     
-    public double time;
+    public long time;
     public double valueX;
     public double valueY;
     public double valueZ;
+    public double valueV;
     
-    public Sample(double time, double valueX, double valueY, double valueZ) {
-        this.time = time; this.valueX = valueX; this.valueY = valueY;
+    public Sample(long time, double valueX, double valueY, double valueZ) {
+        this.time = time; 
+        this.valueX = valueX; 
+        this.valueY = valueY; 
         this.valueZ = valueZ;
+        this.valueV=Math.sqrt(Math.pow(valueX, 2)+Math.pow(valueY, 2)+Math.pow(valueZ, 2));
     }
 
-    public double getTime() {
+    public long getTime() {
         return time;
     }
 
@@ -35,9 +39,13 @@ public class Sample {
     public double getValueZ() {
         return valueZ;
     }
-    
+
+    public double getValueV() {
+        return valueV;
+    }
+
     @Override
     public String toString() {
-        return "[" + time + "," + valueX + "," + valueY + "," + valueZ + "]";
+        return "[" + time + "," + valueX + "," + valueY + "," + valueZ + "]\t(|V|="+valueV+")";
     }
 }

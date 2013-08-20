@@ -58,7 +58,7 @@ public class DbExtractor {
         ResultSet rs = ps.executeQuery();
         ArrayList<Sample> values=new ArrayList<Sample>();
         while (rs.next()) {
-            values.add(new Sample(rs.getDouble("timestamp"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z")));
+            values.add(new Sample(rs.getLong("timestamp"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z")));
         }
         if (values.isEmpty()) throw new AccelBenchException("No sample detected");
         return values;
@@ -75,14 +75,14 @@ public class DbExtractor {
 //        ArrayList<Sample> valuesExtracted=new ArrayList<Sample>();
         ArrayList<ArrayList<Sample>> batches=new ArrayList<ArrayList<Sample>>();
         ArrayList<Sample> batch=new ArrayList<Sample>();
-        double last_timestamp=0.00;
+        long last_timestamp=0;
         double time_diff=0.00;
         boolean first=true;
-        double first_timestamp=0.00;
+        long first_timestamp=0;
         while (rs.next()) {
             if (first) {
-                first_timestamp=rs.getDouble("timestamp");
-                last_timestamp=rs.getDouble("timestamp");
+                first_timestamp=rs.getLong("timestamp");
+                last_timestamp=rs.getLong("timestamp");
                 first=false;
             }
             time_diff=(rs.getDouble("timestamp")-last_timestamp);
@@ -92,7 +92,7 @@ public class DbExtractor {
                 batches.add(batch);
                 batch=new ArrayList<Sample>();
             }
-            last_timestamp=rs.getDouble("timestamp");
+            last_timestamp=rs.getLong("timestamp");
             batch.add(new Sample(last_timestamp, rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z")));
         }
         if (batches.isEmpty()) throw new AccelBenchException("No sample detected");
@@ -110,14 +110,14 @@ public class DbExtractor {
 //        ArrayList<Sample> valuesExtracted=new ArrayList<Sample>();
         ArrayList<ArrayList<Sample>> batches=new ArrayList<ArrayList<Sample>>();
         ArrayList<Sample> batch=new ArrayList<Sample>();
-        double last_timestamp=0.00;
+        long last_timestamp=0;
         double time_diff=0.00;
         boolean first=true;
-        double first_timestamp=0.00;
+        long first_timestamp=0;
         while (rs.next()) {
             if (first) {
-                first_timestamp=rs.getDouble("timestamp");
-                last_timestamp=rs.getDouble("timestamp");
+                first_timestamp=rs.getLong("timestamp");
+                last_timestamp=rs.getLong("timestamp");
                 first=false;
             }
             time_diff=(rs.getDouble("timestamp")-last_timestamp);
@@ -127,7 +127,7 @@ public class DbExtractor {
                 batches.add(batch);
                 batch=new ArrayList<Sample>();
             }
-            last_timestamp=rs.getDouble("timestamp");
+            last_timestamp=rs.getLong("timestamp");
             batch.add(new Sample(last_timestamp, rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z")));
         }
         if (batches.isEmpty()) throw new AccelBenchException("No sample detected");

@@ -4,7 +4,7 @@
  */
 package featureextractor.ui;
 
-import featureextractor.model.CoupleTimeData;
+import featureextractor.model.DataTime;
 import de.erichseifert.gral.data.DataSeries;
 import de.erichseifert.gral.data.DataTable;
 import de.erichseifert.gral.plots.BarPlot;
@@ -32,7 +32,7 @@ import javax.swing.JFrame;
  */
 public class AxisValuesGraph extends JFrame {
 
-    public AxisValuesGraph(ArrayList<ArrayList<CoupleTimeData>> data) {
+    public AxisValuesGraph(ArrayList<ArrayList<DataTime>> data) {
         
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setMinimumSize(new Dimension(800, 600));

@@ -4,7 +4,7 @@
  */
 package featureextractor.ui;
 
-import featureextractor.model.CoupleTimeData;
+import featureextractor.model.DataTime;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import de.erichseifert.gral.data.DataTable;
@@ -27,7 +27,7 @@ import java.awt.geom.Ellipse2D;
  */
 public class DeltaTimesGraph extends JFrame {
     
-    public DeltaTimesGraph(ArrayList<CoupleTimeData> data) {
+    public DeltaTimesGraph(ArrayList<DataTime> data) {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         //setSize(800, 600);
         this.setMinimumSize(new Dimension(800, 600));

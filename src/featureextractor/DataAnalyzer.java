@@ -1,7 +1,7 @@
 package featureextractor;
 
 import featureextractor.model.Sample;
-import featureextractor.model.CoupleTimeData;
+import featureextractor.model.DataTime;
 import java.util.ArrayList;
 /**
  *
@@ -11,8 +11,8 @@ public class DataAnalyzer {
     
     private static double minValue = Double.MAX_VALUE;
     private static double maxValue = Double.MIN_VALUE;
-    private ArrayList<ArrayList<CoupleTimeData>> dataSets = new ArrayList<ArrayList<CoupleTimeData>>();
-    public ArrayList<ArrayList<CoupleTimeData>> startingData = new ArrayList<ArrayList<CoupleTimeData>>();
+    private ArrayList<ArrayList<DataTime>> dataSets = new ArrayList<ArrayList<DataTime>>();
+    public ArrayList<ArrayList<DataTime>> startingData = new ArrayList<ArrayList<DataTime>>();
     private ArrayList<Double> meanValues = new ArrayList<Double>();
     private ArrayList<Double> standardDeviationValues = new ArrayList<Double>();
     private ArrayList<Double> varianceValues = new ArrayList<Double>();
@@ -20,25 +20,25 @@ public class DataAnalyzer {
     
     public DataAnalyzer(ArrayList<Sample> values) {
         
-        this.dataSets.add(0, new ArrayList<CoupleTimeData>());
-        this.dataSets.add(1, new ArrayList<CoupleTimeData>());
-        this.dataSets.add(2, new ArrayList<CoupleTimeData>());
-        this.startingData.add(0, new ArrayList<CoupleTimeData>());
-        this.startingData.add(1, new ArrayList<CoupleTimeData>());
-        this.startingData.add(2, new ArrayList<CoupleTimeData>());
+        this.dataSets.add(0, new ArrayList<DataTime>());
+        this.dataSets.add(1, new ArrayList<DataTime>());
+        this.dataSets.add(2, new ArrayList<DataTime>());
+        this.startingData.add(0, new ArrayList<DataTime>());
+        this.startingData.add(1, new ArrayList<DataTime>());
+        this.startingData.add(2, new ArrayList<DataTime>());
         
         for (int i = 0; i < values.size(); i++) {
                 
-            this.dataSets.get(0).add(new CoupleTimeData(values.get(i).time, values.get(i).valueX));
-            this.dataSets.get(1).add(new CoupleTimeData(values.get(i).time, values.get(i).valueY));
-            this.dataSets.get(2).add(new CoupleTimeData(values.get(i).time, values.get(i).valueZ));
-            this.startingData.get(0).add(new CoupleTimeData(values.get(i).time, values.get(i).valueX));
-            this.startingData.get(1).add(new CoupleTimeData(values.get(i).time, values.get(i).valueY));
-            this.startingData.get(2).add(new CoupleTimeData(values.get(i).time, values.get(i).valueZ));
+            this.dataSets.get(0).add(new DataTime(values.get(i).time, values.get(i).valueX));
+            this.dataSets.get(1).add(new DataTime(values.get(i).time, values.get(i).valueY));
+            this.dataSets.get(2).add(new DataTime(values.get(i).time, values.get(i).valueZ));
+            this.startingData.get(0).add(new DataTime(values.get(i).time, values.get(i).valueX));
+            this.startingData.get(1).add(new DataTime(values.get(i).time, values.get(i).valueY));
+            this.startingData.get(2).add(new DataTime(values.get(i).time, values.get(i).valueZ));
         }
     }
     
-    private void searchMaxMin(ArrayList<CoupleTimeData> data) {
+    private void searchMaxMin(ArrayList<DataTime> data) {
         
         for (int i = 0; i < data.size(); i++) {
             
@@ -63,7 +63,7 @@ public class DataAnalyzer {
         System.out.println("Min: " + minValue);
     }
     
-    private void normalizeListValue(ArrayList<CoupleTimeData> singleData) {
+    private void normalizeListValue(ArrayList<DataTime> singleData) {
         
         for (int i = 0; i < singleData.size(); i++) {    
             singleData.get(i).value = (singleData.get(i).value - minValue) / 
@@ -77,7 +77,7 @@ public class DataAnalyzer {
         }
     }
     
-    private double meanForListValue(ArrayList<CoupleTimeData> list) {
+    private double meanForListValue(ArrayList<DataTime> list) {
         
         double mean = 0;
         for (int i = 0; i < list.size(); i++) {
@@ -101,7 +101,7 @@ public class DataAnalyzer {
     /**
      * Calcola varianza e deviazione standard
      */
-    private double calculateVariance(ArrayList<CoupleTimeData> data, double mean) {
+    private double calculateVariance(ArrayList<DataTime> data, double mean) {
         
         double variance = 0;
         for (int i = 0; i < data.size(); i++) {

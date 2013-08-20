@@ -7,25 +7,26 @@ package featureextractor.model;
 import featureextractor.comparator.CoupleTimeDataComparator;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  *
  * @author ark0n3
  */
-public class SingleCoordinateValues {
-    private ArrayList<CoupleTimeData> values;
+public class SingleCoordinateSet {
+    private List<DataTime> values;
 
-    public SingleCoordinateValues(ArrayList<CoupleTimeData> values) {
+    public SingleCoordinateSet(List<DataTime> values) {
         super();
         this.values = values;
     }
     
-    public SingleCoordinateValues() {
+    public SingleCoordinateSet() {
         super();
-        this.values=new ArrayList<CoupleTimeData>();
+        this.values=new ArrayList<DataTime>();
     }
     
-    public void addValue(CoupleTimeData ctd) {
+    public void addValue(DataTime ctd) {
         this.values.add(ctd);
     }
     
@@ -39,18 +40,18 @@ public class SingleCoordinateValues {
     
     
     public void normalize() {
-         CoupleTimeData max=Collections.max(this.values, new CoupleTimeDataComparator());
-         CoupleTimeData min=Collections.min(this.values, new CoupleTimeDataComparator());
+         DataTime max=Collections.max(this.values, new CoupleTimeDataComparator());
+         DataTime min=Collections.min(this.values, new CoupleTimeDataComparator());
          this.normalize(min.getValue(), max.getValue());
     }
     
     public void normalize(double min, double max) {
-         for(CoupleTimeData ctd: this.values) {
+         for(DataTime ctd: this.values) {
              ctd.normalize(min, max);
          }
     }
     
-    public void normalize(ArrayList<SingleCoordinateValues> values) {
+    public void normalize(List<SingleCoordinateSet> values) {
         ArrayList<Double> maxmin=new ArrayList<Double>();
         for(int i=0; i<values.size(); i++) {
             maxmin.add(values.get(i).getMin());
@@ -63,7 +64,7 @@ public class SingleCoordinateValues {
     
     public double getMean() {
         double sum=0;
-        for(CoupleTimeData ctd: this.values) {
+        for(DataTime ctd: this.values) {
             sum+=ctd.getValue();
         }
         return sum/this.values.size();
@@ -72,7 +73,7 @@ public class SingleCoordinateValues {
     public double getVariance() {
         double mean=this.getMean();
         double variance=0;
-        for(CoupleTimeData ctd: this.values) {
+        for(DataTime ctd: this.values) {
             variance+=Math.pow((ctd.getValue() - mean), 2);
         }
         return variance/this.values.size();
