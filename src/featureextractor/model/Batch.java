@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 package featureextractor.model;
-import featureextractor.SamplesUtils;
+import featureextractor.utils.SamplesUtils;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
