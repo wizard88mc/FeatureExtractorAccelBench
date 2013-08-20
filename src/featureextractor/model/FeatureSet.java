@@ -9,7 +9,7 @@ import java.text.NumberFormat;
 
 /**
  *
- * @author ark0n3
+ * @author Nicola Beghin
  */
 public class FeatureSet {
     private String title="";

@@ -14,7 +14,7 @@ import java.util.Comparator;
 
 /**
  *
- * @author ark0n3
+ * @author Nicola Beghin
  */
 public class SampleTimeComparator implements Comparator<Sample> {
   

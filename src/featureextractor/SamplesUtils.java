@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  *
- * @author ark0n3
+ * @author Nicola Beghin
  */
 public class SamplesUtils {
     

@@ -6,7 +6,7 @@ package featureextractor.extractor.db;
 
 /**
  *
- * @author ark0n3
+ * @author Nicola Beghin
  */
 class AccelBenchException extends Exception {
 

@@ -9,7 +9,7 @@ import java.util.Comparator;
 
 /**
  *
- * @author ark0n3
+ * @author Nicola Beghin
  */
 public class CoupleTimeDataComparator implements Comparator<DataTime> {
   

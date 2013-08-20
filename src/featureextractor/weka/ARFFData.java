@@ -10,20 +10,20 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  *
- * @author ark0n3
+ * @author Nicola Beghin
  */
 public class ARFFData {
     private String title;
-    private List<Object> data;
+    private List<Double> data;
 
-    public ARFFData(String title, List<Object> data) {
+    public ARFFData(String title, List<Double> data) {
         this.title = title;
         this.data = data;
     }
     
     @Override
     public String toString() {
-        return StringUtils.join(data, ",")+title;
+        return StringUtils.join(data, ",")+","+title;
     }
     
 }

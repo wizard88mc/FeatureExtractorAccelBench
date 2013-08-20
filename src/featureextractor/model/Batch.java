@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  *
- * @author ark0n3
+ * @author Nicola Beghin
  */
 public class Batch {
     
