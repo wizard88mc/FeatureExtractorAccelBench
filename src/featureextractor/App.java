@@ -4,6 +4,7 @@
  */
 package featureextractor;
 
+import featureextractor.extractor.db.DbExtractor;
 import java.io.File;
 
 /**
@@ -11,29 +12,36 @@ import java.io.File;
  * @author Nicola Beghin
  */
 public class App {
+
     public static void main(String[] args) {
         try {
             String db_path;
-            if (args.length!=1) {
+            if (args.length != 1) {
                 throw new Exception("Mandatory arguments required: db path");
             }
             db_path = args[0];
-            FeatureExtractor featureExtractor=new FeatureExtractor();
+            FeatureExtractor featureExtractor = new FeatureExtractor();
             featureExtractor.setDb(db_path);
-            featureExtractor.setBatchSize(80);
-            featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.INTERLAPPING_FIXED_SIZE);
-            featureExtractor.extract("STAIR_DOWNSTAIRS", "STAIR");
-            featureExtractor.extract("STAIR_UPSTAIRS", "STAIR");
-            featureExtractor.extract("NON_STAIR", "NONSTAIR");
-            featureExtractor.dumpARFF(new File("StairDetection.arff"));
+            featureExtractor.setTrunkIDs(); // detect samples trunk (in order to fix android events' timestamp bug)
+//            featureExtractor.setBatchSize(80);
+//            featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.INTERLAPPING_FIXED_SIZE);
+//            featureExtractor.extract("STAIR_DOWNSTAIRS", "STAIR");
+//            featureExtractor.extract("STAIR_UPSTAIRS", "STAIR");
+//            featureExtractor.extract("NON_STAIR", "NONSTAIR");
+//            featureExtractor.dumpARFF(new File("StairDetection.arff"));
 
-            // graph
-            featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.RANGE_FROM_START);
-            featureExtractor.setRange(6000);
-            featureExtractor.extract("STAIR_DOWNSTAIRS", "STAIR");
+            // get graph for each trunk in order to remove dirty data
+            DbExtractor extractor = featureExtractor.getDbExtractor();
+            featureExtractor.setArffEnabled(false); // disable ARFF creation
+            featureExtractor.setFeatureEnabled(false); // disable feature calculation
+            featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
+            featureExtractor.extract(null, "STAIR");
             featureExtractor.plot();
+
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("ECCEZIONE: " + e.getMessage());
+
             System.exit(-1);
         }
     }

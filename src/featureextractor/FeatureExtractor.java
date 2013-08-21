@@ -17,13 +17,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JFrame;
 
 /**
  *
  * @author Matteo
  */
-public class FeatureExtractor extends JFrame {
+public class FeatureExtractor {
 
     private static boolean dbMode = true;
     private static final String ARFF_RELATION = "StairDetection";
@@ -33,6 +32,8 @@ public class FeatureExtractor extends JFrame {
     private int range = 1000; // default
     private int start = 0; // default
     private int max = range; // default
+    private boolean arff_enabled = true;
+    private boolean feature_enabled = true;
 
     public enum BATCH_CREATION_MODE {
         ALL, // all samples
@@ -40,6 +41,7 @@ public class FeatureExtractor extends JFrame {
         INTERLAPPING_FIXED_SIZE,  // interlapping sliding window
         RANGE_FROM_START, // range from beginning 
         RANGE, // range from given index
+        BY_TRUNK, // group by trunk
         BEFORE_TIMESTAMP
     };
     private int batch_size = 40; // default
@@ -54,6 +56,18 @@ public class FeatureExtractor extends JFrame {
         this.initialize_ARFF();
     }
 
+    public DbExtractor getDbExtractor() {
+        return this.db_extractor;
+    }
+
+    public void setFeatureEnabled(boolean feature_enabled) {
+        this.feature_enabled = feature_enabled;
+    }
+
+    public void setArffEnabled(boolean arff_enabled) {
+        this.arff_enabled = arff_enabled;
+    }
+    
     public void setBatchSize(int batch_size) {
         this.batch_size = batch_size;
     }
@@ -62,6 +76,12 @@ public class FeatureExtractor extends JFrame {
         this.mode = mode;
     }
 
+    public void setTrunkIDs() throws Exception {
+        if (db_extractor == null) {
+            throw new Exception("No source DB set");
+        }
+        db_extractor.setTrunkIDs();
+    }
     public void extract(String action, String className) throws Exception {
         if (db_extractor == null) {
             throw new Exception("No source DB set");
@@ -74,20 +94,29 @@ public class FeatureExtractor extends JFrame {
             batches = null;
             switch (mode) {
                 case INTERLAPPING_FIXED_SIZE:
+                    System.out.println("Selected interlapping sliding window with a fixed size of "+batch_size+" samples");
                     batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
                     break;
                 case NON_INTERLAPPING_FIXED_SIZE:
+                    System.out.println("Selected non-interlapping sliding window with a fixed size of "+batch_size+" samples");
                     batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samples, batch_size);
                     break;
                 case RANGE:
+                    System.out.println("Selected range "+start+" - "+max);
                     batches = SamplesUtils.getRangeBatch(samples, start, max);
                     break;
                 case RANGE_FROM_START:
+                    System.out.println("Selected first "+range+" samples");
                     batches = SamplesUtils.getSingleFixedSizeBatch(samples, range);
                     break;
                 case BEFORE_TIMESTAMP:
-                    throw new Exception("not implemented");
+                    break;
+                case BY_TRUNK:
+                    System.out.println("Selected batches by trunk");
+                    batches = SamplesUtils.getBatchesByTrunk(samples);
+                    break;
                 case ALL:
+                    System.out.println("Selected a single batch with all samples");
                     batches = SamplesUtils.getAll(samples);
                     break;
                 default:
@@ -99,9 +128,13 @@ public class FeatureExtractor extends JFrame {
             arff.addClass(className);
             for (Batch batch : batches) {
                 System.out.println("\n*** Batch " + i + " *** (" + batch.size() + " samples)");
-                List<FeatureSet> features = batch.getFeatures();
-                arff.addData(className, features.get(3)); // |V|
-                batch.printFeatures();
+                List<FeatureSet> features=null;
+                if (feature_enabled) {
+                    features = batch.getFeatures();
+                    batch.printFeatures();
+                }
+                if (arff_enabled) arff.addData(className, features.get(3)); // |V|
+                
                 i++;
             }
 

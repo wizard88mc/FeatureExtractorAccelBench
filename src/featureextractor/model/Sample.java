@@ -9,23 +9,31 @@ package featureextractor.model;
  * @author Matteo
  */
 public class Sample {
-    
-    public long time;
-    public double valueX;
-    public double valueY;
-    public double valueZ;
-    public double valueV;
-    
-    public Sample(long time, double valueX, double valueY, double valueZ) {
-        this.time = time; 
-        this.valueX = valueX; 
-        this.valueY = valueY; 
+
+    final private long time;
+    final private double valueX;
+    final private double valueY;
+    final private double valueZ;
+    final private double valueV;
+    final private String action;
+    final private int trunk;
+
+    public Sample(long time, double valueX, double valueY, double valueZ, int trunk, String action) {
+        this.time = time;
+        this.valueX = valueX;
+        this.valueY = valueY;
         this.valueZ = valueZ;
-        this.valueV=Math.sqrt(Math.pow(valueX, 2)+Math.pow(valueY, 2)+Math.pow(valueZ, 2));
+        this.trunk = trunk;
+        this.action = action;
+        this.valueV = Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));
     }
 
     public long getTime() {
         return time;
+    }
+
+    public String getAction() {
+        return action;
     }
 
     public double getValueX() {
@@ -44,8 +52,12 @@ public class Sample {
         return valueV;
     }
 
+    public int getTrunk() {
+        return trunk;
+    }
+
     @Override
     public String toString() {
-        return "[" + time + "," + valueX + "," + valueY + "," + valueZ + "]\t(|V|="+valueV+")";
+        return "[" + time + "," + valueX + "," + valueY + "," + valueZ + "]\t(|V|=" + valueV + ")";
     }
 }

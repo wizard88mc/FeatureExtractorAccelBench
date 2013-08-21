@@ -44,7 +44,7 @@ public class Plot extends JFrame {
         List<SingleCoordinateSet> axes = batch.getValues();
         System.out.println("Samples: "+axes.get(0).getValues().size());
         for (int i = 0; i < axes.get(0).getValues().size(); i++) {
-            graphData.add((long)(axes.get(0).getValues().get(i).getTime()/1000000),
+            graphData.add((long)(axes.get(0).getValues().get(i).getTime()/10000000),
                     axes.get(0).getValues().get(i).getValue(),
                     axes.get(1).getValues().get(i).getValue(),
                     axes.get(2).getValues().get(i).getValue()
@@ -61,7 +61,7 @@ public class Plot extends JFrame {
 
         plot.setInsets(new Insets2D.Double(insetsTop, insetsLeft, insetsBottom, insetsRight));
 
-        plot.setSetting(BarPlot.TITLE, "Valori registrati");
+        plot.setSetting(BarPlot.TITLE, (batch.getTitle()!=null?batch.getTitle():"Valori"));
         plot.setSetting(de.erichseifert.gral.plots.Plot.LEGEND, true);
         plot.getAxisRenderer(XYPlot.AXIS_X).setSetting(AxisRenderer.LABEL, "Tempo (ms)");
         plot.getAxisRenderer(XYPlot.AXIS_Y).setSetting(AxisRenderer.LABEL, "Accelerazione (m/s*2)");

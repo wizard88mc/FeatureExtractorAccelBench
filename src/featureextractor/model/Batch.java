@@ -20,12 +20,21 @@ public class Batch {
     
     private ArrayList<SingleCoordinateSet> values=new ArrayList<SingleCoordinateSet>();
     private static HashMap<Integer,String> coordinates_mapping=new HashMap<Integer,String>();
+    private String title;
 
     static {
         coordinates_mapping.put(0, "X");
         coordinates_mapping.put(1, "Y");
         coordinates_mapping.put(2, "Z");
         coordinates_mapping.put(3, "|V|");
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return title;
     }
     
     public int size() {
@@ -42,10 +51,10 @@ public class Batch {
             values.get(i).setTitle(coordinates_mapping.get(i));
         }
         for (int i = 0; i < samples.size(); i++) {
-            values.get(0).addValue(new DataTime(samples.get(i).time, samples.get(i).valueX));
-            values.get(1).addValue(new DataTime(samples.get(i).time, samples.get(i).valueY));
-            values.get(2).addValue(new DataTime(samples.get(i).time, samples.get(i).valueZ));
-            values.get(3).addValue(new DataTime(samples.get(i).time, samples.get(i).valueV));
+            values.get(0).addValue(new DataTime(samples.get(i).getTime(), samples.get(i).getValueX()));
+            values.get(1).addValue(new DataTime(samples.get(i).getTime(), samples.get(i).getValueY()));
+            values.get(2).addValue(new DataTime(samples.get(i).getTime(), samples.get(i).getValueZ()));
+            values.get(3).addValue(new DataTime(samples.get(i).getTime(), samples.get(i).getValueV()));
         }
     }
     

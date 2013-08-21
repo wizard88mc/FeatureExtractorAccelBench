@@ -43,7 +43,34 @@ public class SamplesUtils {
             throw new Exception(values.size() + " samples (<" + end);
         }
         ArrayList<Batch> batches = new ArrayList<Batch>();
-        batches.add(new Batch(values.subList(start, end+1)));
+        batches.add(new Batch(values.subList(start, end + 1)));
+        return batches;
+    }
+
+    public static List<Batch> getBatchesByTrunk(ArrayList<Sample> values) throws Exception {
+        if (values.isEmpty()) {
+            throw new Exception("No sample provided");
+        }
+        int num_samples = values.size();
+        ArrayList<Batch> batches = new ArrayList<Batch>();
+        int i=0;
+        int trunk=1;
+        List<Sample> samples=new ArrayList<Sample>();
+        while(i<num_samples) {
+            if (values.get(i).getTrunk()==trunk) {
+                samples.add(values.get(i));
+                i++;
+            }
+            else {
+                Batch batch=new Batch(samples);
+                batch.setTitle("Trunk "+trunk+": "+values.get(i-1).getAction());
+                batches.add(batch);
+                samples.clear();
+                trunk=values.get(i).getTrunk();
+            }
+            
+        }
+
         return batches;
     }
 
