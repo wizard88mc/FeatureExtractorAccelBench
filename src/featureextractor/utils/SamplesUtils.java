@@ -20,6 +20,7 @@ public class SamplesUtils {
     private static int samples_for_sampling_rate_calculation = 300;
 
     public static List<Batch> getNonInterlappingFixedSizeBatches(ArrayList<Sample> values, int num_samples_per_batch) throws Exception {
+
         if (values.isEmpty()) {
             throw new Exception("No sample provided");
         }

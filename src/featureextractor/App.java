@@ -20,7 +20,7 @@ public class App {
             db_path = args[0];
             FeatureExtractor featureExtractor=new FeatureExtractor();
             featureExtractor.setDb(db_path);
-            featureExtractor.setBatchSize(40);
+            featureExtractor.setBatchSize(80);
             featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.INTERLAPPING_FIXED_SIZE);
             featureExtractor.extract("STAIR_DOWNSTAIRS", "STAIR");
             featureExtractor.extract("STAIR_UPSTAIRS", "STAIR");

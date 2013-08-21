@@ -66,8 +66,8 @@ public class FeatureExtractor extends JFrame {
             switch(mode) {
                 case INTERLAPPING_FIXED_SIZE:
                     batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
-                
-                case NON_INTERLAPPING_FIXED_SIZE: // case NON_INTERLAPPING_FIXED_SIZE
+                    break;
+                case NON_INTERLAPPING_FIXED_SIZE:
                     batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samples, batch_size);
                     break;
                 default:
