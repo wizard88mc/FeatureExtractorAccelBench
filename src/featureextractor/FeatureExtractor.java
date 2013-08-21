@@ -7,21 +7,17 @@ package featureextractor;
 import featureextractor.utils.SamplesUtils;
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Sample;
-import featureextractor.ui.DeltaTimesGraph;
-import featureextractor.ui.AxisValuesGraph;
-//import featureextractor.extractor.text.FileContentExtractor;
 import featureextractor.model.Batch;
 import featureextractor.model.FeatureSet;
+import featureextractor.plot.Plot;
 import featureextractor.weka.ARFF;
 import featureextractor.weka.ARFFAttribute;
-import featureextractor.weka.ARFFData;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
-import sun.tools.tree.ThisExpression;
 
 /**
  *
@@ -30,12 +26,25 @@ import sun.tools.tree.ThisExpression;
 public class FeatureExtractor extends JFrame {
 
     private static boolean dbMode = true;
+    private static final String ARFF_RELATION = "StairDetection";
     private ARFF arff;
     private DbExtractor db_extractor = null;
-    public enum BATCH_CREATION_MODE { NON_INTERLAPPING_FIXED_SIZE, INTERLAPPING_FIXED_SIZE };
-    private int batch_size=40; // default
+    private List<Batch> batches = null;
+    private int range = 1000; // default
+    private int start = 0; // default
+    private int max = range; // default
+
+    public enum BATCH_CREATION_MODE {
+        ALL, // all samples
+        NON_INTERLAPPING_FIXED_SIZE, // non interlapping sliding window
+        INTERLAPPING_FIXED_SIZE,  // interlapping sliding window
+        RANGE_FROM_START, // range from beginning 
+        RANGE, // range from given index
+        BEFORE_TIMESTAMP
+    };
+    private int batch_size = 40; // default
     private BATCH_CREATION_MODE mode = BATCH_CREATION_MODE.NON_INTERLAPPING_FIXED_SIZE; // default
-    
+
     public void setDb(String db_path) throws FileNotFoundException {
         File file = new File(db_path);
         if (file.exists() == false) {
@@ -50,9 +59,9 @@ public class FeatureExtractor extends JFrame {
     }
 
     public void setBatchCreationMode(BATCH_CREATION_MODE mode) {
-        this.mode=mode;
+        this.mode = mode;
     }
-    
+
     public void extract(String action, String className) throws Exception {
         if (db_extractor == null) {
             throw new Exception("No source DB set");
@@ -62,13 +71,24 @@ public class FeatureExtractor extends JFrame {
             ArrayList<Sample> samples = db_extractor.extract(action);
 
             // create samples batches by selected mode
-            List<Batch> batches = null;
-            switch(mode) {
+            batches = null;
+            switch (mode) {
                 case INTERLAPPING_FIXED_SIZE:
                     batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
                     break;
                 case NON_INTERLAPPING_FIXED_SIZE:
                     batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samples, batch_size);
+                    break;
+                case RANGE:
+                    batches = SamplesUtils.getRangeBatch(samples, start, max);
+                    break;
+                case RANGE_FROM_START:
+                    batches = SamplesUtils.getSingleFixedSizeBatch(samples, range);
+                    break;
+                case BEFORE_TIMESTAMP:
+                    throw new Exception("not implemented");
+                case ALL:
+                    batches = SamplesUtils.getAll(samples);
                     break;
                 default:
                     throw new Exception("Unknown batch creation mode");
@@ -92,6 +112,25 @@ public class FeatureExtractor extends JFrame {
         }
     }
 
+    public void setRange(int range) {
+        this.range = range;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public void setMax(int max) {
+        this.max = max;
+    }
+
+    public void plot() {
+        for (Batch batch : batches) {
+            Plot plot = new Plot(batch);
+            plot.setVisible(true);
+        }
+    }
+
     public void dumpARFF(File file) throws IOException {
         System.out.println("Writing ARFF file to " + file.getAbsolutePath());
         arff.writeToFile(file);
@@ -105,6 +144,6 @@ public class FeatureExtractor extends JFrame {
         attributes.add(new ARFFAttribute("std", "REAL"));
 
         // documento ARFF
-        arff = new ARFF("StairDetection", attributes);
+        arff = new ARFF(ARFF_RELATION, attributes);
     }
 }

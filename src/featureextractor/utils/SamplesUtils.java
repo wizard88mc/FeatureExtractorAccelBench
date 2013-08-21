@@ -19,8 +19,35 @@ public class SamplesUtils {
 
     private static int samples_for_sampling_rate_calculation = 300;
 
-    public static List<Batch> getNonInterlappingFixedSizeBatches(ArrayList<Sample> values, int num_samples_per_batch) throws Exception {
+    public static List<Batch> getAll(ArrayList<Sample> values) throws Exception {
+        if (values.isEmpty()) {
+            throw new Exception("No sample provided");
+        }
+        ArrayList<Batch> batches = new ArrayList<Batch>();
+        batches.add(new Batch(values));
+        return batches;
+    }
 
+    public static List<Batch> getSingleFixedSizeBatch(ArrayList<Sample> values, int num_samples) throws Exception {
+        return SamplesUtils.getRangeBatch(values, 0, num_samples);
+    }
+
+    public static List<Batch> getRangeBatch(ArrayList<Sample> values, int start, int end) throws Exception {
+        if (values.isEmpty()) {
+            throw new Exception("No sample provided");
+        }
+        if (start > values.size()) {
+            throw new Exception(values.size() + " samples (<" + start);
+        }
+        if (end > values.size()) {
+            throw new Exception(values.size() + " samples (<" + end);
+        }
+        ArrayList<Batch> batches = new ArrayList<Batch>();
+        batches.add(new Batch(values.subList(start, end+1)));
+        return batches;
+    }
+
+    public static List<Batch> getNonInterlappingFixedSizeBatches(ArrayList<Sample> values, int num_samples_per_batch) throws Exception {
         if (values.isEmpty()) {
             throw new Exception("No sample provided");
         }
@@ -29,8 +56,10 @@ public class SamplesUtils {
         int max = 0, i = 0;
         while (i < num_samples) {
             max = i + num_samples_per_batch - 1;
-            if (max >= num_samples) break; // skip last batch if not long enough
-            batches.add(new Batch(values.subList(i, max+1)));
+            if (max >= num_samples) {
+                break; // skip last batch if not long enough
+            }
+            batches.add(new Batch(values.subList(i, max + 1)));
             i += num_samples_per_batch;
         }
         return batches;
@@ -48,8 +77,10 @@ public class SamplesUtils {
         int max = 0, i = 0;
         while (i < num_samples) {
             max = i + num_samples_per_batch;
-            if (max >= num_samples) break; // skip last batch if not long enough
-            batches.add(new Batch(values.subList(i, max+1)));
+            if (max >= num_samples) {
+                break; // skip last batch if not long enough
+            }
+            batches.add(new Batch(values.subList(i, max + 1)));
             i += num_samples_per_batch / 2;
         }
         return batches;

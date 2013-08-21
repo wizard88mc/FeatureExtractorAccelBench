@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class SingleCoordinateSet {
     private List<DataTime> values;
+    private String title;
 
     public SingleCoordinateSet(List<DataTime> values) {
         super();
@@ -24,6 +25,18 @@ public class SingleCoordinateSet {
     public SingleCoordinateSet() {
         super();
         this.values=new ArrayList<DataTime>();
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public List<DataTime> getValues() {
+        return values;
+    }
+
+    public String getTitle() {
+        return title;
     }
     
     public void addValue(DataTime ctd) {

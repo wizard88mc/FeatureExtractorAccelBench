@@ -10,14 +10,14 @@ package featureextractor.model;
  */
 public class DataTime {
     
-    public double time;
+    public long time;
     public double value;
     
-    public DataTime(double time, double value) {
+    public DataTime(long time, double value) {
         this.time = time; this.value = value;
     }
 
-    public double getTime() {
+    public long getTime() {
         return time;
     }
 
@@ -25,7 +25,7 @@ public class DataTime {
         return value;
     }
 
-    public void setTime(double time) {
+    public void setTime(long time) {
         this.time = time;
     }
 

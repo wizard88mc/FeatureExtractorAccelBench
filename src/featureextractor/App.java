@@ -26,8 +26,14 @@ public class App {
             featureExtractor.extract("STAIR_UPSTAIRS", "STAIR");
             featureExtractor.extract("NON_STAIR", "NONSTAIR");
             featureExtractor.dumpARFF(new File("StairDetection.arff"));
+
+            // graph
+            featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.RANGE_FROM_START);
+            featureExtractor.setRange(6000);
+            featureExtractor.extract("STAIR_DOWNSTAIRS", "STAIR");
+            featureExtractor.plot();
         } catch (Exception e) {
-            System.err.println("ECCEZIONE: " + e.getMessage());
+            System.out.println("ECCEZIONE: " + e.getMessage());
             System.exit(-1);
         }
     }
