@@ -25,7 +25,6 @@ public class App {
             FeatureExtractor featureExtractor = new FeatureExtractor();
             for (String db_path : dbs) {
                 db_path = "data" + File.separator + "db" + File.separator + db_path;
-
                 featureExtractor.setDb(db_path);
                 featureExtractor.setBatchSize(80);
                 featureExtractor.setArffEnabled(true);

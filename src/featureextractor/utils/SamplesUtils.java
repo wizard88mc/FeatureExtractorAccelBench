@@ -4,11 +4,9 @@
  */
 package featureextractor.utils;
 
-import featureextractor.comparator.SampleTimeComparator;
 import featureextractor.model.Sample;
 import featureextractor.model.Batch;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**

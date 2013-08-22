@@ -16,7 +16,6 @@ import featureextractor.weka.ARFFAttribute;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,18 +44,21 @@ public class FeatureExtractor {
         RANGE_FROM_START, // range from beginning 
         RANGE, // range from given index
         BY_TRUNK, // group by trunk
-        FIXED_TIME_RANGE
+        FIXED_TIME_LAPSE // extract by fixed time lapse (in ms)
     };
     private int batch_size = 40; // default
     private BATCH_CREATION_MODE mode = BATCH_CREATION_MODE.NON_INTERLAPPING_FIXED_SIZE; // default
 
+    public FeatureExtractor() {
+        this.initialize_ARFF();
+    }
+    
     public void setDb(String db_path) throws Exception {
         File file = new File(db_path);
         if (file.exists() == false) {
             throw new FileNotFoundException(file.getAbsolutePath()+" not found");
         }
         db_extractor = new DbExtractor(file);
-        this.initialize_ARFF();
     }
 
     public DbExtractor getDbExtractor() {
@@ -121,7 +123,7 @@ public class FeatureExtractor {
                     System.out.println("Selected first " + range + " samples");
                     batches = SamplesUtils.getSingleFixedSizeBatch(samples, range);
                     break;
-                case FIXED_TIME_RANGE:
+                case FIXED_TIME_LAPSE:
                     System.out.println("Selected fixed time range ("+time_range+" ms)");
                     batches = SamplesUtils.getBatchesByTimeRange(samples, time_range);
                     break;
