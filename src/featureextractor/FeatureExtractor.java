@@ -9,12 +9,14 @@ import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Sample;
 import featureextractor.model.Batch;
 import featureextractor.model.FeatureSet;
+import featureextractor.model.TrunkFixSpec;
 import featureextractor.plot.Plot;
 import featureextractor.weka.ARFF;
 import featureextractor.weka.ARFFAttribute;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class FeatureExtractor {
     public enum BATCH_CREATION_MODE {
         ALL, // all samples
         NON_INTERLAPPING_FIXED_SIZE, // non interlapping sliding window
-        INTERLAPPING_FIXED_SIZE,  // interlapping sliding window
+        INTERLAPPING_FIXED_SIZE, // interlapping sliding window
         RANGE_FROM_START, // range from beginning 
         RANGE, // range from given index
         BY_TRUNK, // group by trunk
@@ -67,7 +69,7 @@ public class FeatureExtractor {
     public void setArffEnabled(boolean arff_enabled) {
         this.arff_enabled = arff_enabled;
     }
-    
+
     public void setBatchSize(int batch_size) {
         this.batch_size = batch_size;
     }
@@ -82,6 +84,14 @@ public class FeatureExtractor {
         }
         db_extractor.setTrunkIDs();
     }
+
+    public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws Exception {
+        if (db_extractor == null) {
+            throw new Exception("No source DB set");
+        }
+        db_extractor.applyTrunkFixes(fixes);
+    }
+
     public void extract(String action, String className) throws Exception {
         if (db_extractor == null) {
             throw new Exception("No source DB set");
@@ -94,19 +104,19 @@ public class FeatureExtractor {
             batches = null;
             switch (mode) {
                 case INTERLAPPING_FIXED_SIZE:
-                    System.out.println("Selected interlapping sliding window with a fixed size of "+batch_size+" samples");
+                    System.out.println("Selected interlapping sliding window with a fixed size of " + batch_size + " samples");
                     batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
                     break;
                 case NON_INTERLAPPING_FIXED_SIZE:
-                    System.out.println("Selected non-interlapping sliding window with a fixed size of "+batch_size+" samples");
+                    System.out.println("Selected non-interlapping sliding window with a fixed size of " + batch_size + " samples");
                     batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samples, batch_size);
                     break;
                 case RANGE:
-                    System.out.println("Selected range "+start+" - "+max);
+                    System.out.println("Selected range " + start + " - " + max);
                     batches = SamplesUtils.getRangeBatch(samples, start, max);
                     break;
                 case RANGE_FROM_START:
-                    System.out.println("Selected first "+range+" samples");
+                    System.out.println("Selected first " + range + " samples");
                     batches = SamplesUtils.getSingleFixedSizeBatch(samples, range);
                     break;
                 case BEFORE_TIMESTAMP:
@@ -128,13 +138,14 @@ public class FeatureExtractor {
             arff.addClass(className);
             for (Batch batch : batches) {
                 System.out.println("\n*** Batch " + i + " *** (" + batch.size() + " samples)");
-                List<FeatureSet> features=null;
+                List<FeatureSet> features = null;
                 if (feature_enabled) {
                     features = batch.getFeatures();
                     batch.printFeatures();
                 }
-                if (arff_enabled) arff.addData(className, features.get(3)); // |V|
-                
+                if (arff_enabled) {
+                    arff.addData(className, features.get(3)); // |V|
+                }
                 i++;
             }
 

@@ -4,7 +4,6 @@
  */
 package featureextractor.plot;
 
-import featureextractor.model.DataTime;
 import de.erichseifert.gral.data.DataSeries;
 import de.erichseifert.gral.data.DataTable;
 import de.erichseifert.gral.plots.BarPlot;
@@ -24,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.geom.Ellipse2D;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
 
@@ -33,18 +31,19 @@ import javax.swing.JFrame;
  * @author Nicola Beghin
  */
 public class Plot extends JFrame {
+    public final static int time_divisor = 10000000;
 
     public Plot(Batch batch) {
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setMinimumSize(new Dimension(800, 600));
+        this.setMinimumSize(new Dimension(1024, 768));
 
         DataTable graphData = new DataTable(Long.class, Double.class, Double.class, Double.class);
 
         List<SingleCoordinateSet> axes = batch.getValues();
         System.out.println("Samples: "+axes.get(0).getValues().size());
         for (int i = 0; i < axes.get(0).getValues().size(); i++) {
-            graphData.add((long)(axes.get(0).getValues().get(i).getTime()/10000000),
+            graphData.add((long)(axes.get(0).getValues().get(i).getTime()/time_divisor),
                     axes.get(0).getValues().get(i).getValue(),
                     axes.get(1).getValues().get(i).getValue(),
                     axes.get(2).getValues().get(i).getValue()
@@ -64,7 +63,7 @@ public class Plot extends JFrame {
         plot.setSetting(BarPlot.TITLE, (batch.getTitle()!=null?batch.getTitle():"Valori"));
         plot.setSetting(de.erichseifert.gral.plots.Plot.LEGEND, true);
         plot.getAxisRenderer(XYPlot.AXIS_X).setSetting(AxisRenderer.LABEL, "Tempo (ms)");
-        plot.getAxisRenderer(XYPlot.AXIS_Y).setSetting(AxisRenderer.LABEL, "Accelerazione (m/s*2)");
+        plot.getAxisRenderer(XYPlot.AXIS_Y).setSetting(AxisRenderer.LABEL, "Accelerazione (m/s^2)");
 
         PointRenderer pointsX = new DefaultPointRenderer2D();
         pointsX.setSetting(PointRenderer.SHAPE, new Ellipse2D.Double());

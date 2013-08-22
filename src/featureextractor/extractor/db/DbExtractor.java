@@ -5,6 +5,8 @@
 package featureextractor.extractor.db;
 
 import featureextractor.model.Sample;
+import featureextractor.model.TrunkFixSpec;
+import featureextractor.plot.Plot;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Connection;
@@ -12,8 +14,10 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -73,7 +77,7 @@ public class DbExtractor {
     public void setTrunkIDs() throws SQLException, FileNotFoundException, ClassNotFoundException {
         int i = 1;
         for (int[] trunk : this.getTrunkIDs()) {
-            String query="UPDATE samples SET trunk=? WHERE ROWID>=? AND ROWID<=?";
+            String query="UPDATE samples SET trunk=? WHERE ROWID>=? AND ROWID<=? AND trunk IS NULL";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, i);
             ps.setInt(2, trunk[0]);
@@ -83,6 +87,29 @@ public class DbExtractor {
         }
     }
 
+    public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        this.connect();
+        System.out.println("Applying "+fixes.size()+ " fixes to trunks");
+        PreparedStatement update_statement = connection.prepareStatement("UPDATE samples SET action=? WHERE trunk=? AND timestamp/? < ? AND timestamp/? > ?");
+        PreparedStatement delete_statement = connection.prepareStatement("DELETE FROM samples WHERE trunk=?");
+        for(TrunkFixSpec fix: fixes) {
+            if (fix.isSkip()) {
+                System.out.println("Deleting trunk "+fix.getTrunkId());
+                delete_statement.setInt(1, fix.getTrunkId());
+                delete_statement.execute();
+            } else {
+                System.out.println("Editing trunk "+fix.getTrunkId());
+                update_statement.setString(1, "NON_STAIR");
+                update_statement.setInt(2, fix.getTrunkId());
+                update_statement.setInt(3, Plot.time_divisor);
+                update_statement.setLong(4, fix.getStart());
+                update_statement.setLong(5, Plot.time_divisor);
+                update_statement.setLong(6, fix.getEnd());
+                update_statement.execute();
+            }
+        }
+    }
+    
     public ArrayList<Sample> extract(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
         this.connect();
 
