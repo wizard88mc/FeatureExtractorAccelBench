@@ -68,7 +68,6 @@ public class SamplesUtils {
                 samples.clear();
                 trunk=values.get(i).getTrunk();
             }
-            
         }
 
         return batches;
@@ -112,16 +111,8 @@ public class SamplesUtils {
         }
         return batches;
     }
-
-    // to be fixed (timestamp from the moment the mobile has been powered on)
-    public static double getSamplingRate(ArrayList<Sample> values) throws Exception {
-        if (values.size() < samples_for_sampling_rate_calculation) {
-            throw new Exception("At least " + samples_for_sampling_rate_calculation + " samples needed");
-        }
-        List<Sample> samples = values.subList(0, samples_for_sampling_rate_calculation);
-        Sample max_sample = Collections.max(samples, new SampleTimeComparator());
-        Sample min_sample = Collections.min(samples, new SampleTimeComparator());
-        System.out.println("SECONDI: " + (max_sample.getTime() - min_sample.getTime()) / 1000000000);
-        return samples_for_sampling_rate_calculation / (long) ((max_sample.getTime() - min_sample.getTime()) / 1000000000);
+    
+    public static List<Batch> getBatchesByTimeRange(ArrayList<Sample> values, int time_range) {
+        return new ArrayList<Batch>();
     }
 }

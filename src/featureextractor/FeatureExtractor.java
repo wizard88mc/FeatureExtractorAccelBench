@@ -36,6 +36,7 @@ public class FeatureExtractor {
     private int max = range; // default
     private boolean arff_enabled = true;
     private boolean feature_enabled = true;
+    private int time_range = 2000; // ms
 
     public enum BATCH_CREATION_MODE {
         ALL, // all samples
@@ -44,7 +45,7 @@ public class FeatureExtractor {
         RANGE_FROM_START, // range from beginning 
         RANGE, // range from given index
         BY_TRUNK, // group by trunk
-        BEFORE_TIMESTAMP
+        FIXED_TIME_RANGE
     };
     private int batch_size = 40; // default
     private BATCH_CREATION_MODE mode = BATCH_CREATION_MODE.NON_INTERLAPPING_FIXED_SIZE; // default
@@ -97,6 +98,7 @@ public class FeatureExtractor {
             throw new Exception("No source DB set");
         }
         try {
+            System.out.println("Detected sampling rate: "+db_extractor.getSamplingRate()+"Hz");
             // create samples from db rows            
             ArrayList<Sample> samples = db_extractor.extract(action);
 
@@ -119,7 +121,9 @@ public class FeatureExtractor {
                     System.out.println("Selected first " + range + " samples");
                     batches = SamplesUtils.getSingleFixedSizeBatch(samples, range);
                     break;
-                case BEFORE_TIMESTAMP:
+                case FIXED_TIME_RANGE:
+                    System.out.println("Selected fixed time range ("+time_range+" ms)");
+                    batches = SamplesUtils.getBatchesByTimeRange(samples, time_range);
                     break;
                 case BY_TRUNK:
                     System.out.println("Selected batches by trunk");
@@ -152,6 +156,7 @@ public class FeatureExtractor {
 //          System.out.println("Sampling detected: " + SamplesUtils.getSamplingRate(samples) + "Hz");
         } catch (Exception e) {
             System.err.println("ECCEZIONE: " + e.getMessage());
+            e.printStackTrace();
             System.exit(-1);
         }
     }

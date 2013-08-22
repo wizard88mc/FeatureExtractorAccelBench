@@ -4,6 +4,7 @@
  */
 package featureextractor.extractor.db;
 
+import featureextractor.comparator.SampleTimeComparator;
 import featureextractor.model.Sample;
 import featureextractor.model.TrunkFixSpec;
 import featureextractor.plot.Plot;
@@ -16,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -133,5 +135,19 @@ public class DbExtractor {
             throw new AccelBenchException("No sample detected");
         }
         return values;
+    }
+    
+        // to be fixed (timestamp from the moment the mobile has been powered on)
+    public int getSamplingRate() throws Exception {
+        this.connect();
+        String query="SELECT COUNT(*)/((MAX(timestamp)-MIN(timestamp))/1000000000) as frequenza FROM samples GROUP BY trunk";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+        int sampling_rate=0,trunks=0;
+        while (rs.next()) {
+            sampling_rate+=rs.getInt("frequenza");
+            trunks++;
+        }
+        return sampling_rate/trunks;       
     }
 }
