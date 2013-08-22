@@ -49,10 +49,10 @@ public class FeatureExtractor {
     private int batch_size = 40; // default
     private BATCH_CREATION_MODE mode = BATCH_CREATION_MODE.NON_INTERLAPPING_FIXED_SIZE; // default
 
-    public void setDb(String db_path) throws FileNotFoundException {
+    public void setDb(String db_path) throws Exception {
         File file = new File(db_path);
         if (file.exists() == false) {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException(file.getAbsolutePath()+" not found");
         }
         db_extractor = new DbExtractor(file);
         this.initialize_ARFF();

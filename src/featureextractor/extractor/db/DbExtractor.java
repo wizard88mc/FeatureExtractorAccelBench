@@ -90,7 +90,7 @@ public class DbExtractor {
     public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
         System.out.println("Applying "+fixes.size()+ " fixes to trunks");
-        PreparedStatement update_statement = connection.prepareStatement("UPDATE samples SET action=? WHERE trunk=? AND timestamp/? < ? AND timestamp/? > ?");
+        PreparedStatement update_statement = connection.prepareStatement("UPDATE samples SET action=? WHERE trunk=? AND (timestamp/? < ? OR timestamp/? > ?)");
         PreparedStatement delete_statement = connection.prepareStatement("DELETE FROM samples WHERE trunk=?");
         for(TrunkFixSpec fix: fixes) {
             if (fix.isSkip()) {
