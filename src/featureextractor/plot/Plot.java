@@ -42,11 +42,13 @@ public class Plot extends javax.swing.JFrame {
     private int marker_idx = 0;
     private final DbExtractor db_extractor;
     private final Batch batch;
+    private JFreeChart chart;
+    private long last_marker=0;
 
     private void addPlot() {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setMinimumSize(new Dimension(1024, 768));
-        JFreeChart chart = ChartFactory.createXYLineChart(
+        chart = ChartFactory.createXYLineChart(
                 batch.getTitle(),
                 "Timestamp",
                 "m/s^2",
@@ -61,14 +63,15 @@ public class Plot extends javax.swing.JFrame {
             public void chartProgress(ChartProgressEvent e) {
                 if (e.getSource() instanceof MouseEvent) System.out.println("mouse");
                 long value=(long)e.getChart().getXYPlot().getDomainCrosshairValue();
-                if (e.getType() == 2 && e.getPercent()==100 && value>0 && value!=marker[1]) {
-                    
+                if (e.getType() == 2 && e.getPercent()==100 && value>0 && value!=last_marker) {
+                    last_marker=value;
                     if (marker_idx>1) {
                         marker_idx=0;
                         marker=new long[2]; // reset marker range
                     }
                     marker[marker_idx]=value;
-                    Plot.this.txtSelected.setText("Setting marker["+marker_idx+"]="+value);
+                    Plot.this.txtSelected.setText("Setting "+(marker_idx==0?"first":"last")+" marker point @ "+value);
+                    System.out.println(Plot.this.txtSelected.getText());
                     if (marker_idx==1) {
                         markers.add(new IntervalMarker(marker[0], marker[1]));
                         e.getChart().getXYPlot().addDomainMarker(markers.get(markers.size()-1));
@@ -135,14 +138,31 @@ public class Plot extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         txtSelected = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
         mainPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        btnDeleteLastMarker = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setLayout(new java.awt.BorderLayout());
         jPanel1.add(txtSelected, java.awt.BorderLayout.PAGE_START);
+
+        mainPanel.setLayout(new java.awt.BorderLayout());
+
+        jLabel1.setText("jLabel1");
+        mainPanel.add(jLabel1, java.awt.BorderLayout.CENTER);
+
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        btnDeleteLastMarker.setText("Delete last marker");
+        btnDeleteLastMarker.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteLastMarkerActionPerformed(evt);
+            }
+        });
+        jPanel2.add(btnDeleteLastMarker, java.awt.BorderLayout.CENTER);
 
         jButton2.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
         jButton2.setText("SAVE STAIRS");
@@ -151,12 +171,9 @@ public class Plot extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton2, java.awt.BorderLayout.PAGE_END);
+        jPanel2.add(jButton2, java.awt.BorderLayout.PAGE_END);
 
-        mainPanel.setLayout(new java.awt.BorderLayout());
-
-        jLabel1.setText("jLabel1");
-        mainPanel.add(jLabel1, java.awt.BorderLayout.CENTER);
+        mainPanel.add(jPanel2, java.awt.BorderLayout.PAGE_END);
 
         jPanel1.add(mainPanel, java.awt.BorderLayout.CENTER);
 
@@ -171,14 +188,23 @@ public class Plot extends javax.swing.JFrame {
             if (batch.getTrunk()==0) throw new Exception("This batch is not a trunk");
             db_extractor.setSteps(markers, batch.getTrunk());
         } catch(Exception ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERRORE", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void btnDeleteLastMarkerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteLastMarkerActionPerformed
+        if (markers.isEmpty()==false) {
+            chart.getXYPlot().removeDomainMarker(markers.get(markers.size()-1));
+            markers.remove(markers.size()-1);
+        } else JOptionPane.showMessageDialog(this, "No marker set yet", "ERROR", JOptionPane.ERROR_MESSAGE);
+    }//GEN-LAST:event_btnDeleteLastMarkerActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnDeleteLastMarker;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JLabel txtSelected;
     // End of variables declaration//GEN-END:variables
