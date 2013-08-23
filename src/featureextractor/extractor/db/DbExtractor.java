@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import org.jfree.chart.plot.IntervalMarker;
 
 /**
  *
@@ -79,7 +80,7 @@ public class DbExtractor {
     public void setTrunkIDs() throws SQLException, FileNotFoundException, ClassNotFoundException {
         int i = 1;
         for (int[] trunk : this.getTrunkIDs()) {
-            String query="UPDATE samples SET trunk=? WHERE ROWID>=? AND ROWID<=? AND trunk IS NULL";
+            String query = "UPDATE samples SET trunk=? WHERE ROWID>=? AND ROWID<=? AND trunk IS NULL";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, i);
             ps.setInt(2, trunk[0]);
@@ -91,16 +92,16 @@ public class DbExtractor {
 
     public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
-        System.out.println("Applying "+fixes.size()+ " fixes to trunks");
+        System.out.println("Applying " + fixes.size() + " fixes to trunks");
         PreparedStatement update_statement = connection.prepareStatement("UPDATE samples SET action=? WHERE trunk=? AND (timestamp/? < ? OR timestamp/? > ?)");
         PreparedStatement delete_statement = connection.prepareStatement("DELETE FROM samples WHERE trunk=?");
-        for(TrunkFixSpec fix: fixes) {
+        for (TrunkFixSpec fix : fixes) {
             if (fix.isSkip()) {
-                System.out.println("Deleting trunk "+fix.getTrunkId());
+                System.out.println("Deleting trunk " + fix.getTrunkId());
                 delete_statement.setInt(1, fix.getTrunkId());
                 delete_statement.execute();
             } else {
-                System.out.println("Editing trunk "+fix.getTrunkId());
+                System.out.println("Editing trunk " + fix.getTrunkId());
                 update_statement.setString(1, "NON_STAIR");
                 update_statement.setInt(2, fix.getTrunkId());
                 update_statement.setInt(3, Plot.time_divisor);
@@ -111,7 +112,34 @@ public class DbExtractor {
             }
         }
     }
+
+    private int nextStepId() throws SQLException, FileNotFoundException, ClassNotFoundException {
+        this.connect();
+        PreparedStatement step_statement = connection.prepareStatement("SELECT MAX(step)+1 as next_step FROM samples");
+        ResultSet rs = step_statement.executeQuery();
+        return rs.getInt("next_step");
+    }
     
+    public void setSteps(List<IntervalMarker> markers, int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        this.connect();
+        PreparedStatement reset_statement = connection.prepareStatement("UPDATE samples SET step=0 WHERE trunk=?");
+        reset_statement.setInt(1, trunk_id);
+        reset_statement.execute();
+
+        for (IntervalMarker marker : markers) {
+            int step=this.nextStepId();
+            System.out.println("Set step "+step+" for trunk "+trunk_id+", timestamp from "+(long) marker.getStartValue()+" to "+(long) marker.getEndValue());
+            PreparedStatement step_statement = connection.prepareStatement("UPDATE samples SET step=? WHERE trunk=? AND (timestamp/? >= ? AND timestamp/? <= ?)");
+            step_statement.setInt(1, step);
+            step_statement.setInt(2, trunk_id);
+            step_statement.setInt(3, Plot.time_divisor);
+            step_statement.setLong(4, (long) marker.getStartValue());
+            step_statement.setInt(5, Plot.time_divisor);
+            step_statement.setLong(6, (long) marker.getEndValue());
+            step_statement.execute();
+        }
+    }
+
     public ArrayList<Sample> extract(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
         this.connect();
 
@@ -136,18 +164,18 @@ public class DbExtractor {
         }
         return values;
     }
-    
-        // to be fixed (timestamp from the moment the mobile has been powered on)
+
+    // to be fixed (timestamp from the moment the mobile has been powered on)
     public int getSamplingRate() throws Exception {
         this.connect();
-        String query="SELECT COUNT(*)/((MAX(timestamp)-MIN(timestamp))/1000000000) as frequenza FROM samples GROUP BY trunk";
+        String query = "SELECT COUNT(*)/((MAX(timestamp)-MIN(timestamp))/1000000000) as frequenza FROM samples GROUP BY trunk";
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
-        int sampling_rate=0,trunks=0;
+        int sampling_rate = 0, trunks = 0;
         while (rs.next()) {
-            sampling_rate+=rs.getInt("frequenza");
+            sampling_rate += rs.getInt("frequenza");
             trunks++;
         }
-        return sampling_rate/trunks;       
+        return sampling_rate / trunks;
     }
 }

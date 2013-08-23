@@ -61,6 +61,7 @@ public class SamplesUtils {
             }
             else {
                 Batch batch=new Batch(samples);
+                batch.setTrunk(trunk);
                 batch.setTitle("Trunk "+trunk+": "+values.get(i-1).getAction());
                 batches.add(batch);
                 samples.clear();

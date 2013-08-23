@@ -21,6 +21,7 @@ public class Batch {
     private ArrayList<SingleCoordinateSet> values=new ArrayList<SingleCoordinateSet>();
     private static HashMap<Integer,String> coordinates_mapping=new HashMap<Integer,String>();
     private String title;
+    private int trunk = 0;
 
     static {
         coordinates_mapping.put(0, "X");
@@ -36,6 +37,15 @@ public class Batch {
     public String getTitle() {
         return title;
     }
+
+    public int getTrunk() {
+        return trunk;
+    }
+
+    public void setTrunk(int trunk) {
+        this.trunk = trunk;
+    }
+    
     
     public int size() {
         return values.get(0).size();

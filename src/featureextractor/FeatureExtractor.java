@@ -180,8 +180,7 @@ public class FeatureExtractor {
 
     public void plot() {
         for (Batch batch : batches) {
-            Plot plot = new Plot(batch);
-            plot.setVisible(true);
+            Plot plot = new Plot(batch, this.db_extractor);
 //            GralPlot plot2 = new GralPlot(batch);
 //            plot2.setVisible(true);
         }
