@@ -11,6 +11,7 @@ import featureextractor.model.Batch;
 import featureextractor.model.FeatureSet;
 import featureextractor.model.TrunkFixSpec;
 import featureextractor.plot.Plot;
+import featureextractor.plot.GralPlot;
 import featureextractor.weka.ARFF;
 import featureextractor.weka.ARFFAttribute;
 import java.io.File;
@@ -18,6 +19,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 
 /**
  *
@@ -179,6 +182,8 @@ public class FeatureExtractor {
         for (Batch batch : batches) {
             Plot plot = new Plot(batch);
             plot.setVisible(true);
+//            GralPlot plot2 = new GralPlot(batch);
+//            plot2.setVisible(true);
         }
     }
 
