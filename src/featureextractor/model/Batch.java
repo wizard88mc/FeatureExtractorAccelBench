@@ -55,7 +55,8 @@ public class Batch {
         return values;
     }
     
-    public Batch(List<Sample> samples) {
+    public Batch(List<Sample> samples) throws Exception {
+        if (samples.isEmpty()) throw new Exception("No element given for this batch");
         for(int i=0; i<4; i++) {
             values.add(new SingleCoordinateSet());
             values.get(i).setTitle(coordinates_mapping.get(i));

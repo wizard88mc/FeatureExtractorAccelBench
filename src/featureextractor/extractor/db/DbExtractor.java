@@ -119,7 +119,7 @@ public class DbExtractor {
         ResultSet rs = step_statement.executeQuery();
         return rs.getInt("next_step");
     }
-    
+
     public void setSteps(List<IntervalMarker> markers, int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
         PreparedStatement reset_statement = connection.prepareStatement("UPDATE samples SET step=0 WHERE trunk=?");
@@ -127,8 +127,8 @@ public class DbExtractor {
         reset_statement.execute();
 
         for (IntervalMarker marker : markers) {
-            int step=this.nextStepId();
-            System.out.println("Set step "+step+" for trunk "+trunk_id+", timestamp from "+(long) marker.getStartValue()+" to "+(long) marker.getEndValue());
+            int step = this.nextStepId();
+            System.out.println("Set step " + step + " for trunk " + trunk_id + ", timestamp from " + (long) marker.getStartValue() + " to " + (long) marker.getEndValue());
             PreparedStatement step_statement = connection.prepareStatement("UPDATE samples SET step=? WHERE trunk=? AND (timestamp/? >= ? AND timestamp/? <= ?)");
             step_statement.setInt(1, step);
             step_statement.setInt(2, trunk_id);
@@ -146,18 +146,19 @@ public class DbExtractor {
         if (action != null && checkActionExistence(action)) {
             throw new AccelBenchException("No sample for action '" + action + "'");
         }
-        String query = "SELECT ROWID,x,y,z,trunk,action,timestamp  FROM samples WHERE action=? ORDER BY ROWID";
+        String query = "SELECT ROWID,x,y,z,trunk,action,timestamp,step  FROM samples WHERE action=? ORDER BY ROWID";
         if (action == null) {
-            query = "SELECT ROWID,x,y,z,trunk,action,timestamp FROM samples ORDER BY ROWID";
+            query = "SELECT ROWID,x,y,z,trunk,action,timestamp,step FROM samples ORDER BY ROWID";
         }
         PreparedStatement ps = connection.prepareStatement(query);
         if (action != null) {
+            System.out.println("Filtering by action: " + action);
             ps.setString(1, action);
         }
         ResultSet rs = ps.executeQuery();
         ArrayList<Sample> values = new ArrayList<Sample>();
         while (rs.next()) {
-            values.add(new Sample(rs.getLong("timestamp"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getInt("trunk"), rs.getString("action")));
+            values.add(new Sample(rs.getLong("timestamp"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getInt("trunk"), rs.getString("action"), rs.getInt("step")));
         }
         if (values.isEmpty()) {
             throw new AccelBenchException("No sample detected");
@@ -177,5 +178,18 @@ public class DbExtractor {
             trunks++;
         }
         return sampling_rate / trunks;
+    }
+
+    public int getAvgSamplesForStep() throws Exception {
+        this.connect();
+        String query = "SELECT COUNT(*) as count FROM samples WHERE step>0 GROUP BY step";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+        int sampling_rate = 0, steps = 0;
+        while (rs.next()) {
+            sampling_rate += rs.getInt("count");
+            steps++;
+        }
+        return sampling_rate / steps;
     }
 }

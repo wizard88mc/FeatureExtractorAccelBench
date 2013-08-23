@@ -51,24 +51,54 @@ public class SamplesUtils {
         }
         int num_samples = values.size();
         ArrayList<Batch> batches = new ArrayList<Batch>();
-        int i=0;
-        int trunk=1;
-        List<Sample> samples=new ArrayList<Sample>();
-        while(i<num_samples) {
-            if (values.get(i).getTrunk()==trunk) {
+        int i = 0;
+        int trunk = 1;
+        List<Sample> samples = new ArrayList<Sample>();
+        while (i < num_samples) {
+            if (values.get(i).getTrunk() == trunk) {
                 samples.add(values.get(i));
                 i++;
-            }
-            else {
-                Batch batch=new Batch(samples);
+            } else {
+                Batch batch = new Batch(samples);
                 batch.setTrunk(trunk);
-                batch.setTitle("Trunk "+trunk+": "+values.get(i-1).getAction());
+                batch.setTitle("Trunk " + trunk + ": " + values.get(i - 1).getAction());
                 batches.add(batch);
                 samples.clear();
-                trunk=values.get(i).getTrunk();
+                trunk = values.get(i).getTrunk();
             }
         }
 
+        return batches;
+    }
+
+    public static List<Batch> getBatchesByStep(ArrayList<Sample> values) throws Exception {
+        if (values.isEmpty()) {
+            throw new Exception("No sample provided");
+        }
+        int num_samples = values.size();
+        ArrayList<Batch> batches = new ArrayList<Batch>();
+        int i = 0;
+        int step = 0;
+        List<Sample> samples = new ArrayList<Sample>();
+        while (i < num_samples) {
+            if (values.get(i).getStep() == 0) {
+                i++;
+                continue;
+            } 
+            if (values.get(i).getStep() == step) {
+                samples.add(values.get(i));
+                i++;
+            } else if (step == 0) {
+                step = values.get(i).getStep();
+            } else {
+                Batch batch = new Batch(samples);
+                batch.setTitle("Step " + step + ": " + values.get(i - 1).getAction());
+                batches.add(batch);
+                samples.clear();
+                step = values.get(i).getStep();
+            }
+
+        }
         return batches;
     }
 
@@ -110,7 +140,7 @@ public class SamplesUtils {
         }
         return batches;
     }
-    
+
     public static List<Batch> getBatchesByTimeRange(ArrayList<Sample> values, int time_range) {
         return new ArrayList<Batch>();
     }

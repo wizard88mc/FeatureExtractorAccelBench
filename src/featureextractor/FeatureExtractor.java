@@ -41,13 +41,17 @@ public class FeatureExtractor {
     private int time_range = 2000; // ms
 
     public enum BATCH_CREATION_MODE {
+
         ALL, // all samples
         NON_INTERLAPPING_FIXED_SIZE, // non interlapping sliding window
         INTERLAPPING_FIXED_SIZE, // interlapping sliding window
         RANGE_FROM_START, // range from beginning 
         RANGE, // range from given index
         BY_TRUNK, // group by trunk
-        FIXED_TIME_LAPSE // extract by fixed time lapse (in ms)
+        FIXED_TIME_LAPSE, // extract by fixed time lapse (in ms),
+        BY_STEP, // group by step
+        INTERLAPPING_SIZE_BY_STEP_AVG, // interlapping sliding window with size = average samples per step
+        NON_INTERLAPPING_SIZE_BY_STEP_AVG // interlapping sliding window with size = average samples per step
     };
     private int batch_size = 40; // default
     private BATCH_CREATION_MODE mode = BATCH_CREATION_MODE.NON_INTERLAPPING_FIXED_SIZE; // default
@@ -55,11 +59,11 @@ public class FeatureExtractor {
     public FeatureExtractor() {
         this.initialize_ARFF();
     }
-    
+
     public void setDb(String db_path) throws Exception {
         File file = new File(db_path);
         if (file.exists() == false) {
-            throw new FileNotFoundException(file.getAbsolutePath()+" not found");
+            throw new FileNotFoundException(file.getAbsolutePath() + " not found");
         }
         db_extractor = new DbExtractor(file);
     }
@@ -103,7 +107,7 @@ public class FeatureExtractor {
             throw new Exception("No source DB set");
         }
         try {
-            System.out.println("Detected sampling rate: "+db_extractor.getSamplingRate()+"Hz");
+            System.out.println("Detected sampling rate: " + db_extractor.getSamplingRate() + "Hz");
             // create samples from db rows            
             ArrayList<Sample> samples = db_extractor.extract(action);
 
@@ -113,6 +117,17 @@ public class FeatureExtractor {
                 case INTERLAPPING_FIXED_SIZE:
                     System.out.println("Selected interlapping sliding window with a fixed size of " + batch_size + " samples");
                     batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
+                    break;
+                case INTERLAPPING_SIZE_BY_STEP_AVG:
+                    batch_size = db_extractor.getAvgSamplesForStep();
+                    if (batch_size%2==1) batch_size++; // make sure it's an even number
+                    System.out.println("Selected interlapping sliding window with a fixed size of " + batch_size + " samples (average step sampling)");
+                    batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
+                    break;
+                case NON_INTERLAPPING_SIZE_BY_STEP_AVG:
+                    batch_size = db_extractor.getAvgSamplesForStep();
+                    System.out.println("Selected non-interlapping sliding window with a fixed size of " + batch_size + " samples (average step sampling)");
+                    batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samples, batch_size);
                     break;
                 case NON_INTERLAPPING_FIXED_SIZE:
                     System.out.println("Selected non-interlapping sliding window with a fixed size of " + batch_size + " samples");
@@ -127,12 +142,16 @@ public class FeatureExtractor {
                     batches = SamplesUtils.getSingleFixedSizeBatch(samples, range);
                     break;
                 case FIXED_TIME_LAPSE:
-                    System.out.println("Selected fixed time range ("+time_range+" ms)");
+                    System.out.println("Selected fixed time range (" + time_range + " ms)");
                     batches = SamplesUtils.getBatchesByTimeRange(samples, time_range);
                     break;
                 case BY_TRUNK:
                     System.out.println("Selected batches by trunk");
                     batches = SamplesUtils.getBatchesByTrunk(samples);
+                    break;
+                case BY_STEP:
+                    System.out.println("Selected batches by step");
+                    batches = SamplesUtils.getBatchesByStep(samples);
                     break;
                 case ALL:
                     System.out.println("Selected a single batch with all samples");
@@ -201,7 +220,7 @@ public class FeatureExtractor {
         // documento ARFF
         arff = new ARFF(ARFF_RELATION, attributes);
     }
-    
+
     public ARFF getARFF() {
         return this.arff;
     }

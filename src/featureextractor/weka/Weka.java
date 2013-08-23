@@ -82,7 +82,10 @@ public class Weka {
         String strSummary = eTest.toSummaryString();
         System.out.println(strSummary);
 //        double[][] cmMatrix = eTest.confusionMatrix();
+        double[][] confusionMatrix=eTest.confusionMatrix();
         System.out.println(eTest.toMatrixString());
+        System.out.println(confusionMatrix[0][1]/(confusionMatrix[0][0]+confusionMatrix[0][1]));
+        System.out.println(confusionMatrix[1][0]/(confusionMatrix[1][0]+confusionMatrix[1][1]));
         return eTest;
     }
 }
