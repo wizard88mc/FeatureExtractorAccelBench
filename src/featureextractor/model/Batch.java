@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.jfree.chart.plot.IntervalMarker;
 
 /**
  *
@@ -18,8 +19,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Batch {
     
-    private ArrayList<SingleCoordinateSet> values=new ArrayList<SingleCoordinateSet>();
+    private List<SingleCoordinateSet> values=new ArrayList<SingleCoordinateSet>();
     private static HashMap<Integer,String> coordinates_mapping=new HashMap<Integer,String>();
+    private List<IntervalMarker> markers=new ArrayList<IntervalMarker>();
     private String title;
     private int trunk = 0;
 
@@ -51,7 +53,15 @@ public class Batch {
         return values.get(0).size();
     }
 
-    public ArrayList<SingleCoordinateSet> getValues() {
+    public List<IntervalMarker> getMarkers() {
+        return markers;
+    }
+
+    public void setMarkers(List<IntervalMarker> markers) {
+        this.markers.addAll(markers);
+    }
+
+    public List<SingleCoordinateSet> getValues() {
         return values;
     }
     
@@ -61,11 +71,12 @@ public class Batch {
             values.add(new SingleCoordinateSet());
             values.get(i).setTitle(coordinates_mapping.get(i));
         }
-        for (int i = 0; i < samples.size(); i++) {
-            values.get(0).addValue(new DataTime(samples.get(i).getTime(), samples.get(i).getValueX()));
-            values.get(1).addValue(new DataTime(samples.get(i).getTime(), samples.get(i).getValueY()));
-            values.get(2).addValue(new DataTime(samples.get(i).getTime(), samples.get(i).getValueZ()));
-            values.get(3).addValue(new DataTime(samples.get(i).getTime(), samples.get(i).getValueV()));
+        for (int axis = 0; axis < samples.size(); axis++) {
+            Sample sample=samples.get(axis);
+            values.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
+            values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
+            values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
+            values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueV(), sample.getStep()));
         }
     }
     

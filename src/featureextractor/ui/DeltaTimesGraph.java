@@ -33,9 +33,9 @@ public class DeltaTimesGraph extends JFrame {
         this.setMinimumSize(new Dimension(800, 600));
         
         DataTable dataTable = new DataTable(Integer.class, Double.class);
-        dataTable.add(0, data.get(0).time);
+        dataTable.add(0, data.get(0).getTime());
         for (int i = 1; i < data.size(); i++) {
-            dataTable.add(i, data.get(i).time - data.get(i-1).time);
+            dataTable.add(i, data.get(i).getTime() - data.get(i-1).getTime());
         }
         
         XYPlot plot = new XYPlot(dataTable);

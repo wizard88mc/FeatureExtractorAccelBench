@@ -38,7 +38,7 @@ public class Plot extends javax.swing.JFrame {
 
     public final static int time_divisor = 10000000;
     private long[] marker = new long[2];
-    private List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
+    private List<IntervalMarker> preexisting_markers=new ArrayList<IntervalMarker>();
     private int marker_idx = 0;
     private final DbExtractor db_extractor;
     private final Batch batch;
@@ -61,9 +61,8 @@ public class Plot extends javax.swing.JFrame {
         chart.addProgressListener(new ChartProgressListener() {
             @Override
             public void chartProgress(ChartProgressEvent e) {
-                if (e.getSource() instanceof MouseEvent) System.out.println("mouse");
                 long value=(long)e.getChart().getXYPlot().getDomainCrosshairValue();
-                if (e.getType() == 2 && e.getPercent()==100 && value>0 && value!=last_marker) {
+                if (e.getType() == 2 && e.getPercent()==100 && value>0) {
                     last_marker=value;
                     if (marker_idx>1) {
                         marker_idx=0;
@@ -72,9 +71,9 @@ public class Plot extends javax.swing.JFrame {
                     marker[marker_idx]=value;
                     Plot.this.txtSelected.setText("Setting "+(marker_idx==0?"first":"last")+" marker point @ "+value);
                     System.out.println(Plot.this.txtSelected.getText());
-                    if (marker_idx==1) {
-                        markers.add(new IntervalMarker(marker[0], marker[1]));
-                        e.getChart().getXYPlot().addDomainMarker(markers.get(markers.size()-1));
+                    if (marker_idx==1) {                        
+                        batch.getMarkers().add(new IntervalMarker(Math.min(marker[0], marker[1]), Math.max(marker[0], marker[1])));
+                        e.getChart().getXYPlot().addDomainMarker(batch.getMarkers().get(batch.getMarkers().size()-1));
                     }
                     marker_idx++;
                 }
@@ -92,6 +91,10 @@ public class Plot extends javax.swing.JFrame {
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);
+        for(IntervalMarker marker: batch.getMarkers()) {
+            System.out.println("Adding pre-existing marker @trunk "+batch.getTrunk()+": "+(long)marker.getStartValue()+" - "+(long)marker.getEndValue());
+            xyplot.addDomainMarker(marker);
+        }
         this.mainPanel.add(chartPanel, BorderLayout.CENTER);
         this.setVisible(true);
     }
@@ -150,8 +153,6 @@ public class Plot extends javax.swing.JFrame {
         jPanel1.add(txtSelected, java.awt.BorderLayout.PAGE_START);
 
         mainPanel.setLayout(new java.awt.BorderLayout());
-
-        jLabel1.setText("jLabel1");
         mainPanel.add(jLabel1, java.awt.BorderLayout.CENTER);
 
         jPanel2.setLayout(new java.awt.BorderLayout());
@@ -184,18 +185,18 @@ public class Plot extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
-            if (markers.isEmpty()) throw new Exception("No marker set yet");
+            if (batch.getMarkers().isEmpty()) throw new Exception("No marker set yet");
             if (batch.getTrunk()==0) throw new Exception("This batch is not a trunk");
-            db_extractor.setSteps(markers, batch.getTrunk());
+            db_extractor.setSteps(batch.getMarkers(), batch.getTrunk());
         } catch(Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void btnDeleteLastMarkerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteLastMarkerActionPerformed
-        if (markers.isEmpty()==false) {
-            chart.getXYPlot().removeDomainMarker(markers.get(markers.size()-1));
-            markers.remove(markers.size()-1);
+        if (batch.getMarkers().isEmpty()==false) {
+            chart.getXYPlot().removeDomainMarker(batch.getMarkers().get(batch.getMarkers().size()-1));
+            batch.getMarkers().remove(batch.getMarkers().size()-1);
         } else JOptionPane.showMessageDialog(this, "No marker set yet", "ERROR", JOptionPane.ERROR_MESSAGE);
     }//GEN-LAST:event_btnDeleteLastMarkerActionPerformed
 

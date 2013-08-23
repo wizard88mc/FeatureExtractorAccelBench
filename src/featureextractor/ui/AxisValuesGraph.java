@@ -41,8 +41,8 @@ public class AxisValuesGraph extends JFrame {
         
         for (int i = 0; i < data.get(0).size(); i++) {
             
-            graphData.add(data.get(0).get(i).time, data.get(0).get(i).value,
-                    data.get(1).get(i).value, data.get(2).get(i).value);
+            graphData.add(data.get(0).get(i).getTime(), data.get(0).get(i).getValue(),
+                    data.get(1).get(i).getValue(), data.get(2).get(i).getValue());
         }
         
         DataSeries seriesX = new DataSeries("X Axis", graphData, 0, 1);

@@ -6,8 +6,10 @@ package featureextractor.utils;
 
 import featureextractor.model.Sample;
 import featureextractor.model.Batch;
+import featureextractor.plot.Plot;
 import java.util.ArrayList;
 import java.util.List;
+import org.jfree.chart.plot.IntervalMarker;
 
 /**
  *
@@ -50,20 +52,34 @@ public class SamplesUtils {
             throw new Exception("No sample provided");
         }
         int num_samples = values.size();
-        ArrayList<Batch> batches = new ArrayList<Batch>();
+        List<Batch> batches = new ArrayList<Batch>();
+        List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
         int i = 0;
         int trunk = 1;
+        int step_marker_start = 0;
+        long step_marker_start_timestamp=0;
+        int step=0;
         List<Sample> samples = new ArrayList<Sample>();
         while (i < num_samples) {
             if (values.get(i).getTrunk() == trunk) {
+                step=values.get(i).getStep();
+                if (step != 0 && step_marker_start == 0) {
+                    step_marker_start = values.get(i).getStep();
+                    step_marker_start_timestamp=(long)(values.get(i).getTime()/Plot.time_divisor);
+                } else if (step != 0 && step != step_marker_start) {
+                    markers.add(new IntervalMarker(step_marker_start_timestamp, (long)(values.get(i).getTime()/Plot.time_divisor)));
+                    step_marker_start = 0;
+                }
                 samples.add(values.get(i));
                 i++;
             } else {
                 Batch batch = new Batch(samples);
                 batch.setTrunk(trunk);
+                batch.setMarkers(markers);
                 batch.setTitle("Trunk " + trunk + ": " + values.get(i - 1).getAction());
                 batches.add(batch);
                 samples.clear();
+                markers.clear();
                 trunk = values.get(i).getTrunk();
             }
         }
@@ -84,7 +100,7 @@ public class SamplesUtils {
             if (values.get(i).getStep() == 0) {
                 i++;
                 continue;
-            } 
+            }
             if (values.get(i).getStep() == step) {
                 samples.add(values.get(i));
                 i++;

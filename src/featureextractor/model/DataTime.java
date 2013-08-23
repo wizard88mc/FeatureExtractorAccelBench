@@ -10,11 +10,12 @@ package featureextractor.model;
  */
 public class DataTime {
     
-    public long time;
-    public double value;
+    private long time;
+    private double value;
+    private int step;
     
-    public DataTime(long time, double value) {
-        this.time = time; this.value = value;
+    public DataTime(long time, double value, int step) {
+        this.time = time; this.value = value; this.step= step;
     }
 
     public long getTime() {
@@ -36,4 +37,9 @@ public class DataTime {
     public void normalize(double min, double max) {
         this.value = ((this.value - min) / (max - min));
     }
+
+    public int getStep() {
+        return step;
+    }
+    
 }

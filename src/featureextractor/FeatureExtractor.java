@@ -102,6 +102,10 @@ public class FeatureExtractor {
         db_extractor.applyTrunkFixes(fixes);
     }
 
+    public void extract() throws Exception {
+        this.extract(null, null);
+    }
+    
     public void extract(String action, String className) throws Exception {
         if (db_extractor == null) {
             throw new Exception("No source DB set");
@@ -198,8 +202,10 @@ public class FeatureExtractor {
     }
 
     public void plot() {
+        int max_plot=30;
         for (Batch batch : batches) {
-            Plot plot = new Plot(batch, this.db_extractor);
+            if (max_plot>0) new Plot(batch, this.db_extractor);
+            max_plot--;
 //            GralPlot plot2 = new GralPlot(batch);
 //            plot2.setVisible(true);
         }
