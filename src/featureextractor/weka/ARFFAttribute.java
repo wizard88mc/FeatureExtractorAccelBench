@@ -21,4 +21,10 @@ public class ARFFAttribute {
     public String toString() {
         return "@ATTRIBUTE "+name+" "+type;
     }
+
+    public String getName() {
+        return name;
+    }
+    
+    
 }

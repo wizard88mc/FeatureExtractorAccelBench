@@ -6,10 +6,14 @@ package featureextractor;
 
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.TrunkFixSpec;
+import featureextractor.weka.Weka;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import weka.classifiers.Classifier;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.trees.J48;
 
 /**
  *
@@ -29,12 +33,18 @@ public class App {
                 featureExtractor.setBatchSize(80);
                 featureExtractor.setArffEnabled(true);
                 featureExtractor.setFeatureEnabled(true);
+                featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.INTERLAPPING_FIXED_SIZE);
                 for (String action : actions) {
                     System.out.println("*** Parsing action " + action + " @" + db_path + " ***");
                     featureExtractor.extract(action, (action.equals(actions[0]) ? "NONSTAIR" : "STAIR"));
                 }
             }
             featureExtractor.dumpARFF(new File("StairDetection.arff"));
+            Weka weka=new Weka();
+            weka.setTrainingSet(featureExtractor.getARFF());
+            weka.setClassifier(new J48());
+            Classifier classifier=weka.classify();
+            weka.testClassifier(classifier);
             // get graph for each trunk in order to remove dirty data
 //            featureExtractor.setDb("data/db/accelbench_20130822165555.db");
 //            featureExtractor.setArffEnabled(false); // disable ARFF creation

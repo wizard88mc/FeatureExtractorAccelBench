@@ -183,7 +183,7 @@ public class FeatureExtractor {
     }
 
     public void dumpARFF(File file) throws IOException {
-        System.out.println("Writing ARFF file to " + file.getAbsolutePath());
+        System.out.println("\nWriting ARFF file to " + file.getAbsolutePath());
         arff.writeToFile(file);
     }
 
@@ -196,5 +196,9 @@ public class FeatureExtractor {
 
         // documento ARFF
         arff = new ARFF(ARFF_RELATION, attributes);
+    }
+    
+    public ARFF getARFF() {
+        return this.arff;
     }
 }

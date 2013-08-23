@@ -28,6 +28,23 @@ public class ARFF {
         this.attributes = attributes;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public List<ARFFAttribute> getAttributes() {
+        return attributes;
+    }
+
+    public List<String> getClasses() {
+        return classes;
+    }
+
+    public List<ARFFData> getData() {
+        return data;
+    }
+
+    
     public void addClass(String className) {
         if (this.classes.contains(className)==false) this.classes.add(className);
     }
