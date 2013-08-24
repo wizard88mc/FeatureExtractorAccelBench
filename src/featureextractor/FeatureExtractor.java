@@ -202,7 +202,7 @@ public class FeatureExtractor {
     }
 
     public void plot() {
-        int max_plot=30;
+        int max_plot=20;
         for (Batch batch : batches) {
             if (max_plot>0) new Plot(batch, this.db_extractor);
             max_plot--;

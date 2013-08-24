@@ -12,8 +12,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
+import java.io.FileNotFoundException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -144,6 +148,7 @@ public class Plot extends javax.swing.JFrame {
         mainPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
+        btnDeleteTrunk = new javax.swing.JButton();
         btnDeleteLastMarker = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
 
@@ -156,6 +161,14 @@ public class Plot extends javax.swing.JFrame {
         mainPanel.add(jLabel1, java.awt.BorderLayout.CENTER);
 
         jPanel2.setLayout(new java.awt.BorderLayout());
+
+        btnDeleteTrunk.setText("Delete trunk");
+        btnDeleteTrunk.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteTrunkActionPerformed(evt);
+            }
+        });
+        jPanel2.add(btnDeleteTrunk, java.awt.BorderLayout.LINE_END);
 
         btnDeleteLastMarker.setText("Delete last marker");
         btnDeleteLastMarker.addActionListener(new java.awt.event.ActionListener() {
@@ -200,8 +213,21 @@ public class Plot extends javax.swing.JFrame {
         } else JOptionPane.showMessageDialog(this, "No marker set yet", "ERROR", JOptionPane.ERROR_MESSAGE);
     }//GEN-LAST:event_btnDeleteLastMarkerActionPerformed
 
+    private void btnDeleteTrunkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteTrunkActionPerformed
+        try {
+            int choice=JOptionPane.showConfirmDialog (this, "Do you want to delete trunk "+batch.getTrunk(),"CONFIRM",JOptionPane.YES_NO_OPTION);
+            if (choice==JOptionPane.YES_OPTION) {
+                db_extractor.deleteTrunk(batch.getTrunk());
+                this.dispose();
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnDeleteTrunkActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDeleteLastMarker;
+    private javax.swing.JButton btnDeleteTrunk;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
