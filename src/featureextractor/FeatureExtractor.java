@@ -11,7 +11,6 @@ import featureextractor.model.Batch;
 import featureextractor.model.FeatureSet;
 import featureextractor.model.TrunkFixSpec;
 import featureextractor.plot.Plot;
-import featureextractor.plot.GralPlot;
 import featureextractor.weka.ARFF;
 import featureextractor.weka.ARFFAttribute;
 import java.io.File;
@@ -19,8 +18,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
 
 /**
  *
@@ -41,7 +38,6 @@ public class FeatureExtractor {
     private int time_range = 2000; // ms
 
     public enum BATCH_CREATION_MODE {
-
         ALL, // all samples
         NON_INTERLAPPING_FIXED_SIZE, // non interlapping sliding window
         INTERLAPPING_FIXED_SIZE, // interlapping sliding window
@@ -105,7 +101,7 @@ public class FeatureExtractor {
     public void extract() throws Exception {
         this.extract(null, null);
     }
-    
+
     public void extract(String action, String className) throws Exception {
         if (db_extractor == null) {
             throw new Exception("No source DB set");
@@ -124,7 +120,9 @@ public class FeatureExtractor {
                     break;
                 case INTERLAPPING_SIZE_BY_STEP_AVG:
                     batch_size = db_extractor.getAvgSamplesForStep();
-                    if (batch_size%2==1) batch_size++; // make sure it's an even number
+                    if (batch_size % 2 == 1) {
+                        batch_size++; // make sure it's an even number
+                    }
                     System.out.println("Selected interlapping sliding window with a fixed size of " + batch_size + " samples (average step sampling)");
                     batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
                     break;
@@ -202,12 +200,40 @@ public class FeatureExtractor {
     }
 
     public void plot() {
-        int max_plot=20;
+        int max_plot = 20;
         for (Batch batch : batches) {
-            if (max_plot>0) new Plot(batch, this.db_extractor);
+            if (max_plot > 0) {
+                new Plot(batch, this.db_extractor);
+            }
             max_plot--;
 //            GralPlot plot2 = new GralPlot(batch);
 //            plot2.setVisible(true);
+        }
+    }
+
+    public void plot(int start) throws Exception {
+        if (start > batches.size()) {
+            throw new Exception(start + " > detected batches (" + batches.size() + ")");
+        }
+        int i = 0;
+        for (Batch batch : batches) {
+            if (i >= start) {
+                new Plot(batch, this.db_extractor);
+            }
+            i++;
+        }
+    }
+
+    public void plot(int start, int end) throws Exception {
+        if (start > batches.size()) {
+            throw new Exception(start + " > detected batches (" + batches.size() + ")");
+        }
+        int i = 0;
+        for (Batch batch : batches) {
+            if (i >= start && i <= end) {
+                new Plot(batch, this.db_extractor);
+            }
+            i++;
         }
     }
 
@@ -217,13 +243,13 @@ public class FeatureExtractor {
     }
 
     private void initialize_ARFF() {
-        // attributi ARFF
+        // default ARFF attributes and initializazion 
         List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
         attributes.add(new ARFFAttribute("mean", "REAL"));
         attributes.add(new ARFFAttribute("variance", "REAL"));
         attributes.add(new ARFFAttribute("std", "REAL"));
 
-        // documento ARFF
+        // new ARFF document instance
         arff = new ARFF(ARFF_RELATION, attributes);
     }
 
