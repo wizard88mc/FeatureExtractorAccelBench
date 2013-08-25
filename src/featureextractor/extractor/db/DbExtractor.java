@@ -62,8 +62,10 @@ public class DbExtractor {
 
     public List<int[]> getTrunkIDs() throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
+        PreparedStatement reset=connection.prepareStatement("UPDATE samples SET trunk=NULL");
+        reset.execute();
         // check for different sampling trunk
-        String query = "SELECT s.ROWID,s.timestamp,(SELECT timestamp FROM samples s2 WHERE ROWID=s.ROWID-1) as previous_timestamp,s.timestamp - (SELECT timestamp FROM samples s2 WHERE ROWID=s.ROWID-1) as diff FROM samples s WHERE diff>1000000000 ORDER BY s.ROWID";
+        String query = "SELECT s.ROWID,s.timestamp,(SELECT timestamp FROM samples s2 WHERE ROWID=s.ROWID-1) as previous_timestamp,ABS(s.timestamp - (SELECT timestamp FROM samples s2 WHERE ROWID=s.ROWID-1)) as diff FROM samples s WHERE diff>1000000000 ORDER BY s.ROWID";
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         List<int[]> ids = new ArrayList<int[]>();

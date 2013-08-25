@@ -49,7 +49,7 @@ public class App {
 //            weka.testClassifier(classifier);
             // get graph for each trunk in order to remove dirty data
             featureExtractor.setDb("data/db/accelbench_prof.db");
-            //featureExtractor.setTrunkIDs();
+//            featureExtractor.setTrunkIDs();
             featureExtractor.setArffEnabled(false); // disable ARFF creation
             featureExtractor.setFeatureEnabled(false); // disable feature calculation
             featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);

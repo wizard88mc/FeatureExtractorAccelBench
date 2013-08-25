@@ -11,6 +11,7 @@ import featureextractor.model.SingleCoordinateSet;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
@@ -30,6 +31,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.ChartProgressEvent;
 import org.jfree.chart.event.ChartProgressListener;
 import org.jfree.chart.plot.IntervalMarker;
+import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYDataset;
@@ -48,6 +50,8 @@ public class Plot extends javax.swing.JFrame {
     private int marker_idx = 0;
     private final DbExtractor db_extractor;
     private final Batch batch;
+    private XYSeriesCollection dataset;
+    private List<XYSeries> series_container = new ArrayList<XYSeries>();
     private JFreeChart chart;
     private long last_marker = 0;
 
@@ -98,33 +102,6 @@ public class Plot extends javax.swing.JFrame {
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);
 
-        chartPanel.addChartMouseListener(new ChartMouseListener() {
-            public void chartMouseMoved(ChartMouseEvent event) {
-                try {
-                    double[] values = xyplot.getCrossHairValue(event);
-
-                    plot.clearRangeMarkers();
-                    plot.clearDomainMarkers();
-
-                    Marker yMarker = new ValueMarker(values[1]);
-                    yMarker.setPaint(Color.darkGray);
-                    plot.addRangeMarker(yMarker);
-
-                    Marker xMarker = new ValueMarker(values[0]);
-                    xMarker.setPaint(Color.darkGray);
-                    plot.addDomainMarker(xMarker);
-
-                    chartPanel.repaint();
-                } catch (Exception e) {
-                }
-            }
-
-            @Override
-            public void chartMouseClicked(ChartMouseEvent cme) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        });
-
         for (IntervalMarker marker : batch.getMarkers()) {
             System.out.println("Adding pre-existing marker @trunk " + batch.getTrunk() + ": " + (long) marker.getStartValue() + " - " + (long) marker.getEndValue());
             xyplot.addDomainMarker(marker);
@@ -153,15 +130,24 @@ public class Plot extends javax.swing.JFrame {
 
     private XYDataset createDataset(Batch batch) {
         java.util.List<SingleCoordinateSet> axes = batch.getValues();
-        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset = new XYSeriesCollection();
         for (int axis = 0; axis < axes.size(); axis++) {
             XYSeries series = new XYSeries(axes.get(axis).getTitle());
             for (DataTime dt : axes.get(axis).getValues()) {
                 series.add(dt.getTime() / time_divisor, dt.getValue());
             }
+            series_container.add(series);
             dataset.addSeries(series);
         }
         return dataset;
+    }
+
+    private void addSeries(int series_idx) {
+        dataset.addSeries(series_container.get(series_idx));
+    }
+
+    private void removeSeries(int series_idx) {
+        dataset.removeSeries(series_container.get(series_idx));
     }
 
     /**
@@ -173,6 +159,7 @@ public class Plot extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         txtSelected = new javax.swing.JLabel();
         mainPanel = new javax.swing.JPanel();
@@ -181,6 +168,11 @@ public class Plot extends javax.swing.JFrame {
         btnDeleteTrunk = new javax.swing.JButton();
         btnDeleteLastMarker = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        checkX = new javax.swing.JCheckBox();
+        checkY = new javax.swing.JCheckBox();
+        checkZ = new javax.swing.JCheckBox();
+        checkV = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -216,6 +208,51 @@ public class Plot extends javax.swing.JFrame {
             }
         });
         jPanel2.add(jButton2, java.awt.BorderLayout.PAGE_END);
+
+        jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.LINE_AXIS));
+
+        checkX.setSelected(true);
+        checkX.setText("X");
+        checkX.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkXItemStateChanged(evt);
+            }
+        });
+        jPanel3.add(checkX);
+
+        checkY.setSelected(true);
+        checkY.setText("Y");
+        checkY.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkYItemStateChanged(evt);
+            }
+        });
+        jPanel3.add(checkY);
+
+        checkZ.setSelected(true);
+        checkZ.setText("Z");
+        checkZ.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkZItemStateChanged(evt);
+            }
+        });
+        jPanel3.add(checkZ);
+
+        checkV.setSelected(true);
+        checkV.setText("|V|");
+        checkV.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                checkVStateChanged(evt);
+            }
+        });
+        checkV.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkVItemStateChanged(evt);
+            }
+        });
+        jPanel3.add(checkV);
+
+        jPanel2.add(jPanel3, java.awt.BorderLayout.LINE_START);
 
         mainPanel.add(jPanel2, java.awt.BorderLayout.PAGE_END);
 
@@ -260,13 +297,54 @@ public class Plot extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnDeleteTrunkActionPerformed
+
+    private void checkVStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkVStateChanged
+    }//GEN-LAST:event_checkVStateChanged
+
+    private void checkVItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkVItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            addSeries(3);
+        } else {
+            removeSeries(3);
+        }
+    }//GEN-LAST:event_checkVItemStateChanged
+
+    private void checkZItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkZItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            addSeries(2);
+        } else {
+            removeSeries(2);
+        }
+    }//GEN-LAST:event_checkZItemStateChanged
+
+    private void checkYItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkYItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            addSeries(1);
+        } else {
+            removeSeries(1);
+        }
+    }//GEN-LAST:event_checkYItemStateChanged
+
+    private void checkXItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkXItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            addSeries(0);
+        } else {
+            removeSeries(0);
+        }
+    }//GEN-LAST:event_checkXItemStateChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDeleteLastMarker;
     private javax.swing.JButton btnDeleteTrunk;
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JCheckBox checkV;
+    private javax.swing.JCheckBox checkX;
+    private javax.swing.JCheckBox checkY;
+    private javax.swing.JCheckBox checkZ;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JLabel txtSelected;
     // End of variables declaration//GEN-END:variables
