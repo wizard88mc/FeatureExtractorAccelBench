@@ -15,13 +15,13 @@ import weka.classifiers.trees.J48;
  */
 public class App {
 
-    final private static String[] dbs = new String[]{"accelbench_20130822165555.db", "accelbench_20130825164535.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
+    final private static String[] dbs = new String[]{"accelbench_20130822165555.db", "accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
     final private static String[] actions = new String[]{"NON_STAIR", "STAIR_DOWNSTAIRS", "STAIR_UPSTAIRS"};
     private enum MODE {
         CLASSIFIER, // loop through each defined db, extract and merge features, train the classifier
         TRUNK_PLOTTER // plot each trunk to enable step marking
     };
-    private static MODE mode = MODE.TRUNK_PLOTTER;
+    private static MODE mode = MODE.CLASSIFIER;
 
     public static void main(String[] args) {
         try {
@@ -53,7 +53,7 @@ public class App {
                     weka.testClassifier(classifier);
                     break;
                 case TRUNK_PLOTTER:
-                    featureExtractor.setDb("data/db/accelbench_20130825164535.db");
+                    featureExtractor.setDb("data/db/accelbench_20130826181943.db");
 //                  featureExtractor.setTrunkIDs();
                     featureExtractor.setArffEnabled(false); // disable ARFF creation
                     featureExtractor.setFeatureEnabled(false); // disable feature calculation

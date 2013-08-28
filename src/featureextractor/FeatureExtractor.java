@@ -4,6 +4,7 @@
  */
 package featureextractor;
 
+import featureextractor.extractor.db.AccelBenchException;
 import featureextractor.utils.SamplesUtils;
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Sample;
@@ -180,7 +181,10 @@ public class FeatureExtractor {
             }
 
 //          System.out.println("Sampling detected: " + SamplesUtils.getSamplingRate(samples) + "Hz");
-        } catch (Exception e) {
+        } catch(AccelBenchException e) {
+            System.err.println(e.getMessage());
+        }
+        catch (Exception e) {
             System.err.println("ECCEZIONE: " + e.getMessage());
             e.printStackTrace();
             System.exit(-1);

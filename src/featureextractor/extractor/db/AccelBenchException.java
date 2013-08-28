@@ -8,7 +8,7 @@ package featureextractor.extractor.db;
  *
  * @author Nicola Beghin
  */
-class AccelBenchException extends Exception {
+public class AccelBenchException extends Exception {
 
     public AccelBenchException(String string) {
         super(string);
