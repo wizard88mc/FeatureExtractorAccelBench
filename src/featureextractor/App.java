@@ -53,7 +53,7 @@ public class App {
                     weka.testClassifier(classifier);
                     break;
                 case TRUNK_PLOTTER:
-                    featureExtractor.setDb("data/db/accelbench_20130826181943.db");
+                    featureExtractor.setDb("data/db/accelbench_matteo.db");
 //                  featureExtractor.setTrunkIDs();
                     featureExtractor.setArffEnabled(false); // disable ARFF creation
                     featureExtractor.setFeatureEnabled(false); // disable feature calculation

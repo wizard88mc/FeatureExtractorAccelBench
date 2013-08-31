@@ -4,6 +4,7 @@
  */
 package featureextractor;
 
+import featureextractor.comparator.VarianceComparator;
 import featureextractor.extractor.db.AccelBenchException;
 import featureextractor.utils.SamplesUtils;
 import featureextractor.extractor.db.DbExtractor;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,6 +41,7 @@ public class FeatureExtractor {
     private int time_range = 2000; // ms
 
     public enum BATCH_CREATION_MODE {
+
         ALL, // all samples
         NON_INTERLAPPING_FIXED_SIZE, // non interlapping sliding window
         INTERLAPPING_FIXED_SIZE, // interlapping sliding window
@@ -54,7 +57,8 @@ public class FeatureExtractor {
     private BATCH_CREATION_MODE mode = BATCH_CREATION_MODE.NON_INTERLAPPING_FIXED_SIZE; // default
 
     public FeatureExtractor() {
-        this.initialize_ARFF();
+//        this.initialize_ARFF();
+        this.initialize_std_ARFF(3);
     }
 
     public void setDb(String db_path) throws Exception {
@@ -175,16 +179,16 @@ public class FeatureExtractor {
                     batch.printFeatures();
                 }
                 if (arff_enabled) {
-                    arff.addData(className, features.get(3)); // |V|
+                    Collections.sort(features, new VarianceComparator());
+                    arff.addStdOnlyData(className, features);
                 }
                 i++;
             }
 
 //          System.out.println("Sampling detected: " + SamplesUtils.getSamplingRate(samples) + "Hz");
-        } catch(AccelBenchException e) {
+        } catch (AccelBenchException e) {
             System.err.println(e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println("ECCEZIONE: " + e.getMessage());
             e.printStackTrace();
             System.exit(-1);
@@ -244,6 +248,39 @@ public class FeatureExtractor {
     public void dumpARFF(File file) throws IOException {
         System.out.println("\nWriting ARFF file to " + file.getAbsolutePath());
         arff.writeToFile(file);
+    }
+
+    private void initialize_variance_ARFF(int axes) {
+        // default ARFF attributes and initializazion 
+        List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
+        for (int i = 0; i < axes; i++) {
+            attributes.add(new ARFFAttribute("variance"+i, "REAL"));
+        }
+
+        // new ARFF document instance
+        arff = new ARFF(ARFF_RELATION, attributes);
+    }
+
+    private void initialize_std_ARFF(int axes) {
+        // default ARFF attributes and initializazion 
+        List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
+        for (int i = 0; i < axes; i++) {
+            attributes.add(new ARFFAttribute("std"+i, "REAL"));
+        }
+
+        // new ARFF document instance
+        arff = new ARFF(ARFF_RELATION, attributes);
+    }
+
+    private void initialize_mean_ARFF(int axes) {
+        // default ARFF attributes and initializazion 
+        List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
+        for (int i = 0; i < axes; i++) {
+            attributes.add(new ARFFAttribute("mean"+i, "REAL"));
+        }
+
+        // new ARFF document instance
+        arff = new ARFF(ARFF_RELATION, attributes);
     }
 
     private void initialize_ARFF() {

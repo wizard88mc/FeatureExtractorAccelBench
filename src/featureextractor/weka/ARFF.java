@@ -44,11 +44,12 @@ public class ARFF {
         return data;
     }
 
-    
     public void addClass(String className) {
-        if (this.classes.contains(className)==false) this.classes.add(className);
+        if (this.classes.contains(className) == false) {
+            this.classes.add(className);
+        }
     }
-    
+
     public void writeToFile(File file) throws IOException {
         if (file.exists()) {
             file.delete();
@@ -60,11 +61,45 @@ public class ARFF {
         this.data.addAll(data);
     }
 
+    public void addData(String title, List<FeatureSet> featureSets) {
+        List<Double> data_row = new ArrayList<Double>();
+        for (FeatureSet featureSet : featureSets) {
+            data_row.add(featureSet.getMean());
+            data_row.add(featureSet.getVariance());
+            data_row.add(featureSet.getStd());
+        }
+        this.addData(new ARFFData(title, data_row));
+    }
+
+    public void addVarianceOnlyData(String title, List<FeatureSet> featureSets) {
+        List<Double> data_row = new ArrayList<Double>();
+        for (FeatureSet featureSet : featureSets) {
+            data_row.add(featureSet.getVariance());
+        }
+        this.addData(new ARFFData(title, data_row));
+    }
+
+    public void addStdOnlyData(String title, List<FeatureSet> featureSets) {
+        List<Double> data_row = new ArrayList<Double>();
+        for (FeatureSet featureSet : featureSets) {
+            data_row.add(featureSet.getStd());
+        }
+        this.addData(new ARFFData(title, data_row));
+    }
+
+    public void addMeanOnlyData(String title, List<FeatureSet> featureSets) {
+        List<Double> data_row = new ArrayList<Double>();
+        for (FeatureSet featureSet : featureSets) {
+            data_row.add(featureSet.getMean());
+        }
+        this.addData(new ARFFData(title, data_row));
+    }
+
     public void addData(String title, FeatureSet featureSet) {
         List<Double> data_row = new ArrayList<Double>();
-        data_row.add(featureSet.getMean()); // |V|
-        data_row.add(featureSet.getVariance()); // |V|
-        data_row.add(featureSet.getStd()); // |V|
+        data_row.add(featureSet.getMean());
+        data_row.add(featureSet.getVariance());
+        data_row.add(featureSet.getStd());
         this.addData(new ARFFData(title, data_row));
     }
 
