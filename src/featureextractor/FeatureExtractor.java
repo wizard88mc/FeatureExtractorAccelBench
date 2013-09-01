@@ -4,6 +4,8 @@
  */
 package featureextractor;
 
+import featureextractor.comparator.MeanComparator;
+import featureextractor.comparator.StdComparator;
 import featureextractor.comparator.VarianceComparator;
 import featureextractor.extractor.db.AccelBenchException;
 import featureextractor.utils.SamplesUtils;
@@ -28,7 +30,6 @@ import java.util.List;
  */
 public class FeatureExtractor {
 
-    private static boolean dbMode = true;
     private static final String ARFF_RELATION = "StairDetection";
     private ARFF arff;
     private DbExtractor db_extractor = null;
@@ -39,6 +40,7 @@ public class FeatureExtractor {
     private boolean arff_enabled = true;
     private boolean feature_enabled = true;
     private int time_range = 2000; // ms
+    private String[] features_types=new String[]{"std", "mean", "variance"};
 
     public enum BATCH_CREATION_MODE {
 
@@ -55,10 +57,11 @@ public class FeatureExtractor {
     };
     private int batch_size = 40; // default
     private BATCH_CREATION_MODE mode = BATCH_CREATION_MODE.NON_INTERLAPPING_FIXED_SIZE; // default
-
+    private int axis_to_be_considered=4; // (4 == |V|)
+    
     public FeatureExtractor() {
 //        this.initialize_ARFF();
-        this.initialize_std_ARFF(3);
+        this.initialize_std_ARFF(axis_to_be_considered);
     }
 
     public void setDb(String db_path) throws Exception {
@@ -176,16 +179,15 @@ public class FeatureExtractor {
                 List<FeatureSet> features = null;
                 if (feature_enabled) {
                     features = batch.getFeatures();
-                    batch.printFeatures();
-                }
-                if (arff_enabled) {
-                    Collections.sort(features, new VarianceComparator());
-                    arff.addStdOnlyData(className, features);
+//                    batch.printFeatures();
+                    if (arff_enabled) {
+                        features=features.subList(0, axis_to_be_considered); // remove |V|
+                        Collections.sort(features, new MeanComparator());
+                        arff.addAllFeaturesData(className, features);
+                    }
                 }
                 i++;
             }
-
-//          System.out.println("Sampling detected: " + SamplesUtils.getSamplingRate(samples) + "Hz");
         } catch (AccelBenchException e) {
             System.err.println(e.getMessage());
         } catch (Exception e) {
@@ -250,45 +252,15 @@ public class FeatureExtractor {
         arff.writeToFile(file);
     }
 
-    private void initialize_variance_ARFF(int axes) {
-        // default ARFF attributes and initializazion 
-        List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
-        for (int i = 0; i < axes; i++) {
-            attributes.add(new ARFFAttribute("variance"+i, "REAL"));
-        }
-
-        // new ARFF document instance
-        arff = new ARFF(ARFF_RELATION, attributes);
-    }
-
     private void initialize_std_ARFF(int axes) {
         // default ARFF attributes and initializazion 
         List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
+        
         for (int i = 0; i < axes; i++) {
-            attributes.add(new ARFFAttribute("std"+i, "REAL"));
+            attributes.add(new ARFFAttribute(features_types[0]+i, "REAL"));
+            attributes.add(new ARFFAttribute(features_types[1]+i, "REAL"));
+            attributes.add(new ARFFAttribute(features_types[2]+i, "REAL"));
         }
-
-        // new ARFF document instance
-        arff = new ARFF(ARFF_RELATION, attributes);
-    }
-
-    private void initialize_mean_ARFF(int axes) {
-        // default ARFF attributes and initializazion 
-        List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
-        for (int i = 0; i < axes; i++) {
-            attributes.add(new ARFFAttribute("mean"+i, "REAL"));
-        }
-
-        // new ARFF document instance
-        arff = new ARFF(ARFF_RELATION, attributes);
-    }
-
-    private void initialize_ARFF() {
-        // default ARFF attributes and initializazion 
-        List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
-        attributes.add(new ARFFAttribute("mean", "REAL"));
-        attributes.add(new ARFFAttribute("variance", "REAL"));
-        attributes.add(new ARFFAttribute("std", "REAL"));
 
         // new ARFF document instance
         arff = new ARFF(ARFF_RELATION, attributes);

@@ -88,7 +88,7 @@ public class Batch {
     public List<FeatureSet> getFeatures() {
         List<FeatureSet> features=new ArrayList<FeatureSet>();
         for(int i=0; i<values.size(); i++) {
-            values.get(i).normalize();
+            values.get(i).normalize(values);
             features.add(new FeatureSet(coordinates_mapping.get(i), values.get(i).getMean(), values.get(i).getVariance(), values.get(i).getStandardDeviation()));
         }
         return features;

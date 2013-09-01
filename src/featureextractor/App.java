@@ -8,6 +8,7 @@ import featureextractor.weka.Weka;
 import java.io.File;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
+import weka.classifiers.trees.RandomForest;
 
 /**
  *
@@ -48,9 +49,13 @@ public class App {
                     featureExtractor.dumpARFF(new File("StairDetection.arff"));
                     Weka weka = new Weka();
                     weka.setTrainingSet(featureExtractor.getARFF());
-                    weka.setClassifier(new J48());
-                    Classifier classifier = weka.classify();
-                    weka.testClassifier(classifier);
+                    Classifier[] classifiers = new Classifier[]{new J48(), new RandomForest()};
+                    for(Classifier c: classifiers) {
+                        System.out.println("Classifying with "+c.getClass().getName());
+                        weka.setClassifier(c);
+                        Classifier classifier = weka.classify();
+                        weka.testClassifier(classifier);
+                    }
                     break;
                 case TRUNK_PLOTTER:
                     featureExtractor.setDb("data/db/accelbench_matteo.db");
