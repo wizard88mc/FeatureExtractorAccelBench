@@ -19,6 +19,10 @@ import org.jfree.chart.plot.IntervalMarker;
  */
 public class Batch {
     
+    public enum STAIR_TYPE {
+        DOWNSTAIRS,
+        UPSTAIRS
+    };
     private List<SingleCoordinateSet> values=new ArrayList<SingleCoordinateSet>();
     private static HashMap<Integer,String> coordinates_mapping=new HashMap<Integer,String>();
     private List<IntervalMarker> markers=new ArrayList<IntervalMarker>();

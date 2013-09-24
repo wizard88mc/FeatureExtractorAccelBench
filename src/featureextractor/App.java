@@ -27,6 +27,7 @@ public class App {
     public static void main(String[] args) {
         try {
             FeatureExtractor featureExtractor = new FeatureExtractor();
+            String className=null;
             switch (mode) {
                 case CLASSIFIER:
                     for (String db_path : dbs) {
@@ -37,13 +38,17 @@ public class App {
                         featureExtractor.setFeatureEnabled(true);
 
                         for (String action : actions) {
+                            if (action.equals(actions[0])) className="NONSTAIR";
+                            else {
+                                className=(action.equals(actions[1])?"DOWNSTAIRS":"UPSTAIRS");
+                            }
                             if (action.equals(actions[0])) {
                                 featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.INTERLAPPING_SIZE_BY_STEP_AVG);
                             } else {
                                 featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_STEP);
                             }
                             System.out.println("*** Parsing action " + action + " @" + db_path + " ***");
-                            featureExtractor.extract(action, (action.equals(actions[0]) ? "NONSTAIR" : "STAIR"));
+                            featureExtractor.extract(action, className);
                         }
                     }
                     featureExtractor.dumpARFF(new File("StairDetection.arff"));
