@@ -24,7 +24,7 @@ public class Batch {
         UPSTAIRS
     };
     private List<SingleCoordinateSet> values=new ArrayList<SingleCoordinateSet>();
-    private static HashMap<Integer,String> coordinates_mapping=new HashMap<Integer,String>();
+    private static final HashMap<Integer,String> coordinates_mapping=new HashMap<Integer,String>();
     private List<IntervalMarker> markers=new ArrayList<IntervalMarker>();
     private String title;
     private int trunk = 0;
@@ -34,6 +34,7 @@ public class Batch {
         coordinates_mapping.put(1, "Y");
         coordinates_mapping.put(2, "Z");
         coordinates_mapping.put(3, "|V|");
+        coordinates_mapping.put(4, "Delta");
     }
 
     public void setTitle(String title) {
@@ -71,7 +72,7 @@ public class Batch {
     
     public Batch(List<Sample> samples) throws Exception {
         if (samples.isEmpty()) throw new Exception("No element given for this batch");
-        for(int i=0; i<4; i++) {
+        for(int i=0; i<coordinates_mapping.size(); i++) {
             values.add(new SingleCoordinateSet());
             values.get(i).setTitle(coordinates_mapping.get(i));
         }
@@ -81,6 +82,7 @@ public class Batch {
             values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
             values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
             values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueV(), sample.getStep()));
+            values.get(4).addValue(new DataTime(sample.getTime(), sample.getValueDelta(), sample.getStep()));
         }
     }
     
@@ -96,6 +98,23 @@ public class Batch {
             features.add(new FeatureSet(coordinates_mapping.get(i), values.get(i).getMean(), values.get(i).getVariance(), values.get(i).getStandardDeviation()));
         }
         return features;
+    }
+    
+    public static List<Double> calculateRatio(List<FeatureSet> values) {
+        
+        List<Double> ratios = new ArrayList<Double>();
+        
+        for (int i = 0; i < values.size()-1; i++) {
+            
+            for (int j = i+1; j < values.size(); j++) {
+                
+                ratios.add(new Double(values.get(i).getMean() / values.get(j).getMean()));
+                ratios.add(new Double(values.get(i).getStd() / values.get(j).getStd()));
+                ratios.add(new Double(values.get(i).getVariance() / values.get(j).getVariance()));
+            }
+        }
+        
+        return ratios;
     }
     
 }

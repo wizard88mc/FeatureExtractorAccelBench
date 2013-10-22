@@ -9,6 +9,7 @@ import java.io.File;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.RandomForest;
+import weka.classifiers.functions.LibSVM;
 
 /**
  *
@@ -41,6 +42,8 @@ public class App {
                             if (action.equals(actions[0])) className="NONSTAIR";
                             else {
                                 className=(action.equals(actions[1])?"DOWNSTAIRS":"UPSTAIRS");
+                                // If we do not want to recognize upstairs/downstairs
+                                //className="STAIRS";
                             }
                             if (action.equals(actions[0])) {
                                 featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.INTERLAPPING_SIZE_BY_STEP_AVG);

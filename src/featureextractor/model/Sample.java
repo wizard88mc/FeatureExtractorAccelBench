@@ -15,6 +15,7 @@ public class Sample {
     final private double valueY;
     final private double valueZ;
     final private double valueV;
+    final private double valueDelta;
     final private String action;
     final private int trunk;
     final private int step;
@@ -27,6 +28,7 @@ public class Sample {
         this.trunk = trunk;
         this.action = action;
         this.valueV = Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));
+        this.valueDelta = Math.abs(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2) - Math.pow(9.81d, 2));
         this.step = (step>0?step:0);
     }
 
@@ -56,6 +58,10 @@ public class Sample {
 
     public double getValueV() {
         return valueV;
+    }
+    
+    public double getValueDelta() {
+        return valueDelta;
     }
 
     public int getTrunk() {

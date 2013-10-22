@@ -15,7 +15,7 @@ public class FeatureSet {
     private String title="";
     private double mean;
     private double variance;
-    private double std;    
+    private double std; 
 
     public FeatureSet(double mean, double variance, double std) {
         this.mean = mean;

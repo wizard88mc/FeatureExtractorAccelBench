@@ -57,7 +57,7 @@ public class FeatureExtractor {
     };
     private int batch_size = 40; // default
     private BATCH_CREATION_MODE mode = BATCH_CREATION_MODE.NON_INTERLAPPING_FIXED_SIZE; // default
-    private int axis_to_be_considered=4; // (4 == |V|)
+    private int axis_to_be_considered=5; // (4 == |V|)
     
     public FeatureExtractor() {
 //        this.initialize_ARFF();
@@ -183,7 +183,9 @@ public class FeatureExtractor {
                     if (arff_enabled) {
                         features=features.subList(0, axis_to_be_considered); // remove |V|
                         Collections.sort(features, new MeanComparator());
-                        arff.addAllFeaturesData(className, features);
+                        // Aggiungere rapporti
+                        List<Double> ratios = Batch.calculateRatio(features);
+                        arff.addAllFeaturesData(className, features, ratios);
                     }
                 }
                 i++;
@@ -260,6 +262,16 @@ public class FeatureExtractor {
             attributes.add(new ARFFAttribute(features_types[0]+i, "REAL"));
             attributes.add(new ARFFAttribute(features_types[1]+i, "REAL"));
             attributes.add(new ARFFAttribute(features_types[2]+i, "REAL"));
+        }
+        
+        int ratios_size = 6;
+        for (int i = 0; i < axes - 1; i++) {
+            
+            for (int j = i+1; j < axes; j++) {
+                attributes.add(new ARFFAttribute(i+"/"+j + features_types[0], "REAL"));
+                attributes.add(new ARFFAttribute(i+"/"+j + features_types[1], "REAL"));
+                attributes.add(new ARFFAttribute(i+"/"+j + features_types[2], "REAL"));
+            }
         }
 
         // new ARFF document instance
