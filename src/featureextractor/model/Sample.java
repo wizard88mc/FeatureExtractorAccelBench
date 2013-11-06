@@ -27,9 +27,17 @@ public class Sample {
         this.valueZ = valueZ;
         this.trunk = trunk;
         this.action = action;
-        this.valueV = Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));
-        this.valueDelta = Math.abs(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2) - Math.pow(9.81d, 2));
+        this.valueV = Sample.calculateV(valueX, valueY, valueZ);
+        this.valueDelta = Sample.calculateDelta(this.valueV);
         this.step = (step>0?step:0);
+    }
+    
+    public static double calculateV(double valueX, double valueY, double valueZ) {
+        return Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));
+    }
+
+    public static double calculateDelta(double valueV) {
+        return Math.abs(valueV - Math.pow(9.81, 2));
     }
 
     public long getTime() {

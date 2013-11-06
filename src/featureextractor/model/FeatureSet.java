@@ -16,15 +16,21 @@ public class FeatureSet {
     private double mean;
     private double variance;
     private double std; 
+    private double min;
+    private double max;
+    private double differenceMinMax;
+    private double ratioMinMax;
 
-    public FeatureSet(double mean, double variance, double std) {
+    public FeatureSet(double mean, double variance, double std, double min, double max) {
         this.mean = mean;
         this.variance = variance;
         this.std = std;
+        this.min = min; this.max = max; this.differenceMinMax = max - min;
+        this.ratioMinMax = max / min;
     }
 
-    public FeatureSet(String title, double mean, double variance, double std) {
-        this(mean, variance, std);
+    public FeatureSet(String title, double mean, double variance, double std, double min, double max) {
+        this(mean, variance, std, min, max);
         this.title=title;
     }
         
@@ -38,6 +44,26 @@ public class FeatureSet {
 
     public double getStd() {
         return std;
+    }
+    
+    public String getTitle() {
+        return title;
+    }
+    
+    public double getMin() {
+        return min;
+    }
+    
+    public double getMAx() {
+        return max;
+    }
+    
+    public double getDifferenceMinMax() {
+        return differenceMinMax;
+    }
+    
+    public double getRatioMinMax() {
+        return ratioMinMax;
     }
     
     @Override
