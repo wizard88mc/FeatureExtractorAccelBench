@@ -114,6 +114,18 @@ public class DbExtractor {
         setTrunkMode(trunk_id, "MANO");
     }
 
+    public List<IntervalMarker> getMarkersForTrunk(int trunk_id) throws Exception {
+        PreparedStatement statement = connection.prepareStatement("SELECT trunk,MIN(timestamp) as mintimestamp,MAX(timestamp) as maxtimestamp FROM samples WHERE trunk=? AND step!=0 AND step IS NOT NULL GROUP BY step");
+        statement.setInt(1, trunk_id);
+        ResultSet rs = statement.executeQuery();
+        List<IntervalMarker> markers=new ArrayList<IntervalMarker>();
+        if (!rs.isBeforeFirst()) throw new Exception("No step for this trunk");
+        while (rs.next()) {
+            markers.add(new IntervalMarker(rs.getLong("mintimestamp")/Plot.time_divisor, rs.getLong("maxtimestamp")/Plot.time_divisor));
+        }
+        return markers;
+    }
+
     public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
         System.out.println("Applying " + fixes.size() + " fixes to trunks");

@@ -12,20 +12,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
-import java.awt.event.MouseEvent;
-import java.io.FileNotFoundException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.ChartProgressEvent;
@@ -116,6 +109,12 @@ public class Plot extends javax.swing.JFrame {
     public Plot(Batch batch, DbExtractor db_extractor) {
         this.db_extractor = db_extractor;
         this.batch = batch;
+        batch.getMarkers().clear();
+        try {
+            batch.getMarkers().addAll(db_extractor.getMarkersForTrunk(batch.getTrunk()));
+        } catch(Exception ex) {
+            System.out.println(ex.getMessage());
+        }
         initComponents();
         addPlot();
     }
