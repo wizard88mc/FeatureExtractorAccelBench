@@ -165,14 +165,18 @@ public class Plot extends javax.swing.JFrame {
         mainPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
-        btnDeleteTrunk = new javax.swing.JButton();
-        btnDeleteLastMarker = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         checkX = new javax.swing.JCheckBox();
         checkY = new javax.swing.JCheckBox();
         checkZ = new javax.swing.JCheckBox();
         checkV = new javax.swing.JCheckBox();
+        jPanel4 = new javax.swing.JPanel();
+        btnDeleteTrunk = new javax.swing.JButton();
+        btnDeleteLastMarker = new javax.swing.JButton();
+        btnSetInTasca = new javax.swing.JButton();
+        btnSetInMano = new javax.swing.JButton();
+        btnDeleteAllSteps = new javax.swing.JButton();
+        btnSaveStairs = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -183,31 +187,6 @@ public class Plot extends javax.swing.JFrame {
         mainPanel.add(jLabel1, java.awt.BorderLayout.CENTER);
 
         jPanel2.setLayout(new java.awt.BorderLayout());
-
-        btnDeleteTrunk.setText("Delete trunk");
-        btnDeleteTrunk.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteTrunkActionPerformed(evt);
-            }
-        });
-        jPanel2.add(btnDeleteTrunk, java.awt.BorderLayout.LINE_END);
-
-        btnDeleteLastMarker.setText("Delete last marker");
-        btnDeleteLastMarker.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteLastMarkerActionPerformed(evt);
-            }
-        });
-        jPanel2.add(btnDeleteLastMarker, java.awt.BorderLayout.CENTER);
-
-        jButton2.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
-        jButton2.setText("SAVE STAIRS");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-        jPanel2.add(jButton2, java.awt.BorderLayout.PAGE_END);
 
         jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -256,6 +235,57 @@ public class Plot extends javax.swing.JFrame {
 
         mainPanel.add(jPanel2, java.awt.BorderLayout.PAGE_END);
 
+        btnDeleteTrunk.setText("Delete trunk");
+        btnDeleteTrunk.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteTrunkActionPerformed(evt);
+            }
+        });
+        jPanel4.add(btnDeleteTrunk);
+
+        btnDeleteLastMarker.setText("Delete last marker");
+        btnDeleteLastMarker.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteLastMarkerActionPerformed(evt);
+            }
+        });
+        jPanel4.add(btnDeleteLastMarker);
+
+        btnSetInTasca.setText("In tasca");
+        btnSetInTasca.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSetInTascaActionPerformed(evt);
+            }
+        });
+        jPanel4.add(btnSetInTasca);
+
+        btnSetInMano.setText("In mano");
+        btnSetInMano.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSetInManoActionPerformed(evt);
+            }
+        });
+        jPanel4.add(btnSetInMano);
+
+        btnDeleteAllSteps.setText("Delete all steps");
+        btnDeleteAllSteps.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteAllStepsActionPerformed(evt);
+            }
+        });
+        jPanel4.add(btnDeleteAllSteps);
+
+        btnSaveStairs.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        btnSaveStairs.setText("SAVE STAIRS");
+        btnSaveStairs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveStairsActionPerformed(evt);
+            }
+        });
+        jPanel4.add(btnSaveStairs);
+
+        mainPanel.add(jPanel4, java.awt.BorderLayout.PAGE_START);
+
         jPanel1.add(mainPanel, java.awt.BorderLayout.CENTER);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
@@ -263,7 +293,7 @@ public class Plot extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void btnSaveStairsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveStairsActionPerformed
         try {
             if (batch.getMarkers().isEmpty()) {
                 throw new Exception("No marker set yet");
@@ -275,7 +305,7 @@ public class Plot extends javax.swing.JFrame {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_btnSaveStairsActionPerformed
 
     private void btnDeleteLastMarkerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteLastMarkerActionPerformed
         if (batch.getMarkers().isEmpty() == false) {
@@ -332,19 +362,56 @@ public class Plot extends javax.swing.JFrame {
             removeSeries(0);
         }
     }//GEN-LAST:event_checkXItemStateChanged
+
+    private void btnDeleteAllStepsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAllStepsActionPerformed
+        try {
+            db_extractor.deleteAllSteps(batch.getTrunk());
+            for (Marker marker : batch.getMarkers()) {
+                chart.getXYPlot().removeDomainMarker(marker);
+            }
+            batch.getMarkers().clear();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_btnDeleteAllStepsActionPerformed
+
+    private void btnSetInTascaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetInTascaActionPerformed
+        try {
+            System.out.println("Setting as in tasca");
+            db_extractor.setTrunkAsInTasca(batch.getTrunk());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_btnSetInTascaActionPerformed
+
+    private void btnSetInManoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetInManoActionPerformed
+        try {
+            System.out.println("Setting as in mano");
+            db_extractor.setTrunkAsInMano(batch.getTrunk());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_btnSetInManoActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnDeleteAllSteps;
     private javax.swing.JButton btnDeleteLastMarker;
     private javax.swing.JButton btnDeleteTrunk;
+    private javax.swing.JButton btnSaveStairs;
+    private javax.swing.JButton btnSetInMano;
+    private javax.swing.JButton btnSetInTasca;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JCheckBox checkV;
     private javax.swing.JCheckBox checkX;
     private javax.swing.JCheckBox checkY;
     private javax.swing.JCheckBox checkZ;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JLabel txtSelected;
     // End of variables declaration//GEN-END:variables

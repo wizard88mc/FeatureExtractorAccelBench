@@ -4,7 +4,6 @@
  */
 package featureextractor.extractor.db;
 
-import featureextractor.comparator.SampleTimeComparator;
 import featureextractor.model.Sample;
 import featureextractor.model.TrunkFixSpec;
 import featureextractor.plot.Plot;
@@ -15,11 +14,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import org.jfree.chart.plot.IntervalMarker;
 
@@ -62,7 +57,7 @@ public class DbExtractor {
 
     public List<int[]> getTrunkIDs() throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
-        PreparedStatement reset=connection.prepareStatement("UPDATE samples SET trunk=NULL");
+        PreparedStatement reset = connection.prepareStatement("UPDATE samples SET trunk=NULL");
         reset.execute();
         // check for different sampling trunk
         String query = "SELECT s.ROWID,s.timestamp,(SELECT timestamp FROM samples s2 WHERE ROWID=s.ROWID-1) as previous_timestamp,ABS(s.timestamp - (SELECT timestamp FROM samples s2 WHERE ROWID=s.ROWID-1)) as diff FROM samples s WHERE diff>1000000000 ORDER BY s.ROWID";
@@ -93,11 +88,32 @@ public class DbExtractor {
     }
 
     public void deleteTrunk(int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
-        PreparedStatement delete_statement=connection.prepareStatement("DELETE FROM samples WHERE trunk=?");
+        PreparedStatement delete_statement = connection.prepareStatement("DELETE FROM samples WHERE trunk=?");
         delete_statement.setInt(1, trunk_id);
         delete_statement.execute();
     }
-    
+
+    public void deleteAllSteps(int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        PreparedStatement reset_statement = connection.prepareStatement("UPDATE samples SET step=0 WHERE trunk=?");
+        reset_statement.setInt(1, trunk_id);
+        reset_statement.execute();
+    }
+
+    public void setTrunkMode(int trunk_id, String mode) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        PreparedStatement reset_statement = connection.prepareStatement("UPDATE samples SET mode=? WHERE trunk=?");
+        reset_statement.setString(1, mode);
+        reset_statement.setInt(2, trunk_id);
+        reset_statement.execute();
+    }
+
+    public void setTrunkAsInTasca(int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        setTrunkMode(trunk_id, "TASCA");
+    }
+
+    public void setTrunkAsInMano(int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        setTrunkMode(trunk_id, "MANO");
+    }
+
     public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
         System.out.println("Applying " + fixes.size() + " fixes to trunks");

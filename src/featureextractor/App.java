@@ -9,8 +9,6 @@ import java.io.File;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.RandomForest;
-import weka.classifiers.functions.LibSVM;
-import weka.core.Utils;
 
 /**
  *
@@ -26,7 +24,7 @@ public class App {
         CLASSIFIER, // loop through each defined db, extract and merge features, train the classifier
         TRUNK_PLOTTER // plot each trunk to enable step marking
     };
-    private static MODE mode = MODE.CLASSIFIER;
+    private static MODE mode = MODE.TRUNK_PLOTTER;
 
     public static void main(String[] args) {
         try {
