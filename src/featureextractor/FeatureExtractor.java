@@ -112,6 +112,10 @@ public class FeatureExtractor {
         this.extract(null, null);
     }
 
+    public List<Batch> getBatches() {
+        return batches;
+    }
+    
     public void extract(String action, String className) throws Exception {
         if (db_extractor == null) {
             throw new Exception("No source DB set");

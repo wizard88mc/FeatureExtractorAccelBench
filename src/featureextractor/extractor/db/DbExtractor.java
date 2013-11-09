@@ -179,7 +179,7 @@ public class DbExtractor {
         }
     }
 
-    public ArrayList<Sample> extract(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
+    public ArrayList<Sample> extractByAction(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
         this.connect();
 
         if (action != null && checkActionExistence(action)) {
@@ -203,6 +203,15 @@ public class DbExtractor {
             throw new AccelBenchException("No sample detected");
         }
         return values;
+    }
+
+    public ArrayList<Sample> extract(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
+        this.connect();
+
+        if (action != null && checkActionExistence(action)) {
+            throw new AccelBenchException("No sample for action '" + action + "'");
+        }
+        return extractByAction(action);
     }
 
     public List<Batch> extractByTrunk() throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
