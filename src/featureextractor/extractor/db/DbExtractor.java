@@ -4,6 +4,7 @@
  */
 package featureextractor.extractor.db;
 
+import featureextractor.model.Batch;
 import featureextractor.model.Sample;
 import featureextractor.model.TrunkFixSpec;
 import featureextractor.plot.Plot;
@@ -118,10 +119,12 @@ public class DbExtractor {
         PreparedStatement statement = connection.prepareStatement("SELECT trunk,MIN(timestamp) as mintimestamp,MAX(timestamp) as maxtimestamp FROM samples WHERE trunk=? AND step!=0 AND step IS NOT NULL GROUP BY step");
         statement.setInt(1, trunk_id);
         ResultSet rs = statement.executeQuery();
-        List<IntervalMarker> markers=new ArrayList<IntervalMarker>();
-        if (!rs.isBeforeFirst()) throw new Exception("No step for this trunk");
+        List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
+        if (!rs.isBeforeFirst()) {
+            throw new Exception("No step for this trunk");
+        }
         while (rs.next()) {
-            markers.add(new IntervalMarker(rs.getLong("mintimestamp")/Plot.time_divisor, rs.getLong("maxtimestamp")/Plot.time_divisor));
+            markers.add(new IntervalMarker(rs.getLong("mintimestamp") / Plot.time_divisor, rs.getLong("maxtimestamp") / Plot.time_divisor));
         }
         return markers;
     }
@@ -200,6 +203,36 @@ public class DbExtractor {
             throw new AccelBenchException("No sample detected");
         }
         return values;
+    }
+
+    public List<Batch> extractByTrunk() throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
+        this.connect();
+        List<Sample> values = new ArrayList<Sample>();
+        List<Batch> batches = new ArrayList<Batch>();
+
+        String query = "SELECT trunk, MIN(ROWID) as minid,MAX(ROWID) as maxid FROM samples GROUP BY trunk";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+        int trunk_id = 0, min = 0, max = 0;
+        while (rs.next()) {
+            trunk_id = rs.getInt("trunk");
+            min = rs.getInt("minid");
+            max = rs.getInt("maxid");
+            query = "SELECT * FROM samples WHERE ROWID>=? AND ROWID<=?";
+            PreparedStatement get_stmt = connection.prepareStatement(query);
+            get_stmt.setInt(1, min);
+            get_stmt.setInt(2, max);
+            ResultSet rs2 = get_stmt.executeQuery();
+            while (rs2.next()) {
+                values.add(new Sample(rs2.getLong("timestamp"), rs2.getDouble("x"), rs2.getDouble("y"), rs2.getDouble("z"), rs2.getInt("trunk"), rs2.getString("action"), rs2.getInt("step")));
+            }
+            Batch batch = new Batch(values);
+            batch.setTrunk(trunk_id);
+            batch.setTitle("Trunk " + trunk_id + ": " + values.get(0).getAction());
+            batches.add(batch);
+            values.clear();
+        }
+        return batches;
     }
 
     // to be fixed (timestamp from the moment the mobile has been powered on)

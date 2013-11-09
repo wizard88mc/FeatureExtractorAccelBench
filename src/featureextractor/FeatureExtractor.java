@@ -159,7 +159,7 @@ public class FeatureExtractor {
                     break;
                 case BY_TRUNK:
                     System.out.println("Selected batches by trunk");
-                    batches = SamplesUtils.getBatchesByTrunk(samples);
+                    batches = SamplesUtils.getBatchesByTrunk(samples, db_extractor);
                     break;
                 case BY_STEP:
                     System.out.println("Selected batches by step");

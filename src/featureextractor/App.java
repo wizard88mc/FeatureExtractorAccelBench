@@ -68,7 +68,7 @@ public class App {
                     }
                     break;
                 case TRUNK_PLOTTER:
-                    featureExtractor.setDb("data/db/accelbench_20131029232704.db");
+                    featureExtractor.setDb("data/db/upstairs.db");
 //                  featureExtractor.setTrunkIDs();
                     featureExtractor.setArffEnabled(false); // disable ARFF creation
                     featureExtractor.setFeatureEnabled(false); // disable feature calculation
