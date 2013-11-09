@@ -133,7 +133,11 @@ public class FeatureExtractor {
                     batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
                     break;
                 case INTERLAPPING_SIZE_BY_STEP_AVG:
-                    batch_size = db_extractor.getAvgSamplesForStep();
+                    try {
+                        batch_size = db_extractor.getAvgSamplesForStep();
+                    } catch(ArithmeticException e) { // no step detected: get average batch size by calculating on sampling delay
+                        batch_size=(int)(0.77*(float)db_extractor.getSamplingRate());
+                    }
                     if (batch_size % 2 == 1) {
                         batch_size++; // make sure it's an even number
                     }
