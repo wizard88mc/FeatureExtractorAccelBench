@@ -42,7 +42,7 @@ public class FeatureExtractor {
     private boolean feature_enabled = true;
     private int time_range = 2000; // ms
     //private String[] features_types=new String[]{"mean", "variance", "std"};
-    private String[] features_types=new String[]{"variance", "std"};
+    private String[] features_types = new String[]{"variance", "std"};
 
     public enum BATCH_CREATION_MODE {
 
@@ -59,8 +59,8 @@ public class FeatureExtractor {
     };
     private int batch_size = 40; // default
     private BATCH_CREATION_MODE mode = BATCH_CREATION_MODE.NON_INTERLAPPING_FIXED_SIZE; // default
-    private int axis_to_be_considered=3; // (4 == |V|) (5 == Delta) (3 == Axis)
-    
+    private int axis_to_be_considered = 3; // (4 == |V|) (5 == Delta) (3 == Axis)
+
     public FeatureExtractor() {
 //        this.initialize_ARFF();
         this.initialize_std_ARFF(axis_to_be_considered);
@@ -115,7 +115,7 @@ public class FeatureExtractor {
     public List<Batch> getBatches() {
         return batches;
     }
-    
+
     public void extract(String action, String className) throws Exception {
         if (db_extractor == null) {
             throw new Exception("No source DB set");
@@ -135,8 +135,8 @@ public class FeatureExtractor {
                 case INTERLAPPING_SIZE_BY_STEP_AVG:
                     try {
                         batch_size = db_extractor.getAvgSamplesForStep();
-                    } catch(ArithmeticException e) { // no step detected: get average batch size by calculating on sampling delay
-                        batch_size=(int)(0.77*(float)db_extractor.getSamplingRate());
+                    } catch (ArithmeticException e) { // no step detected: get average batch size by calculating on sampling delay
+                        batch_size = (int) (0.77 * (float) db_extractor.getSamplingRate());
                     }
                     if (batch_size % 2 == 1) {
                         batch_size++; // make sure it's an even number
@@ -194,45 +194,41 @@ public class FeatureExtractor {
                     if (arff_enabled) {
                         //features=features.subList(0, axis_to_be_considered); // remove |V|
                         //Collections.sort(features, new VarianceComparator());
-                        
+
                         features = features.subList(0, axis_to_be_considered);
                         Collections.sort(features, new MeanComparator());
                         List<Double> firstFeatures = Batch.calculateMeanDifference(features);
-                        
+
                         features = batch.getNormalizedFeatures();
-                        
+
                         features = features.subList(0, axis_to_be_considered);
                         Collections.sort(features, new StdComparator());
-                        
+
                         List<Double> otherFeatures = Batch.calculateRatio(features);
                         otherFeatures.addAll(Batch.minMaxComparisons(features));
-                        
+
                         otherFeatures.addAll(0, firstFeatures);
-                        
+
                         //List<FeatureSet> onlyAxisNotNormalized = batch.extractOnlyAxes(features);
                         //Collections.sort(onlyAxisNotNormalized, new MeanComparator());
                         // Getting difference and ratio between the two axis with
                         // smaller mean value
                         //List<Double> otherFeatures = Batch.calculateMeanDifference(onlyAxisNotNormalized);
-                        
+
                         /**
                          * Ratio over variance with not normalized values
                          */
                         /*Collections.sort(onlyAxisNotNormalized, new StdComparator());
-                        List<Double> ratiosVariance = Batch.calculateIntelligentRatios(onlyAxisNotNormalized);*/
-                                
+                         List<Double> ratiosVariance = Batch.calculateIntelligentRatios(onlyAxisNotNormalized);*/
                         // Recalculate features to get normalize data
                         //features = batch.getNormalizedFeatures();
-                        
                         /**
-                         * Calculate ratio between (1 and 2) and (1 and 3) using 
+                         * Calculate ratio between (1 and 2) and (1 and 3) using
                          * variance and normalized values
                          */
                         //List<FeatureSet> onlyAxisNormalized = batch.extractOnlyAxes(features);
                         //Collections.sort(onlyAxisNormalized, new StdComparator());
                         //List<Double> ratiosStd = Batch.calculateIntelligentRatios(onlyAxisNormalized);
-                        
-                        
                         /**
                          * Ordering axis based on variance value
                          */
@@ -241,11 +237,9 @@ public class FeatureExtractor {
                         //features.addAll(batch.calculateVAndDeltaFeatures(true));
                         //List<Double> allRatios = Batch.calculateRatio(features);
                         //List<Double> minMaxComparisons = Batch.minMaxComparisons(features);
-                        
                         //List<Double> ratios = Batch.calculateIntelligentRatios(features);
                         //otherFeatures.addAll(allRatios);
                         //otherFeatures.addAll(minMaxComparisons);
-                        
                         arff.addAllFeaturesData(className, features, otherFeatures);
                     }
                 }
@@ -272,8 +266,33 @@ public class FeatureExtractor {
         this.max = max;
     }
 
+    public void enableMinDiff(float minDiff) throws Exception {
+        if (batches.isEmpty()) {
+            throw new Exception("No sample extracted yet");
+        }
+        for (Batch batch : batches) {
+            for (SingleCoordinateSet set : batch.getValues()) {
+                double last, previous;
+                boolean initialized = false;
+                int i = 0;
+                for (DataTime dt : set.getValues()) {
+                    if (!initialized) {
+                        last = dt.getValue();
+                        initialized=true;
+                    } else {
+                        previous = set.getValues().get(i - 1).getValue();
+                        if (Math.abs(previous - dt.getValue())< minDiff) {
+                            dt.setValue(previous);
+                        }
+                    }
+                    i++;
+                }
+            }
+        }
+    }
+
     public void plot() {
-        int max_plot = 20;
+        int max_plot = 1;
         for (Batch batch : batches) {
             if (max_plot > 0) {
                 new Plot(batch, this.db_extractor);
@@ -318,46 +337,46 @@ public class FeatureExtractor {
     private void initialize_std_ARFF(int axes) {
         // default ARFF attributes and initializazion 
         List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
-        
+
         /*for (int i = 0; i < axes; i++) {
-            attributes.add(new ARFFAttribute(features_types[0]+i, "REAL"));
-            attributes.add(new ARFFAttribute(features_types[1]+i, "REAL"));
-            attributes.add(new ARFFAttribute(features_types[2]+i, "REAL"));
-        }*/
-        
+         attributes.add(new ARFFAttribute(features_types[0]+i, "REAL"));
+         attributes.add(new ARFFAttribute(features_types[1]+i, "REAL"));
+         attributes.add(new ARFFAttribute(features_types[2]+i, "REAL"));
+         }*/
+
         for (int i = 0; i < axes; i++) {
-            attributes.add(new ARFFAttribute(features_types[0]+i, "REAL"));
-            attributes.add(new ARFFAttribute(features_types[1]+i, "REAL"));
+            attributes.add(new ARFFAttribute(features_types[0] + i, "REAL"));
+            attributes.add(new ARFFAttribute(features_types[1] + i, "REAL"));
         }
-        
+
         attributes.add(new ARFFAttribute("MEAN_RATIO", "REAL"));
         attributes.add(new ARFFAttribute("MEAN_DIFFERENCE", "REAL"));
-        
+
         //attributes.add(new ARFFAttribute("VARIANCE_RATIO(1/2)", "REAL"));
         //attributes.add(new ARFFAttribute("VARIANCE_RATIO(1/3)", "REAL"));
-        
+
         /* CODE TO COMPARE RATIOS OF ALL BASE FEATURES */
         for (int i = 0; i < axes - 1; i++) {
-            
-            for (int j = i+1; j < axes; j++) {
+
+            for (int j = i + 1; j < axes; j++) {
                 //attributes.add(new ARFFAttribute(i+"/"+j + features_types[0], "REAL"));
-                attributes.add(new ARFFAttribute("VARIANCE" + i+"/VARIANCE"+j , "REAL"));
-                attributes.add(new ARFFAttribute("STD" + i+"/STD"+j, "REAL"));
+                attributes.add(new ARFFAttribute("VARIANCE" + i + "/VARIANCE" + j, "REAL"));
+                attributes.add(new ARFFAttribute("STD" + i + "/STD" + j, "REAL"));
                 //attributes.add(new ARFFAttribute(i+"-"+j + features_types[1] + "RATIO", "REAL"));
                 //attributes.add(new ARFFAttribute(i+"/"+j + features_types[2] + "RATIO", "REAL"));
             }
         }
-        
+
         for (int i = 0; i < axes - 1; i++) {
-            
-            for (int j = i+1; j < axes; j++) {
+
+            for (int j = i + 1; j < axes; j++) {
                 //attributes.add(new ARFFAttribute(i+"/"+j + features_types[0], "REAL"));
-                attributes.add(new ARFFAttribute("MINMAX" + i+"-MINMAX"+j, "REAL"));
-                attributes.add(new ARFFAttribute("MINMAX" + i+"/MINMAX"+j, "REAL"));
+                attributes.add(new ARFFAttribute("MINMAX" + i + "-MINMAX" + j, "REAL"));
+                attributes.add(new ARFFAttribute("MINMAX" + i + "/MINMAX" + j, "REAL"));
                 //attributes.add(new ARFFAttribute(i+"-"+j + features_types[1] + "RATIO", "REAL"));
                 //attributes.add(new ARFFAttribute(i+"/"+j + features_types[2] + "RATIO", "REAL"));
             }
-        } 
+        }
 
         // new ARFF document instance
         arff = new ARFF(ARFF_RELATION, attributes);
