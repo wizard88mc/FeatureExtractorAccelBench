@@ -61,18 +61,13 @@ public class ARFF {
         this.data.addAll(data);
     }
 
-    public void addAllFeaturesData(String title, List<FeatureSet> featureSets, List<Double> ratios) {
+    public void addAllFeaturesData(String title, List<FeatureSet> featureSets) {
         List<Double> data_row = new ArrayList<Double>();
         for (FeatureSet featureSet : featureSets) {
-            //data_row.add(featureSet.getMean());
-            data_row.add(featureSet.getVariance());
+            data_row.add(featureSet.getMean());
             data_row.add(featureSet.getStd());
+            data_row.add(featureSet.getVariance());
         }
-        
-        if (ratios != null) {
-            data_row.addAll(ratios);
-        }
-        
         this.addData(new ARFFData(title, data_row));
     }
 
@@ -112,7 +107,7 @@ public class ARFF {
 
     public void addData(String title, FeatureSet featureSet) {
         List<Double> data_row = new ArrayList<Double>();
-        //data_row.add(featureSet.getMean());
+        data_row.add(featureSet.getMean());
         data_row.add(featureSet.getVariance());
         data_row.add(featureSet.getStd());
         this.addData(new ARFFData(title, data_row));

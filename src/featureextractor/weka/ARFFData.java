@@ -19,7 +19,7 @@ public class ARFFData {
 
     private String className;
     private List<Double> data;
-    public final int fraction_digits = 8;
+    public final int fraction_digits = 2;
 
     public ARFFData(String title, List<Double> data) {
         this.className = title;
