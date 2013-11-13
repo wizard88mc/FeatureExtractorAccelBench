@@ -185,9 +185,9 @@ public class DbExtractor {
         if (action != null && checkActionExistence(action)) {
             throw new AccelBenchException("No sample for action '" + action + "'");
         }
-        String query = "SELECT ROWID,x,y,z,trunk,action,timestamp,step  FROM samples WHERE action=? ORDER BY ROWID";
+        String query = "SELECT ROWID,x,y,z,trunk,action,timestamp,step,mode  FROM samples WHERE action=? ORDER BY ROWID";
         if (action == null) {
-            query = "SELECT ROWID,x,y,z,trunk,action,timestamp,step FROM samples ORDER BY ROWID";
+            query = "SELECT ROWID,x,y,z,trunk,action,timestamp,step,mode FROM samples ORDER BY ROWID";
         }
         PreparedStatement ps = connection.prepareStatement(query);
         if (action != null) {
@@ -197,7 +197,7 @@ public class DbExtractor {
         ResultSet rs = ps.executeQuery();
         ArrayList<Sample> values = new ArrayList<Sample>();
         while (rs.next()) {
-            values.add(new Sample(rs.getLong("timestamp"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getInt("trunk"), rs.getString("action"), rs.getInt("step")));
+            values.add(new Sample(rs.getLong("timestamp"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getInt("trunk"), rs.getString("action"), rs.getInt("step"), rs.getString("mode")));
         }
         if (values.isEmpty()) {
             throw new AccelBenchException("No sample detected");
@@ -233,10 +233,11 @@ public class DbExtractor {
             get_stmt.setInt(2, max);
             ResultSet rs2 = get_stmt.executeQuery();
             while (rs2.next()) {
-                values.add(new Sample(rs2.getLong("timestamp"), rs2.getDouble("x"), rs2.getDouble("y"), rs2.getDouble("z"), rs2.getInt("trunk"), rs2.getString("action"), rs2.getInt("step")));
+                values.add(new Sample(rs2.getLong("timestamp"), rs2.getDouble("x"), rs2.getDouble("y"), rs2.getDouble("z"), rs2.getInt("trunk"), rs2.getString("action"), rs2.getInt("step"), rs2.getString("mode")));
             }
             Batch batch = new Batch(values);
             batch.setTrunk(trunk_id);
+            batch.setMode(values.get(0).getMode());
             batch.setTitle("Trunk " + trunk_id + ": " + values.get(0).getAction());
             batches.add(batch);
             values.clear();

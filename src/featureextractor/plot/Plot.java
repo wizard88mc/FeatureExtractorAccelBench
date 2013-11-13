@@ -52,7 +52,7 @@ public class Plot extends javax.swing.JFrame {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setMinimumSize(new Dimension(1024, 768));
         chart = ChartFactory.createXYLineChart(
-                batch.getTitle(),
+                batch.getTitle()+(batch.getMode()!=null?" ("+batch.getMode()+")":""),
                 "Timestamp",
                 "m/s^2",
                 this.createDataset(batch),
@@ -176,6 +176,9 @@ public class Plot extends javax.swing.JFrame {
         btnSetInMano = new javax.swing.JButton();
         btnDeleteAllSteps = new javax.swing.JButton();
         btnSaveStairs = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -289,6 +292,21 @@ public class Plot extends javax.swing.JFrame {
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
+        jMenu1.setText("File");
+
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.event.InputEvent.META_MASK));
+        jMenuItem1.setText("Close");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -394,6 +412,11 @@ public class Plot extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }//GEN-LAST:event_btnSetInManoActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDeleteAllSteps;
     private javax.swing.JButton btnDeleteLastMarker;
@@ -407,6 +430,9 @@ public class Plot extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkY;
     private javax.swing.JCheckBox checkZ;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

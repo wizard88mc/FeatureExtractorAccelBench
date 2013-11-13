@@ -17,8 +17,8 @@ import weka.classifiers.trees.RandomForest;
  */
 public class App {
     // "accelbench_20130822165555.db", "accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "downstairs.db", "upstairs.db", "accelbench_20131109191125_NONSTAIRS.db"
-    final private static String[] dbs = new String[]{"accelbench_20130822165555.db", "accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "accelbench_20131109191125_NONSTAIRS.db", "accelbench_20131110161959_NONSTAIRS.db", "accelbench_20131110162117.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
-    final private static String[] validation_dbs = dbs;
+    final private static String[] dbs = new String[]{"accelbench_20130822165555.db", "accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "accelbench_20131110162117.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
+    final private static String[] validation_dbs = dbs; // "accelbench_20131109191125_NONSTAIRS.db", "accelbench_20131110161959_NONSTAIRS.db", 
     //final private static String[] dbs = new String[]{"accelbench_20130822165555.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
     //final private static String[] dbs = new String[]{"accelbench_20131029231129.db"};
     final private static String[] actions = new String[]{"NON_STAIR", "STAIR_DOWNSTAIRS", "STAIR_UPSTAIRS"};
@@ -28,7 +28,7 @@ public class App {
         CLASSIFIER, // loop through each defined db, extract and merge features, train the classifier
         TRUNK_PLOTTER // plot each trunk to enable step marking
     };
-    private static MODE mode = MODE.TRUNK_PLOTTER;
+    private static MODE mode = MODE.VALIDATOR;
 
     public static void main(String[] args) {
         try {
@@ -57,7 +57,7 @@ public class App {
                     for (String db_path : dbs) {
                         db_path = "data" + File.separator + "db" + File.separator + db_path;
                         featureExtractor.setDb(db_path);
-                        featureExtractor.setBatchSize(20);
+//                        featureExtractor.setBatchSize(20);
                         featureExtractor.setArffEnabled(true);
                         featureExtractor.setFeatureEnabled(true);
 
@@ -91,8 +91,8 @@ public class App {
                     }
                     break;
                 case TRUNK_PLOTTER:
-//                    for(int i=4; i>3; i--) {
-                    String db="accelbench_20131109191125_NONSTAIRS.db";
+                    for(String db: dbs) {
+//                    String db="accelbench_20131109191125_NONSTAIRS.db";
                         featureExtractor.setDb("data/db/"+db);
                         System.out.println("data/db/"+db);
     //                  featureExtractor.setTrunkIDs();
@@ -100,9 +100,9 @@ public class App {
                         featureExtractor.setFeatureEnabled(false); // disable feature calculation
                         featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
                         featureExtractor.extract();
-                        featureExtractor.enableMinDiff((float)0);
+//                        featureExtractor.enableMinDiff((float)0);
                         featureExtractor.plot();
-//                    }
+                    }
                     break;
             }
         } catch (Exception e) {

@@ -19,8 +19,9 @@ public class Sample {
     final private String action;
     final private int trunk;
     final private int step;
+    final private String mode;
 
-    public Sample(long time, double valueX, double valueY, double valueZ, int trunk, String action, int step) {
+    public Sample(long time, double valueX, double valueY, double valueZ, int trunk, String action, int step, String mode) {
         this.time = time;
         this.valueX = valueX;
         this.valueY = valueY;
@@ -29,9 +30,14 @@ public class Sample {
         this.action = action;
         this.valueV = Sample.calculateV(valueX, valueY, valueZ);
         this.valueDelta = Sample.calculateDelta(this.valueV);
-        this.step = (step>0?step:0);
+        this.mode = mode;
+        this.step = (step > 0 ? step : 0);
     }
-    
+
+    public String getMode() {
+        return mode;
+    }
+
     public static double calculateV(double valueX, double valueY, double valueZ) {
         return Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));
     }
@@ -67,7 +73,7 @@ public class Sample {
     public double getValueV() {
         return valueV;
     }
-    
+
     public double getValueDelta() {
         return valueDelta;
     }
