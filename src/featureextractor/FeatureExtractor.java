@@ -74,6 +74,15 @@ public class FeatureExtractor {
         db_extractor = new DbExtractor(file);
     }
 
+    public float getAverageStepDuration() throws Exception {
+        float avg_for_step=db_extractor.getAvgSamplesForStep();
+        float sampling_rate=db_extractor.getSamplingRate();
+        System.out.println("Avg samples for step: "+avg_for_step);
+        System.out.println("Sampling rate: "+sampling_rate);
+        System.out.println("ratio: "+avg_for_step/sampling_rate);
+        return avg_for_step/sampling_rate;
+    }
+    
     public DbExtractor getDbExtractor() {
         return this.db_extractor;
     }

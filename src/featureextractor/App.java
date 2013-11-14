@@ -17,6 +17,7 @@ import weka.classifiers.trees.RandomForest;
  */
 public class App {
     // "accelbench_20130822165555.db", "accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "downstairs.db", "upstairs.db", "accelbench_20131109191125_NONSTAIRS.db"
+
     final private static String[] dbs = new String[]{"accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "accelbench_20131110162117.db", "accelbench_20131113225612_NOSTAIRS.db", "accelbench_20131113231049_STAIR.db", "accelbench_20131113231246_NOSTAIRS.db", "accelbench_20131113233157_NOSTAIRS.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
     final private static String[] validation_dbs = dbs; // "accelbench_20131110161959_NONSTAIRS.db", 
     //final private static String[] dbs = new String[]{"accelbench_20130822165555.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
@@ -24,11 +25,13 @@ public class App {
     final private static String[] actions = new String[]{"NON_STAIR", "STAIR_DOWNSTAIRS", "STAIR_UPSTAIRS"};
 
     private enum MODE {
+
         VALIDATOR, // validates classifier against a given feature set
         CLASSIFIER, // loop through each defined db, extract and merge features, train the classifier
-        TRUNK_PLOTTER // plot each trunk to enable step marking
+        TRUNK_PLOTTER, // plot each trunk to enable step marking
+        STEP_AVG_CALCULATOR // plot each trunk to enable step marking
     };
-    private static MODE mode = MODE.VALIDATOR;
+    private static MODE mode = MODE.STEP_AVG_CALCULATOR;
 
     public static void main(String[] args) {
         try {
@@ -91,17 +94,34 @@ public class App {
                     }
                     break;
                 case TRUNK_PLOTTER:
-                    for(String db: dbs) {
-                        featureExtractor.setDb("data/db/"+db);
-                        System.out.println("data/db/"+db);
-    //                  featureExtractor.setTrunkIDs();
+                    for (String db : dbs) {
+                        featureExtractor.setDb("data/db/" + db);
+                        System.out.println("data/db/" + db);
+                        //                  featureExtractor.setTrunkIDs();
                         featureExtractor.setArffEnabled(false); // disable ARFF creation
                         featureExtractor.setFeatureEnabled(false); // disable feature calculation
                         featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
                         featureExtractor.extract();
-                        featureExtractor.enableMinDiff((float)0);
+                        featureExtractor.enableMinDiff((float) 0);
                         featureExtractor.plot();
                     }
+                    break;
+
+                case STEP_AVG_CALCULATOR:
+                    float sum = 0;
+                    int stair_db=0;
+                    for (String db : dbs) {
+                        System.out.println("data/db/" + db);
+                        featureExtractor.setDb("data/db/" + db);
+                        try {
+                            sum += featureExtractor.getAverageStepDuration();
+                            stair_db++;
+                        } catch (Exception ex) {
+                            System.out.println("No step for this db");
+                        }
+                    }
+                    float average_step_duration=(float)sum/(float)stair_db;
+                    System.out.println(average_step_duration+": "+60*average_step_duration+" ms");
                     break;
             }
         } catch (Exception e) {
