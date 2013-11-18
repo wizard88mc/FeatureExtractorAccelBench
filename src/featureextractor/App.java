@@ -17,7 +17,7 @@ import weka.classifiers.trees.RandomForest;
  */
 public class App {
     // "accelbench_20130822165555.db", "accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "downstairs.db", "upstairs.db", "accelbench_20131109191125_NONSTAIRS.db"
-    final private static String[] dbs = new String[]{"accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "accelbench_20131110162117.db", "accelbench_20131113225612_NOSTAIRS.db", "accelbench_20131113231049_STAIR.db", "accelbench_20131113231246_NOSTAIRS.db", "accelbench_20131113233157_NOSTAIRS.db", "accelbench_20131115152325_SCALE.db", "accelbench_20131115152238_NONSTAIR_VELOCE.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
+    final private static String[] dbs = new String[]{"accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "accelbench_20131110162117.db", "accelbench_20131113225612_NOSTAIRS.db", "accelbench_20131113231049_STAIR.db", "accelbench_20131113231246_NOSTAIRS.db", "accelbench_20131113233157_NOSTAIRS.db", "accelbench_20131115152325_SCALE.db", "accelbench_20131115152238_NONSTAIR_VELOCE.db", "accelbench_20131118205809_NOSTAIRS.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
     final private static String[] validation_dbs = dbs; // "accelbench_20131110161959_NONSTAIRS.db", 
     //final private static String[] dbs = new String[]{"accelbench_20130822165555.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
     //final private static String[] dbs = new String[]{"accelbench_20131029231129.db"};
@@ -29,7 +29,7 @@ public class App {
         TRUNK_PLOTTER, // plot each trunk to enable step marking
         STEP_AVG_CALCULATOR // plot each trunk to enable step marking
     };
-    private static MODE mode = MODE.STEP_AVG_CALCULATOR;
+    private static MODE mode = MODE.VALIDATOR;
 
     public static void main(String[] args) {
         try {
