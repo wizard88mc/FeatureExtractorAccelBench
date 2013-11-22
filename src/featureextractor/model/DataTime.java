@@ -9,13 +9,16 @@ package featureextractor.model;
  * @author po
  */
 public class DataTime {
-    
+
     private long time;
     private double value;
+    private double filteredValue;
     private int step;
-    
+
     public DataTime(long time, double value, int step) {
-        this.time = time; this.value = value; this.step= step;
+        this.time = time;
+        this.value = value;
+        this.step = step;
     }
 
     public long getTime() {
@@ -26,6 +29,14 @@ public class DataTime {
         return value;
     }
 
+    public double getFilteredValue() {
+        return filteredValue;
+    }
+
+    public void setFilteredValue(double filteredValue) {
+        this.filteredValue = filteredValue;
+    }
+
     public void setTime(long time) {
         this.time = time;
     }
@@ -33,7 +44,7 @@ public class DataTime {
     public void setValue(double value) {
         this.value = value;
     }
-    
+
     public void normalize(double min, double max) {
         this.value = ((this.value - min) / (max - min));
     }
@@ -41,5 +52,4 @@ public class DataTime {
     public int getStep() {
         return step;
     }
-    
 }

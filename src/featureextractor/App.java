@@ -29,7 +29,7 @@ public class App {
         TRUNK_PLOTTER, // plot each trunk to enable step marking
         STEP_AVG_CALCULATOR // plot each trunk to enable step marking
     };
-    private static MODE mode = MODE.STEP_AVG_CALCULATOR;
+    private static MODE mode = MODE.CLASSIFIER;
 
     public static void main(String[] args) {
         try {
@@ -42,6 +42,7 @@ public class App {
                         featureExtractor.setDb(db_path);
                         featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.INTERLAPPING_SIZE_BY_STEP_AVG);
                         featureExtractor.setArffEnabled(true);
+                        featureExtractor.setGravity_remove(false);
                         featureExtractor.setFeatureEnabled(true);
                         for (String action : actions) {
                             if (action.equals(actions[0])) {
@@ -60,6 +61,7 @@ public class App {
                         featureExtractor.setDb(db_path);
                         featureExtractor.setBatchSize(20);
                         featureExtractor.setArffEnabled(true);
+                        featureExtractor.setGravity_remove(false);
                         featureExtractor.setFeatureEnabled(true);
 
                         for (String action : actions) {
@@ -92,12 +94,14 @@ public class App {
                     }
                     break;
                 case TRUNK_PLOTTER:
+//                    String[] still_dbs=new String[]{"flat/accelbench_20131121002432_NEXUS.db", "flat/accelbench_20131121002259_GALAXY.db"};
                     for (String db : dbs) {
                         featureExtractor.setDb("data/db/" + db);
                         System.out.println("data/db/" + db);
                         //                  featureExtractor.setTrunkIDs();
                         featureExtractor.setArffEnabled(false); // disable ARFF creation
                         featureExtractor.setFeatureEnabled(false); // disable feature calculation
+                        featureExtractor.setGravity_remove(true);
                         featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
                         featureExtractor.extract();
                         featureExtractor.enableMinDiff((float) 0);

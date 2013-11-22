@@ -26,6 +26,7 @@ public class Batch {
     private String title;
     private String mode;
     private int trunk = 0;
+    
 
     static {
         coordinates_mapping.put(0, "X");
@@ -88,6 +89,18 @@ public class Batch {
             values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
             values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
             values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueV(), sample.getStep()));
+        }
+    }
+
+    public void removeGravity() {
+        System.out.println("Removing gravity from samples");
+        double alpha = 0.8;
+        for (SingleCoordinateSet set : values) {
+            double g=0;
+            for (DataTime dataTime : set.getValues()) {
+                g = alpha * g + (1 - alpha) * dataTime.getValue();
+                dataTime.setValue(dataTime.getValue()-g);
+            }
         }
     }
 
