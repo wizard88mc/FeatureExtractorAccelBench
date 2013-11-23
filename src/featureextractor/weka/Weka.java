@@ -81,7 +81,6 @@ public class Weka {
         eTest.evaluateModel(cModel, isTestingSet);
         String strSummary = eTest.toSummaryString();
         System.out.println(strSummary);
-//        double[][] cmMatrix = eTest.confusionMatrix();
         double[][] confusionMatrix=eTest.confusionMatrix();
         System.out.println(eTest.toMatrixString());
         System.out.println(confusionMatrix[0][1]/(confusionMatrix[0][0]+confusionMatrix[0][1]));

@@ -4,11 +4,13 @@
  */
 package featureextractor.utils;
 
+import featureextractor.comparator.SampleTimeComparator;
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Sample;
 import featureextractor.model.Batch;
 import featureextractor.plot.Plot;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.jfree.chart.plot.IntervalMarker;
 
@@ -61,7 +63,7 @@ public class SamplesUtils {
 //        int step_marker_start = 0;
 //        long step_marker_start_timestamp = 0;
 //        int step = 0;
-//        List<Sample> samples = new ArrayList<Sample>();
+//        List<Sample> samples_for_batch = new ArrayList<Sample>();
 //        while (i < num_samples) {
 //            if (values.get(i).getTrunk() == trunk) {
 //                step = values.get(i).getStep();
@@ -72,28 +74,28 @@ public class SamplesUtils {
 //                    markers.add(new IntervalMarker(step_marker_start_timestamp, (long) (values.get(i).getTime() / Plot.time_divisor)));
 //                    step_marker_start = 0;
 //                }
-//                samples.add(values.get(i));
+//                samples_for_batch.add(values.get(i));
 //                i++;
 //            } else {
-//                if (samples.isEmpty()==false) {
-//                    Batch batch = new Batch(samples);
+//                if (samples_for_batch.isEmpty()==false) {
+//                    Batch batch = new Batch(samples_for_batch);
 //                    batch.setTrunk(trunk);
 //                    batch.setMarkers(markers);
 //                    batch.setTitle("Trunk " + trunk + ": " + values.get(i - 1).getAction());
 //                    batches.add(batch);
-//                    samples.clear();
+//                    samples_for_batch.clear();
 //                    markers.clear();
 //                    trunk = values.get(i).getTrunk();
 //                }
 //            }
 //        }
-//        if (samples.isEmpty() == false) {
-//            Batch batch = new Batch(samples);
+//        if (samples_for_batch.isEmpty() == false) {
+//            Batch batch = new Batch(samples_for_batch);
 //            batch.setTrunk(trunk);
 //            batch.setMarkers(markers);
 //            batch.setTitle("Trunk " + trunk + ": " + values.get(i - 1).getAction());
 //            batches.add(batch);
-//            samples.clear();
+//            samples_for_batch.clear();
 //            markers.clear();
 //        }
 //
@@ -170,7 +172,20 @@ public class SamplesUtils {
         return batches;
     }
 
-    public static List<Batch> getBatchesByTimeRange(ArrayList<Sample> values, int time_range) {
-        return new ArrayList<Batch>();
+    public static List<Batch> getBatchesByTimeRange(ArrayList<Sample> values, long duration) throws Exception {
+        List<Batch> batches=new ArrayList<Batch>();
+        List<Sample> samples_for_batch=new ArrayList<Sample>();
+        Collections.sort(values, new SampleTimeComparator()); // make sure timestamp are ordered
+        long deltaTime=0;
+        for(Sample sample: values) {
+            samples_for_batch.add(sample);
+            deltaTime=(samples_for_batch.get(samples_for_batch.size()-1).getTime()-samples_for_batch.get(0).getTime());
+            if (deltaTime>= duration) {
+                batches.add(new Batch(samples_for_batch));
+                samples_for_batch.clear();
+            }  
+        }
+        // last batch skipped if dimension not big enough
+        return batches;
     }
 }

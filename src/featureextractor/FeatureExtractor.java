@@ -42,7 +42,7 @@ public class FeatureExtractor {
     private boolean arff_enabled = true;
     private boolean feature_enabled = true;
     private boolean gravity_remove = false;
-    private int time_range = 2000; // ms
+    private long time_range = 488000000; // ms
     private String[] features_types = new String[]{"std", "mean", "variance"};
 
     public enum BATCH_CREATION_MODE {
@@ -75,13 +75,23 @@ public class FeatureExtractor {
         db_extractor = new DbExtractor(file);
     }
 
+    public long getTime_range() {
+        return time_range;
+    }
+
+    public void setTime_range(long time_range) {
+        this.time_range = time_range;
+    }
+
+    
     public float getAverageStepDuration() throws Exception {
         float avg_for_step = db_extractor.getAvgSamplesForStep();
         float sampling_rate = db_extractor.getSamplingRate();
+        float ratio=avg_for_step / sampling_rate;
         System.out.println("Avg samples for step: " + avg_for_step);
         System.out.println("Sampling rate: " + sampling_rate);
-        System.out.println("ratio: " + avg_for_step / sampling_rate);
-        return avg_for_step / sampling_rate;
+        System.out.println("ratio: " + ratio);
+        return ratio;
     }
 
     public DbExtractor getDbExtractor() {
