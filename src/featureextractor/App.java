@@ -17,7 +17,7 @@ import weka.classifiers.trees.RandomForest;
  */
 public class App {
 
-    final private static String[] dbs = new String[]{"accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "accelbench_20131110162117.db", "accelbench_20131113225612_NOSTAIRS.db", "accelbench_20131113231049_STAIR.db", "accelbench_20131113231246_NOSTAIRS.db", "accelbench_20131113233157_NOSTAIRS.db", "accelbench_20131115152325_SCALE.db", "accelbench_20131115152238_NONSTAIR_VELOCE.db", "accelbench_20131118205809_NOSTAIRS.db", "matteo/accelbench_20131119220216.db", "matteo/accelbench_20131119004850.db", "matteo/accelbench_20131123002545.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
+    final private static String[] dbs = new String[]{"accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "accelbench_20131110162117.db", "accelbench_20131113225612_NOSTAIRS.db", "accelbench_20131113231049_STAIR.db", "accelbench_20131113231246_NOSTAIRS.db", "accelbench_20131113233157_NOSTAIRS.db", "accelbench_20131115152325_SCALE.db", "accelbench_20131115152238_NONSTAIR_VELOCE.db", "accelbench_20131118205809_NOSTAIRS.db", "matteo/accelbench_20131119220216.db", "matteo/accelbench_20131119004850.db", "matteo/accelbench_20131123002545_GALAXY_NEXUS.db", "matteo/accelbench_20131125090116_NEXUS4.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
     final private static String[] validation_dbs = dbs; // "accelbench_20131110161959_NONSTAIRS.db", 
     final private static String[] actions = new String[]{"NON_STAIR", "STAIR_DOWNSTAIRS", "STAIR_UPSTAIRS"};
 
@@ -112,7 +112,7 @@ public class App {
                 case TRUNK_PLOTTER:
 //                    String[] still_dbs=new String[]{"flat/accelbench_20131121002432_NEXUS.db", "flat/accelbench_20131121002259_GALAXY.db"};
 //                    for (String db : dbs) {
-                    String db2 = "matteo/accelbench_20131123002545.db";
+                    String db2 = "matteo/accelbench_20131125090116_NEXUS4.db";
                     featureExtractor.setDb("data/db/" + db2);
                     System.out.println("data/db/" + db2);
                     //                  featureExtractor.setTrunkIDs();
@@ -121,7 +121,7 @@ public class App {
                     featureExtractor.setGravity_remove(false);
                     featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
                     featureExtractor.extract();
-                    featureExtractor.enableMinDiff((float) 0);
+//                    featureExtractor.enableMinDiff((float) 0);
                     featureExtractor.plot();
 //                    }
                     break;
