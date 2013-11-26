@@ -22,6 +22,7 @@ import featureextractor.weka.ARFFAttribute;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -119,6 +120,10 @@ public class FeatureExtractor {
             throw new Exception("No source DB set");
         }
         db_extractor.setTrunkIDs();
+    }
+    
+    public int getSamplesCount() throws Exception {
+        return db_extractor.getSamplesCount();
     }
 
     public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws Exception {

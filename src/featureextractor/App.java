@@ -74,9 +74,12 @@ public class App {
 //                    break;
                 case CLASSIFIER:
                     long avg_step_duration=getAverageStepForAllDb();
+                    int samples_count=0;
                     for (String db_path : dbs) {
                         db_path = "data" + File.separator + "db" + File.separator + db_path;
                         featureExtractor.setDb(db_path);
+                        samples_count+=featureExtractor.getSamplesCount();
+                        System.out.println(db_path+": "+samples_count+" samples");
                         featureExtractor.setBatchSize(20);
                         featureExtractor.setArffEnabled(true);
                         featureExtractor.setGravity_remove(false);
@@ -106,6 +109,8 @@ public class App {
                         System.out.println(classifier.getRevision());
                     }
                     System.out.println("Using average step duration: "+avg_step_duration);
+                    System.out.println("Using "+samples_count+" samples in total");
+                    
                     break;
                 case TRUNK_PLOTTER:
 //                    String[] still_dbs=new String[]{"flat/accelbench_20131121002432_NEXUS.db", "flat/accelbench_20131121002259_GALAXY.db"};
