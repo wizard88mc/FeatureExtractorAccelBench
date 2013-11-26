@@ -78,8 +78,9 @@ public class App {
                     for (String db_path : dbs) {
                         db_path = "data" + File.separator + "db" + File.separator + db_path;
                         featureExtractor.setDb(db_path);
-                        samples_count+=featureExtractor.getSamplesCount();
-                        System.out.println(db_path+": "+samples_count+" samples");
+                        int samples_count_per_db=featureExtractor.getSamplesCount();
+                        samples_count+=samples_count_per_db;
+                        System.out.println(db_path+": "+samples_count_per_db+" samples");
                         featureExtractor.setBatchSize(20);
                         featureExtractor.setArffEnabled(true);
                         featureExtractor.setGravity_remove(false);

@@ -245,7 +245,7 @@ public class FeatureExtractor {
             int i = 1;
             arff.addClass(className);
             for (Batch batch : batches) {
-                System.out.println("\n*** Batch " + i + " *** (" + batch.size() + " samples)");
+//                System.out.println("\n*** Batch " + i + " *** (" + batch.size() + " samples)");
                 List<FeatureSet> features = null;
                 if (feature_enabled) {
                     features = batch.getFeatures();
