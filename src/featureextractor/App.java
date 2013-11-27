@@ -15,7 +15,68 @@ import weka.classifiers.trees.J48;
  */
 public class App {
 
-    final private static String[] dbs = new String[]{"accelbench_20130825164535.db", "accelbench_20130825213441.db", "accelbench_20130826181943.db", "accelbench_20131107001720.db", "accelbench_20131110162117.db", "accelbench_20131113225612_NOSTAIRS.db", "accelbench_20131113231049_STAIR.db", "accelbench_20131113231246_NOSTAIRS.db", "accelbench_20131113233157_NOSTAIRS.db", "accelbench_20131115152325_SCALE.db", "accelbench_20131115152238_NONSTAIR_VELOCE.db", "accelbench_20131118205809_NOSTAIRS.db", "matteo/accelbench_20131119220216.db", "matteo/accelbench_20131119004850.db", "matteo/accelbench_20131123002545_GALAXY_NEXUS.db", "matteo/accelbench_20131125090116_NEXUS4.db", "matteo/accelbench_20131125204755_NEXUS4_NONSTAIR.db"}; // "accelbench_matteo.db", "accelbench_prof.db", 
+    final private static String[] dbs = new String[]{
+        "accelbench_20130825164535.db", 
+        "accelbench_20130825213441.db", 
+        "accelbench_20130826181943.db", 
+        "accelbench_20131107001720.db", 
+        "accelbench_20131110162117.db", 
+        "accelbench_20131113225612_NOSTAIRS.db", 
+        "accelbench_20131113231049_STAIR.db", 
+        "accelbench_20131113231246_NOSTAIRS.db", 
+        "accelbench_20131113233157_NOSTAIRS.db", 
+        "accelbench_20131115152325_SCALE.db", 
+        "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
+        "accelbench_20131118205809_NOSTAIRS.db", 
+        "matteo/accelbench_20131119220216.db", 
+        "matteo/accelbench_20131119004850.db", 
+        "matteo/accelbench_20131123002545_GALAXY_NEXUS.db", 
+        "matteo/accelbench_20131125090116_NEXUS4.db", 
+        "matteo/accelbench_20131125204755_NEXUS4_NONSTAIR.db", 
+        "torre/accelbench_20131127121019_STAIR.db", 
+        "torre/accelbench_20131127121623_NON_STAIR.db", 
+        "nonstair/accelbench_20131127210819.db", 
+        "nonstair/accelbench_20131127210009.db",
+        "nonstair/accelbench_20131127210108.db",
+        "nonstair/accelbench_20131127210355.db",
+        "nonstair/accelbench_20131127210819.db",
+         // from now on duplicated samples
+        "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
+        "accelbench_20131118205809_NOSTAIRS.db", 
+        "accelbench_20131113231246_NOSTAIRS.db", 
+        "accelbench_20131113233157_NOSTAIRS.db", 
+        "nonstair/accelbench_20131127210819.db", 
+        "nonstair/accelbench_20131127210009.db",
+        "nonstair/accelbench_20131127210108.db",
+        "nonstair/accelbench_20131127210355.db",
+                "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
+        "accelbench_20131118205809_NOSTAIRS.db", 
+        "accelbench_20131113231246_NOSTAIRS.db", 
+        "accelbench_20131113233157_NOSTAIRS.db", 
+        "nonstair/accelbench_20131127210819.db", 
+        "nonstair/accelbench_20131127210009.db",
+        "nonstair/accelbench_20131127210108.db",
+        "nonstair/accelbench_20131127210355.db",
+                "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
+        "accelbench_20131118205809_NOSTAIRS.db", 
+        "accelbench_20131113231246_NOSTAIRS.db", 
+        "accelbench_20131113233157_NOSTAIRS.db", 
+        "nonstair/accelbench_20131127210819.db", 
+        "nonstair/accelbench_20131127210009.db",
+        "nonstair/accelbench_20131127210108.db",
+        "nonstair/accelbench_20131127210355.db",
+                "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
+        "accelbench_20131118205809_NOSTAIRS.db", 
+        "accelbench_20131113231246_NOSTAIRS.db", 
+        "accelbench_20131113233157_NOSTAIRS.db", 
+        "nonstair/accelbench_20131127210819.db", 
+        "nonstair/accelbench_20131127210009.db",
+        "nonstair/accelbench_20131127210108.db",
+        "nonstair/accelbench_20131127210355.db",
+ 
+        
+
+    }; // "accelbench_matteo.db", "accelbench_prof.db", 
     final private static String[] validation_dbs = dbs; // "accelbench_20131110161959_NONSTAIRS.db", 
     final private static String[] actions = new String[]{"NON_STAIR", "STAIR_DOWNSTAIRS", "STAIR_UPSTAIRS"};
 
@@ -114,14 +175,15 @@ public class App {
                         weka.testClassifier(classifier);
                         System.out.println(classifier.getRevision());
                     }
+                    float percentage_stair=(float)total_stair_samples_count/(float)total_samples_count*100;
                     System.out.println("Using average step duration: "+avg_step_duration);
-                    System.out.println("Using "+total_samples_count+" samples in total ("+total_stair_samples_count+" stair, "+total_nonstair_samples_count+" nonstairs)");
+                    System.out.println("Using "+total_samples_count+" samples in total ("+total_stair_samples_count+" stair, "+total_nonstair_samples_count+" nonstairs - "+percentage_stair+"%)");
                     
                     break;
                 case TRUNK_PLOTTER:
 //                    String[] still_dbs=new String[]{"flat/accelbench_20131121002432_NEXUS.db", "flat/accelbench_20131121002259_GALAXY.db"};
 //                    for (String db : dbs) {
-                    String db2 = "matteo/accelbench_20131125204755_NEXUS4_NONSTAIR.db";
+                    String db2 = "torre/accelbench_20131127121019_STAIR.db";
                     featureExtractor.setDb("data/db/" + db2);
                     System.out.println("data/db/" + db2);
                     //                  featureExtractor.setTrunkIDs();
