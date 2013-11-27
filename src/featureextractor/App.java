@@ -74,13 +74,18 @@ public class App {
 //                    break;
                 case CLASSIFIER:
                     long avg_step_duration=getAverageStepForAllDb();
-                    int samples_count=0;
+                    int total_samples_count=0,total_stair_samples_count=0,total_nonstair_samples_count=0;
+                    int samples_count_per_db,stair_samples_count_per_db=0,nonstair_samples_count_per_db=0;
                     for (String db_path : dbs) {
                         db_path = "data" + File.separator + "db" + File.separator + db_path;
                         featureExtractor.setDb(db_path);
-                        int samples_count_per_db=featureExtractor.getSamplesCount();
-                        samples_count+=samples_count_per_db;
-                        System.out.println(db_path+": "+samples_count_per_db+" samples");
+                        samples_count_per_db=featureExtractor.getSamplesCount();
+                        stair_samples_count_per_db=featureExtractor.getStairSamplesCount();
+                        nonstair_samples_count_per_db=featureExtractor.getNonstairSamplesCount();
+                        total_samples_count+=samples_count_per_db;
+                        total_stair_samples_count+=stair_samples_count_per_db;
+                        total_nonstair_samples_count+=nonstair_samples_count_per_db;
+                        System.out.println(db_path+": "+samples_count_per_db+" samples ("+stair_samples_count_per_db+" STAIR, "+nonstair_samples_count_per_db+" nonstair)");
                         featureExtractor.setBatchSize(20);
                         featureExtractor.setArffEnabled(true);
                         featureExtractor.setGravity_remove(false);
@@ -110,7 +115,7 @@ public class App {
                         System.out.println(classifier.getRevision());
                     }
                     System.out.println("Using average step duration: "+avg_step_duration);
-                    System.out.println("Using "+samples_count+" samples in total");
+                    System.out.println("Using "+total_samples_count+" samples in total ("+total_stair_samples_count+" stair, "+total_nonstair_samples_count+" nonstairs)");
                     
                     break;
                 case TRUNK_PLOTTER:

@@ -84,11 +84,10 @@ public class FeatureExtractor {
         this.time_range = time_range;
     }
 
-    
     public float getAverageStepDuration() throws Exception {
         float avg_for_step = db_extractor.getAvgSamplesForStep();
         float sampling_rate = db_extractor.getSamplingRate();
-        float ratio=avg_for_step / sampling_rate;
+        float ratio = avg_for_step / sampling_rate;
         System.out.println("Avg samples for step: " + avg_for_step);
         System.out.println("Sampling rate: " + sampling_rate);
         System.out.println("ratio: " + ratio);
@@ -121,9 +120,17 @@ public class FeatureExtractor {
         }
         db_extractor.setTrunkIDs();
     }
-    
+
     public int getSamplesCount() throws Exception {
         return db_extractor.getSamplesCount();
+    }
+
+    public int getStairSamplesCount() throws Exception {
+        return db_extractor.getStairSamplesCount();
+    }
+
+    public int getNonstairSamplesCount() throws Exception {
+        return db_extractor.getNonStairSamplesCount();
     }
 
     public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws Exception {
