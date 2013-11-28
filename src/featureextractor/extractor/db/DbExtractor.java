@@ -152,6 +152,29 @@ public class DbExtractor {
         }
     }
 
+    public int getSamplesCount() throws SQLException, FileNotFoundException, ClassNotFoundException {
+        this.connect();
+        PreparedStatement step_statement = connection.prepareStatement("SELECT COUNT(*) as numsamples FROM samples");
+        ResultSet rs = step_statement.executeQuery();
+        return rs.getInt("numsamples");
+    }
+
+    public int getStairSamplesCount() throws SQLException, FileNotFoundException, ClassNotFoundException {
+        this.connect();
+        PreparedStatement step_statement = connection.prepareStatement("SELECT COUNT(*) as numsamples FROM samples WHERE action!=?");
+        step_statement.setString(1, "NON_STAIR");
+        ResultSet rs = step_statement.executeQuery();
+        return rs.getInt("numsamples");
+    }
+
+    public int getNonStairSamplesCount() throws SQLException, FileNotFoundException, ClassNotFoundException {
+        this.connect();
+        PreparedStatement step_statement = connection.prepareStatement("SELECT COUNT(*) as numsamples FROM samples WHERE action=?");
+        step_statement.setString(1, "NON_STAIR");
+        ResultSet rs = step_statement.executeQuery();
+        return rs.getInt("numsamples");
+    }
+
     private int nextStepId() throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
         PreparedStatement step_statement = connection.prepareStatement("SELECT MAX(step)+1 as next_step FROM samples");

@@ -23,6 +23,7 @@ import featureextractor.weka.ARFFAttribute;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -85,11 +86,10 @@ public class FeatureExtractor {
         this.time_range = time_range;
     }
 
-    
     public float getAverageStepDuration() throws Exception {
         float avg_for_step = db_extractor.getAvgSamplesForStep();
         float sampling_rate = db_extractor.getSamplingRate();
-        float ratio=avg_for_step / sampling_rate;
+        float ratio = avg_for_step / sampling_rate;
         System.out.println("Avg samples for step: " + avg_for_step);
         System.out.println("Sampling rate: " + sampling_rate);
         System.out.println("ratio: " + ratio);
@@ -121,6 +121,18 @@ public class FeatureExtractor {
             throw new Exception("No source DB set");
         }
         db_extractor.setTrunkIDs();
+    }
+
+    public int getSamplesCount() throws Exception {
+        return db_extractor.getSamplesCount();
+    }
+
+    public int getStairSamplesCount() throws Exception {
+        return db_extractor.getStairSamplesCount();
+    }
+
+    public int getNonstairSamplesCount() throws Exception {
+        return db_extractor.getNonStairSamplesCount();
     }
 
     public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws Exception {
@@ -242,7 +254,7 @@ public class FeatureExtractor {
             int i = 1;
             arff.addClass(className);
             for (Batch batch : batches) {
-                System.out.println("\n*** Batch " + i + " *** (" + batch.size() + " samples)");
+//                System.out.println("\n*** Batch " + i + " *** (" + batch.size() + " samples)");
                 List<FeatureSet> features = null;
                 if (feature_enabled) {
                     features = batch.getFeatures();
