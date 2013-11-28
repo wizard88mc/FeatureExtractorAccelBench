@@ -27,7 +27,6 @@ public class Batch {
     private String mode;
     private int trunk = 0;
     
-
     static {
         coordinates_mapping.put(0, "X");
         coordinates_mapping.put(1, "Y");
@@ -113,8 +112,24 @@ public class Batch {
         List<FeatureSet> features = new ArrayList<FeatureSet>();
         for (int i = 0; i < values.size(); i++) {
             values.get(i).normalize(values);
-            features.add(new FeatureSet(coordinates_mapping.get(i), values.get(i).getMean(), values.get(i).getVariance(), values.get(i).getStandardDeviation()));
+            features.add(new FeatureSet(coordinates_mapping.get(i), 
+                    values.get(i).getMean(), values.get(i).getVariance(), 
+                    values.get(i).getStandardDeviation(), 
+                    values.get(i).getMin(), values.get(i).getMax()));
         }
         return features;
+    }
+    
+    public SingleCoordinateSet getRightAxesValues(String name) {
+        
+        SingleCoordinateSet axesValues = null;
+        
+        for (SingleCoordinateSet axValues: values) {
+            if (axValues.getTitle().equals(name)) {
+                axesValues = axValues;
+            }
+        }
+        
+        return axesValues;
     }
 }

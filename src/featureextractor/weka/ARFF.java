@@ -5,6 +5,7 @@
 package featureextractor.weka;
 
 import featureextractor.model.FeatureSet;
+import featureextractor.model.TimeFeature;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,13 +62,27 @@ public class ARFF {
         this.data.addAll(data);
     }
 
-    public void addAllFeaturesData(String title, List<FeatureSet> featureSets) {
+    public void addAllFeaturesData(String title, List<FeatureSet> featureSets, 
+            TimeFeature timeFeature, List<Double> ratios) {
+        
         List<Double> data_row = new ArrayList<Double>();
         for (FeatureSet featureSet : featureSets) {
             data_row.add(featureSet.getMean());
             data_row.add(featureSet.getStd());
             data_row.add(featureSet.getVariance());
         }
+        
+        if (timeFeature != null) {
+            data_row.add(timeFeature.getMagnitudeMean());
+            data_row.add(timeFeature.getSignalMagnitudeArea());
+            data_row.addAll(timeFeature.getCorrelations());
+        }
+        
+        if (ratios != null) {
+            data_row.addAll(ratios);
+        }
+        
+        
         this.addData(new ARFFData(title, data_row));
     }
 
