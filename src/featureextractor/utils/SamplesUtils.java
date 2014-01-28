@@ -50,11 +50,11 @@ public class SamplesUtils {
         return batches;
     }
 
-    public static List<Batch> getBatchesByTrunk(ArrayList<Sample> values, DbExtractor db_extractor) throws Exception {
+    public static List<Batch> getBatchesByTrunk(ArrayList<Sample> values, DbExtractor db_extractor, boolean linear) throws Exception {
         if (values.isEmpty()) {
             throw new Exception("No sample provided");
         }
-        return db_extractor.extractByTrunk();
+        return db_extractor.extractByTrunk(linear);
 //        int num_samples = values.size();
 //        List<Batch> batches = new ArrayList<Batch>();
 //        List<IntervalMarker> markers = new ArrayList<IntervalMarker>();

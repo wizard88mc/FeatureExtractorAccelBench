@@ -28,6 +28,18 @@ public class DbExtractor {
     private File db_path;
     private Connection connection = null;
     private double min_diff_for_next_batch = 1000000000;
+    private String dbAccelerometer = "samples_accelerometer";
+    //private String dbAccelerometer = "samples";
+    private String dbLinear = "samples_linear";
+    
+    private String getRightDB(boolean linear) {
+        if (!linear) {
+            return dbAccelerometer;
+        }
+        else {
+            return dbLinear;
+        }
+    }
 
     public DbExtractor(File db_path) {
         this.db_path = db_path;
@@ -43,25 +55,25 @@ public class DbExtractor {
         }
     }
 
-    public int countByAction(String action) throws FileNotFoundException, ClassNotFoundException, SQLException {
+    public int countByAction(String action, boolean linear) throws FileNotFoundException, ClassNotFoundException, SQLException {
         this.connect();
-        String query = "SELECT COUNT(*) as numsamples FROM samples WHERE action=?";
+        String query = "SELECT COUNT(*) as numsamples FROM " + getRightDB(linear) + " WHERE action=?";
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setString(1, action);
         ResultSet rs = ps.executeQuery();
         return rs.getInt("numsamples");
     }
 
-    private boolean checkActionExistence(String action) throws FileNotFoundException, ClassNotFoundException, SQLException {
-        return this.countByAction(action) == 0;
+    private boolean checkActionExistence(String action, boolean linear) throws FileNotFoundException, ClassNotFoundException, SQLException {
+        return this.countByAction(action, linear) == 0;
     }
 
-    public List<int[]> getTrunkIDs() throws SQLException, FileNotFoundException, ClassNotFoundException {
+    public List<int[]> getTrunkIDs(boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
-        PreparedStatement reset = connection.prepareStatement("UPDATE samples SET trunk=NULL");
+        PreparedStatement reset = connection.prepareStatement("UPDATE " + getRightDB(linear) + " SET trunk=NULL");
         reset.execute();
         // check for different sampling trunk
-        String query = "SELECT s.ROWID,s.timestamp,(SELECT timestamp FROM samples s2 WHERE ROWID=s.ROWID-1) as previous_timestamp,ABS(s.timestamp - (SELECT timestamp FROM samples s2 WHERE ROWID=s.ROWID-1)) as diff FROM samples s WHERE diff>1000000000 ORDER BY s.ROWID";
+        String query = "SELECT s.ROWID,s.timestamp,(SELECT timestamp FROM " + getRightDB(linear) + " s2 WHERE ROWID=s.ROWID-1) as previous_timestamp,ABS(s.timestamp - (SELECT timestamp FROM " + getRightDB(linear) + " s2 WHERE ROWID=s.ROWID-1)) as diff FROM " + getRightDB(linear) + " s WHERE diff>1000000000 ORDER BY s.ROWID";
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         List<int[]> ids = new ArrayList<int[]>();
@@ -75,10 +87,10 @@ public class DbExtractor {
         return ids;
     }
 
-    public void setTrunkIDs() throws SQLException, FileNotFoundException, ClassNotFoundException {
+    public void setTrunkIDs(boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
         int i = 1;
-        for (int[] trunk : this.getTrunkIDs()) {
-            String query = "UPDATE samples SET trunk=? WHERE ROWID>=? AND ROWID<=? AND trunk IS NULL";
+        for (int[] trunk : this.getTrunkIDs(linear)) {
+            String query = "UPDATE " + getRightDB(linear) + " SET trunk=? WHERE ROWID>=? AND ROWID<=? AND trunk IS NULL";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, i);
             ps.setInt(2, trunk[0]);
@@ -88,35 +100,35 @@ public class DbExtractor {
         }
     }
 
-    public void deleteTrunk(int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
-        PreparedStatement delete_statement = connection.prepareStatement("DELETE FROM samples WHERE trunk=?");
+    public void deleteTrunk(int trunk_id, boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        PreparedStatement delete_statement = connection.prepareStatement("DELETE FROM " + getRightDB(linear) + " WHERE trunk=?");
         delete_statement.setInt(1, trunk_id);
         delete_statement.execute();
     }
 
-    public void deleteAllSteps(int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
-        PreparedStatement reset_statement = connection.prepareStatement("UPDATE samples SET step=0 WHERE trunk=?");
+    public void deleteAllSteps(int trunk_id, boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        PreparedStatement reset_statement = connection.prepareStatement("UPDATE " + getRightDB(linear) + " SET step=0 WHERE trunk=?");
         reset_statement.setInt(1, trunk_id);
         reset_statement.execute();
     }
 
-    public void setTrunkMode(int trunk_id, String mode) throws SQLException, FileNotFoundException, ClassNotFoundException {
-        PreparedStatement reset_statement = connection.prepareStatement("UPDATE samples SET mode=? WHERE trunk=?");
+    public void setTrunkMode(int trunk_id, String mode, boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        PreparedStatement reset_statement = connection.prepareStatement("UPDATE " + getRightDB(linear) +" SET mode=? WHERE trunk=?");
         reset_statement.setString(1, mode);
         reset_statement.setInt(2, trunk_id);
         reset_statement.execute();
     }
 
-    public void setTrunkAsInTasca(int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
-        setTrunkMode(trunk_id, "TASCA");
+    public void setTrunkAsInTasca(int trunk_id, boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        setTrunkMode(trunk_id, "TASCA", linear);
     }
 
-    public void setTrunkAsInMano(int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
-        setTrunkMode(trunk_id, "MANO");
+    public void setTrunkAsInMano(int trunk_id, boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
+        setTrunkMode(trunk_id, "MANO", linear);
     }
 
-    public List<IntervalMarker> getMarkersForTrunk(int trunk_id) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT trunk,MIN(timestamp) as mintimestamp,MAX(timestamp) as maxtimestamp FROM samples WHERE trunk=? AND step!=0 AND step IS NOT NULL GROUP BY step");
+    public List<IntervalMarker> getMarkersForTrunk(int trunk_id,  boolean linear) throws Exception {
+        PreparedStatement statement = connection.prepareStatement("SELECT trunk,MIN(timestamp) as mintimestamp,MAX(timestamp) as maxtimestamp FROM " + getRightDB(linear) + " WHERE trunk=? AND step!=0 AND step IS NOT NULL GROUP BY step");
         statement.setInt(1, trunk_id);
         ResultSet rs = statement.executeQuery();
         List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
@@ -129,11 +141,11 @@ public class DbExtractor {
         return markers;
     }
 
-    public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws SQLException, FileNotFoundException, ClassNotFoundException {
+    public void applyTrunkFixes(List<TrunkFixSpec> fixes, boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
         System.out.println("Applying " + fixes.size() + " fixes to trunks");
-        PreparedStatement update_statement = connection.prepareStatement("UPDATE samples SET action=? WHERE trunk=? AND (timestamp/? < ? OR timestamp/? > ?)");
-        PreparedStatement delete_statement = connection.prepareStatement("DELETE FROM samples WHERE trunk=?");
+        PreparedStatement update_statement = connection.prepareStatement("UPDATE " + getRightDB(linear) + " SET action=? WHERE trunk=? AND (timestamp/? < ? OR timestamp/? > ?)");
+        PreparedStatement delete_statement = connection.prepareStatement("DELETE FROM " + getRightDB(linear) + " WHERE trunk=?");
         for (TrunkFixSpec fix : fixes) {
             if (fix.isSkip()) {
                 System.out.println("Deleting trunk " + fix.getTrunkId());
@@ -152,46 +164,46 @@ public class DbExtractor {
         }
     }
 
-    public int getSamplesCount() throws SQLException, FileNotFoundException, ClassNotFoundException {
+    public int getSamplesCount(boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
-        PreparedStatement step_statement = connection.prepareStatement("SELECT COUNT(*) as numsamples FROM samples");
+        PreparedStatement step_statement = connection.prepareStatement("SELECT COUNT(*) as numsamples FROM " + getRightDB(linear));
         ResultSet rs = step_statement.executeQuery();
         return rs.getInt("numsamples");
     }
 
-    public int getStairSamplesCount() throws SQLException, FileNotFoundException, ClassNotFoundException {
+    public int getStairSamplesCount(boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
-        PreparedStatement step_statement = connection.prepareStatement("SELECT COUNT(*) as numsamples FROM samples WHERE action!=?");
+        PreparedStatement step_statement = connection.prepareStatement("SELECT COUNT(*) as numsamples FROM " + getRightDB(linear) + " WHERE action!=?");
         step_statement.setString(1, "NON_STAIR");
         ResultSet rs = step_statement.executeQuery();
         return rs.getInt("numsamples");
     }
 
-    public int getNonStairSamplesCount() throws SQLException, FileNotFoundException, ClassNotFoundException {
+    public int getNonStairSamplesCount(boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
-        PreparedStatement step_statement = connection.prepareStatement("SELECT COUNT(*) as numsamples FROM samples WHERE action=?");
+        PreparedStatement step_statement = connection.prepareStatement("SELECT COUNT(*) as numsamples FROM " + getRightDB(linear) + " WHERE action=?");
         step_statement.setString(1, "NON_STAIR");
         ResultSet rs = step_statement.executeQuery();
         return rs.getInt("numsamples");
     }
 
-    private int nextStepId() throws SQLException, FileNotFoundException, ClassNotFoundException {
+    private int nextStepId(boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
-        PreparedStatement step_statement = connection.prepareStatement("SELECT MAX(step)+1 as next_step FROM samples");
+        PreparedStatement step_statement = connection.prepareStatement("SELECT MAX(step)+1 as next_step FROM " + getRightDB(linear));
         ResultSet rs = step_statement.executeQuery();
         return rs.getInt("next_step");
     }
 
-    public void setSteps(List<IntervalMarker> markers, int trunk_id) throws SQLException, FileNotFoundException, ClassNotFoundException {
+    public void setSteps(List<IntervalMarker> markers, int trunk_id, boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
         this.connect();
-        PreparedStatement reset_statement = connection.prepareStatement("UPDATE samples SET step=0 WHERE trunk=?");
+        PreparedStatement reset_statement = connection.prepareStatement("UPDATE " + getRightDB(linear) + " SET step=0 WHERE trunk=?");
         reset_statement.setInt(1, trunk_id);
         reset_statement.execute();
 
         for (IntervalMarker marker : markers) {
-            int step = this.nextStepId();
+            int step = this.nextStepId(linear);
             System.out.println("Set step " + step + " for trunk " + trunk_id + ", timestamp from " + (long) marker.getStartValue() + " to " + (long) marker.getEndValue());
-            PreparedStatement step_statement = connection.prepareStatement("UPDATE samples SET step=? WHERE trunk=? AND (timestamp/? >= ? AND timestamp/? <= ?)");
+            PreparedStatement step_statement = connection.prepareStatement("UPDATE " + getRightDB(linear) + " SET step=? WHERE trunk=? AND (timestamp/? >= ? AND timestamp/? <= ?)");
             step_statement.setInt(1, step);
             step_statement.setInt(2, trunk_id);
             step_statement.setInt(3, Plot.time_divisor);
@@ -202,15 +214,16 @@ public class DbExtractor {
         }
     }
 
-    public ArrayList<Sample> extractByAction(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
+    public ArrayList<Sample> extractByAction(String action, boolean linear) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
         this.connect();
 
-        if (action != null && checkActionExistence(action)) {
+        if (action != null && checkActionExistence(action, linear)) {
             throw new AccelBenchException("No sample for action '" + action + "'");
         }
-        String query = "SELECT ROWID,x,y,z,trunk,action,timestamp,step,mode  FROM samples WHERE action=? ORDER BY ROWID";
+        String query = "SELECT ROWID, x, y, z, rotationX, rotationY, rotationZ, trunk, action, timestamp, step, mode  FROM " 
+                + getRightDB(linear) + " WHERE action=? ORDER BY ROWID";
         if (action == null) {
-            query = "SELECT ROWID,x,y,z,trunk,action,timestamp,step,mode FROM samples ORDER BY ROWID";
+            query = "SELECT ROWID, x, y, z, rotationX, rotationY, rotationZ, trunk, action, timestamp, step, mode FROM " + getRightDB(linear) + " ORDER BY ROWID";
         }
         PreparedStatement ps = connection.prepareStatement(query);
         if (action != null) {
@@ -220,7 +233,9 @@ public class DbExtractor {
         ResultSet rs = ps.executeQuery();
         ArrayList<Sample> values = new ArrayList<Sample>();
         while (rs.next()) {
-            values.add(new Sample(rs.getLong("timestamp"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getInt("trunk"), rs.getString("action"), rs.getInt("step"), rs.getString("mode")));
+            values.add(new Sample(rs.getLong("timestamp"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), 
+                    rs.getDouble("rotationX"), rs.getDouble("rotationY"), rs.getDouble("rotationZ"), 
+                    rs.getInt("trunk"), rs.getString("action"), rs.getInt("step"), rs.getString("mode")));
         }
         if (values.isEmpty()) {
             throw new AccelBenchException("No sample detected");
@@ -228,35 +243,45 @@ public class DbExtractor {
         return values;
     }
 
-    public ArrayList<Sample> extract(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
+    public ArrayList<Sample> extract(String action, boolean linear) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
         this.connect();
 
-        if (action != null && checkActionExistence(action)) {
+        if (action != null && checkActionExistence(action, linear)) {
             throw new AccelBenchException("No sample for action '" + action + "'");
         }
-        return extractByAction(action);
+        return extractByAction(action, linear);
     }
 
-    public List<Batch> extractByTrunk() throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
+    public List<Batch> extractByTrunk(boolean linear) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
         this.connect();
         List<Sample> values = new ArrayList<Sample>();
         List<Batch> batches = new ArrayList<Batch>();
+        
+        String correctDb = getRightDB(linear);
 
-        String query = "SELECT trunk, MIN(ROWID) as minid,MAX(ROWID) as maxid FROM samples GROUP BY trunk";
+        String query = "SELECT trunk, MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + correctDb + " GROUP BY trunk";
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         int trunk_id = 0, min = 0, max = 0;
+        long lastTimestamp = 0;
         while (rs.next()) {
             trunk_id = rs.getInt("trunk");
             min = rs.getInt("minid");
             max = rs.getInt("maxid");
-            query = "SELECT * FROM samples WHERE ROWID>=? AND ROWID<=?";
+            query = "SELECT * FROM " + correctDb + " WHERE ROWID>=? AND ROWID<=?";
             PreparedStatement get_stmt = connection.prepareStatement(query);
             get_stmt.setInt(1, min);
             get_stmt.setInt(2, max);
             ResultSet rs2 = get_stmt.executeQuery();
             while (rs2.next()) {
-                values.add(new Sample(rs2.getLong("timestamp"), rs2.getDouble("x"), rs2.getDouble("y"), rs2.getDouble("z"), rs2.getInt("trunk"), rs2.getString("action"), rs2.getInt("step"), rs2.getString("mode")));
+                values.add(new Sample(rs2.getLong("timestamp"), rs2.getDouble("x"), rs2.getDouble("y"), rs2.getDouble("z"), 
+                        rs2.getDouble("rotationX"), rs2.getDouble("rotationY"), rs2.getDouble("rotationZ"), 
+                        rs2.getInt("trunk"), rs2.getString("action"), rs2.getInt("step"), rs2.getString("mode")));
+                
+                if (lastTimestamp != 0) {
+                    System.out.println("Diff: " + (rs2.getLong("timestamp") - lastTimestamp)/ 1000000);
+                }
+                lastTimestamp = rs2.getLong("timestamp");
             }
             Batch batch = new Batch(values);
             batch.setTrunk(trunk_id);
@@ -269,9 +294,9 @@ public class DbExtractor {
     }
 
     // to be fixed (timestamp from the moment the mobile has been powered on)
-    public int getSamplingRate() throws Exception {
+    public int getSamplingRate(boolean linear) throws Exception {
         this.connect();
-        String query = "SELECT COUNT(*)/((MAX(timestamp)-MIN(timestamp))/1000000000) as frequenza FROM samples GROUP BY trunk";
+        String query = "SELECT COUNT(*)/((MAX(timestamp)-MIN(timestamp))/1000000000) as frequenza FROM " + getRightDB(linear) + " GROUP BY trunk";
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         int sampling_rate = 0, trunks = 0;
@@ -282,9 +307,9 @@ public class DbExtractor {
         return sampling_rate / trunks;
     }
 
-    public int getAvgSamplesForStep() throws Exception {
+    public int getAvgSamplesForStep(boolean linear) throws Exception {
         this.connect();
-        String query = "SELECT COUNT(*) as count FROM samples WHERE step>0 GROUP BY step";
+        String query = "SELECT COUNT(*) as count FROM " + getRightDB(linear) + " WHERE step>0 GROUP BY step";
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         int sampling_rate = 0, steps = 0;

@@ -38,6 +38,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 public class Plot extends javax.swing.JFrame {
 
     public final static int time_divisor = 10000000;
+    private boolean linear;
     private long[] marker = new long[2];
     private List<IntervalMarker> preexisting_markers = new ArrayList<IntervalMarker>();
     private int marker_idx = 0;
@@ -47,15 +48,16 @@ public class Plot extends javax.swing.JFrame {
     private List<XYSeries> series_container = new ArrayList<XYSeries>();
     private JFreeChart chart;
     private long last_marker = 0;
+    private boolean alreadyPrintedGravity = false;
 
-    private void addPlot() {
+    private void addPlot(boolean gravity) {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setMinimumSize(new Dimension(1024, 768));
         chart = ChartFactory.createXYLineChart(
                 batch.getTitle()+(batch.getMode()!=null?" ("+batch.getMode()+")":""),
                 "Timestamp",
                 "m/s^2",
-                this.createDataset(batch),
+                this.createDataset(batch, gravity),
                 PlotOrientation.VERTICAL,
                 true,
                 true,
@@ -101,22 +103,28 @@ public class Plot extends javax.swing.JFrame {
         }
         this.mainPanel.add(chartPanel, BorderLayout.CENTER);
         this.setVisible(true);
+        
     }
 
     /**
-     * Creates new form Plot
+     * Creates a plot object 
+     * 
+     * @param batch
+     * @param db_extractor
+     * @param linear 
      */
-    public Plot(Batch batch, DbExtractor db_extractor) {
+    public Plot(Batch batch, DbExtractor db_extractor, boolean linear) {
         this.db_extractor = db_extractor;
         this.batch = batch;
+        this.linear = linear;
         batch.getMarkers().clear();
         try {
-            batch.getMarkers().addAll(db_extractor.getMarkersForTrunk(batch.getTrunk()));
+            batch.getMarkers().addAll(db_extractor.getMarkersForTrunk(batch.getTrunk(), linear));
         } catch(Exception ex) {
             System.out.println(ex.getMessage());
         }
         initComponents();
-        addPlot();
+        addPlot(featureextractor.FeatureExtractor.GRAVITY_REMOVE);
     }
 
     public JPanel getMainPanel() {
@@ -127,8 +135,11 @@ public class Plot extends javax.swing.JFrame {
         return txtSelected;
     }
 
-    private XYDataset createDataset(Batch batch) {
+    private XYDataset createDataset(Batch batch, boolean gravity) {
         java.util.List<SingleCoordinateSet> axes = batch.getValues();
+        if (gravity) {
+            axes = batch.getValuesWithoutGravity();
+        }
         dataset = new XYSeriesCollection();
         for (int axis = 0; axis < axes.size(); axis++) {
             XYSeries series = new XYSeries(axes.get(axis).getTitle());
@@ -318,7 +329,7 @@ public class Plot extends javax.swing.JFrame {
             if (batch.getTrunk() == 0) {
                 throw new Exception("This batch is not a trunk");
             }
-            db_extractor.setSteps(batch.getMarkers(), batch.getTrunk());
+            db_extractor.setSteps(batch.getMarkers(), batch.getTrunk(), this.linear);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
@@ -337,7 +348,7 @@ public class Plot extends javax.swing.JFrame {
         try {
             int choice = JOptionPane.showConfirmDialog(this, "Do you want to delete trunk " + batch.getTrunk(), "CONFIRM", JOptionPane.YES_NO_OPTION);
             if (choice == JOptionPane.YES_OPTION) {
-                db_extractor.deleteTrunk(batch.getTrunk());
+                db_extractor.deleteTrunk(batch.getTrunk(), this.linear);
                 this.dispose();
             }
         } catch (Exception ex) {
@@ -382,7 +393,7 @@ public class Plot extends javax.swing.JFrame {
 
     private void btnDeleteAllStepsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAllStepsActionPerformed
         try {
-            db_extractor.deleteAllSteps(batch.getTrunk());
+            db_extractor.deleteAllSteps(batch.getTrunk(), this.linear);
             for (Marker marker : batch.getMarkers()) {
                 chart.getXYPlot().removeDomainMarker(marker);
             }
@@ -396,7 +407,7 @@ public class Plot extends javax.swing.JFrame {
     private void btnSetInTascaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetInTascaActionPerformed
         try {
             System.out.println("Setting as in tasca");
-            db_extractor.setTrunkAsInTasca(batch.getTrunk());
+            db_extractor.setTrunkAsInTasca(batch.getTrunk(), this.linear);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
@@ -406,7 +417,7 @@ public class Plot extends javax.swing.JFrame {
     private void btnSetInManoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetInManoActionPerformed
         try {
             System.out.println("Setting as in mano");
-            db_extractor.setTrunkAsInMano(batch.getTrunk());
+            db_extractor.setTrunkAsInMano(batch.getTrunk(), this.linear);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();

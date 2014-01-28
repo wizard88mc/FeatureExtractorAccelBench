@@ -7,6 +7,7 @@ package featureextractor;
 import featureextractor.weka.Weka;
 import java.io.File;
 import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 
 /**
@@ -32,7 +33,8 @@ public class App {
         "matteo/accelbench_20131119004850.db", 
         "matteo/accelbench_20131123002545_GALAXY_NEXUS.db", 
         "matteo/accelbench_20131125090116_NEXUS4.db", 
-        "matteo/accelbench_20131125204755_NEXUS4_NONSTAIR.db", 
+        "matteo/accelbench_20131125204755_NEXUS4_NONSTAIR.db",
+        "matteo/accelbench_20131129094849_NEXUS4_NOSTAIRS.db",
         "torre/accelbench_20131127121019_STAIR.db", 
         "torre/accelbench_20131127121623_NON_STAIR.db", 
         "nonstair/accelbench_20131127210819.db", 
@@ -49,7 +51,7 @@ public class App {
         "nonstair/accelbench_20131127210009.db",
         "nonstair/accelbench_20131127210108.db",
         "nonstair/accelbench_20131127210355.db",
-                "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
+        "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
         "accelbench_20131118205809_NOSTAIRS.db", 
         "accelbench_20131113231246_NOSTAIRS.db", 
         "accelbench_20131113233157_NOSTAIRS.db", 
@@ -57,7 +59,7 @@ public class App {
         "nonstair/accelbench_20131127210009.db",
         "nonstair/accelbench_20131127210108.db",
         "nonstair/accelbench_20131127210355.db",
-                "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
+        "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
         "accelbench_20131118205809_NOSTAIRS.db", 
         "accelbench_20131113231246_NOSTAIRS.db", 
         "accelbench_20131113233157_NOSTAIRS.db", 
@@ -65,7 +67,7 @@ public class App {
         "nonstair/accelbench_20131127210009.db",
         "nonstair/accelbench_20131127210108.db",
         "nonstair/accelbench_20131127210355.db",
-                "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
+        "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
         "accelbench_20131118205809_NOSTAIRS.db", 
         "accelbench_20131113231246_NOSTAIRS.db", 
         "accelbench_20131113233157_NOSTAIRS.db", 
@@ -87,7 +89,7 @@ public class App {
         TRUNK_PLOTTER, // plot each trunk to enable step marking
         STEP_AVG_CALCULATOR // plot each trunk to enable step marking
     };
-    private static MODE mode = MODE.CLASSIFIER;
+    private static MODE mode = MODE.TRUNK_PLOTTER;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor();
@@ -151,6 +153,7 @@ public class App {
                         featureExtractor.setArffEnabled(true);
                         featureExtractor.setGravity_remove(false);
                         featureExtractor.setFeatureEnabled(true);
+                        //featureExtractor.enableMinDiff(0.05f);
                         for (String action : actions) {
                             if (action.equals(actions[0])) {
                                 className = "NONSTAIR";
@@ -174,6 +177,7 @@ public class App {
                         Classifier classifier = weka.classify();
                         weka.testClassifier(classifier);
                         System.out.println(classifier.getRevision());
+                        
                     }
                     float percentage_stair=(float)total_stair_samples_count/(float)total_samples_count*100;
                     System.out.println("Using average step duration: "+avg_step_duration);
@@ -183,16 +187,18 @@ public class App {
                 case TRUNK_PLOTTER:
 //                    String[] still_dbs=new String[]{"flat/accelbench_20131121002432_NEXUS.db", "flat/accelbench_20131121002259_GALAXY.db"};
 //                    for (String db : dbs) {
-                    String db2 = "torre/accelbench_20131127121019_STAIR.db";
-                    featureExtractor.setDb("data/db/" + db2);
-                    System.out.println("data/db/" + db2);
+                    String db2 = "matteo/accelbench.db";
+                    db2 = "michele/accelbench_20140128090735.db";
+                    featureExtractor.setDb("data/completo/" + db2);
+                    System.out.println("data/completo/" + db2);
                     //                  featureExtractor.setTrunkIDs();
                     featureExtractor.setArffEnabled(false); // disable ARFF creation
                     featureExtractor.setFeatureEnabled(false); // disable feature calculation
                     featureExtractor.setGravity_remove(false);
+                    featureExtractor.setLinearOrNot(false);
                     featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
                     featureExtractor.extract();
-//                    featureExtractor.enableMinDiff((float) 0);
+//                  featureExtractor.enableMinDiff((float) 0);
                     featureExtractor.plot();
 //                    }
                     break;

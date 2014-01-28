@@ -34,6 +34,8 @@ import java.util.List;
  */
 public class FeatureExtractor {
 
+    public static boolean GRAVITY_REMOVE = false;
+    public boolean linear = false;
     private static final String ARFF_RELATION = "StairDetection";
     private ARFF arff;
     private DbExtractor db_extractor = null;
@@ -43,7 +45,6 @@ public class FeatureExtractor {
     private int max = range; // default
     private boolean arff_enabled = true;
     private boolean feature_enabled = true;
-    private boolean gravity_remove = false;
     private long time_range = 488000000; // ms
     private String[] features_types = new String[]{"std", "mean", "variance"};
 
@@ -69,6 +70,10 @@ public class FeatureExtractor {
         this.initialize_std_ARFF(axis_to_be_considered, true, true, true, true, 
                 true, true, true, true, true);
     }
+    
+    public void setLinearOrNot(boolean linear) {
+        this.linear = linear;
+    }
 
     public void setDb(String db_path) throws Exception {
         File file = new File(db_path);
@@ -87,8 +92,8 @@ public class FeatureExtractor {
     }
 
     public float getAverageStepDuration() throws Exception {
-        float avg_for_step = db_extractor.getAvgSamplesForStep();
-        float sampling_rate = db_extractor.getSamplingRate();
+        float avg_for_step = db_extractor.getAvgSamplesForStep(this.linear);
+        float sampling_rate = db_extractor.getSamplingRate(this.linear);
         float ratio = avg_for_step / sampling_rate;
         System.out.println("Avg samples for step: " + avg_for_step);
         System.out.println("Sampling rate: " + sampling_rate);
@@ -120,26 +125,26 @@ public class FeatureExtractor {
         if (db_extractor == null) {
             throw new Exception("No source DB set");
         }
-        db_extractor.setTrunkIDs();
+        db_extractor.setTrunkIDs(this.linear);
     }
 
     public int getSamplesCount() throws Exception {
-        return db_extractor.getSamplesCount();
+        return db_extractor.getSamplesCount(this.linear);
     }
 
     public int getStairSamplesCount() throws Exception {
-        return db_extractor.getStairSamplesCount();
+        return db_extractor.getStairSamplesCount(this.linear);
     }
 
     public int getNonstairSamplesCount() throws Exception {
-        return db_extractor.getNonStairSamplesCount();
+        return db_extractor.getNonStairSamplesCount(this.linear);
     }
 
     public void applyTrunkFixes(List<TrunkFixSpec> fixes) throws Exception {
         if (db_extractor == null) {
             throw new Exception("No source DB set");
         }
-        db_extractor.applyTrunkFixes(fixes);
+        db_extractor.applyTrunkFixes(fixes, this.linear);
     }
 
     public void extract() throws Exception {
@@ -147,8 +152,8 @@ public class FeatureExtractor {
     }
 
     public void enableMinDiff(float minDiff) throws Exception {
-        if (batches.isEmpty()) {
-            throw new Exception("No sample extracted yet");
+        if (batches == null || batches.isEmpty()) {
+            return;
         }
         for (Batch batch : batches) {
             for (SingleCoordinateSet set : batch.getValues()) {
@@ -172,11 +177,11 @@ public class FeatureExtractor {
     }
 
     public boolean isGravity_remove() {
-        return gravity_remove;
+        return GRAVITY_REMOVE;
     }
 
     public void setGravity_remove(boolean gravity_remove) {
-        this.gravity_remove = gravity_remove;
+        this.GRAVITY_REMOVE = gravity_remove;
     }
 
     public void extract(String action, String className) throws Exception {
@@ -184,9 +189,9 @@ public class FeatureExtractor {
             throw new Exception("No source DB set");
         }
         try {
-            System.out.println("Detected sampling rate: " + db_extractor.getSamplingRate() + "Hz");
+            System.out.println("Detected sampling rate: " + db_extractor.getSamplingRate(this.linear) + "Hz");
             // create samples from db rows            
-            ArrayList<Sample> samples = db_extractor.extract(action);
+            ArrayList<Sample> samples = db_extractor.extract(action, this.linear);
 
             // create samples batches by selected mode
             batches = null;
@@ -197,9 +202,9 @@ public class FeatureExtractor {
                     break;
                 case INTERLAPPING_SIZE_BY_STEP_AVG:
                     try {
-                        batch_size = db_extractor.getAvgSamplesForStep();
+                        batch_size = db_extractor.getAvgSamplesForStep(this.linear);
                     } catch (ArithmeticException e) { // no step detected: get average batch size by calculating on sampling delay
-                        batch_size = (int) (0.77 * (float) db_extractor.getSamplingRate());
+                        batch_size = (int) (0.77 * (float) db_extractor.getSamplingRate(this.linear));
                     }
                     if (batch_size % 2 == 1) {
                         batch_size++; // make sure it's an even number
@@ -208,7 +213,7 @@ public class FeatureExtractor {
                     batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
                     break;
                 case NON_INTERLAPPING_SIZE_BY_STEP_AVG:
-                    batch_size = db_extractor.getAvgSamplesForStep();
+                    batch_size = db_extractor.getAvgSamplesForStep(this.linear);
                     System.out.println("Selected non-interlapping sliding window with a fixed size of " + batch_size + " samples (average step sampling)");
                     batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samples, batch_size);
                     break;
@@ -230,7 +235,7 @@ public class FeatureExtractor {
                     break;
                 case BY_TRUNK:
                     System.out.println("Selected batches by trunk");
-                    batches = SamplesUtils.getBatchesByTrunk(samples, db_extractor);
+                    batches = SamplesUtils.getBatchesByTrunk(samples, db_extractor, this.linear);
                     break;
                 case BY_STEP:
                     System.out.println("Selected batches by step");
@@ -244,7 +249,7 @@ public class FeatureExtractor {
                     throw new Exception("Unknown batch creation mode");
             }
 
-            if (gravity_remove) {
+            if (GRAVITY_REMOVE) {
                 for (Batch batch : batches) {
                     batch.removeGravity();
                 }
@@ -255,6 +260,7 @@ public class FeatureExtractor {
             arff.addClass(className);
             for (Batch batch : batches) {
 //                System.out.println("\n*** Batch " + i + " *** (" + batch.size() + " samples)");
+                
                 List<FeatureSet> features = null;
                 if (feature_enabled) {
                     features = batch.getFeatures();
@@ -302,7 +308,7 @@ public class FeatureExtractor {
         int max_plot = 200;
         for (Batch batch : batches) {
             if (max_plot > 0) {
-                new Plot(batch, this.db_extractor);
+                new Plot(batch, this.db_extractor, this.linear);
             }
             max_plot--;
 //            GralPlot plot2 = new GralPlot(batch);
@@ -317,7 +323,7 @@ public class FeatureExtractor {
         int i = 0;
         for (Batch batch : batches) {
             if (i >= start) {
-                new Plot(batch, this.db_extractor);
+                new Plot(batch, this.db_extractor, this.linear);
             }
             i++;
         }
@@ -330,7 +336,7 @@ public class FeatureExtractor {
         int i = 0;
         for (Batch batch : batches) {
             if (i >= start && i <= end) {
-                new Plot(batch, this.db_extractor);
+                new Plot(batch, this.db_extractor, this.linear);
             }
             i++;
         }

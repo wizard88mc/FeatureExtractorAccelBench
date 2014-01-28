@@ -15,16 +15,19 @@ public class Sample {
     final private double valueY;
     final private double valueZ;
     final private double valueV;
+    final private double rotationX;
+    final private double rotationY;
+    final private double rotationZ;
     final private String action;
     final private int trunk;
     final private int step;
     final private String mode;
 
-    public Sample(long time, double valueX, double valueY, double valueZ, int trunk, String action, int step, String mode) {
+    public Sample(long time, double valueX, double valueY, double valueZ, double rotationX, 
+            double rotationY, double rotationZ, int trunk, String action, int step, String mode) {
         this.time = time;
-        this.valueX = valueX;
-        this.valueY = valueY;
-        this.valueZ = valueZ;
+        this.valueX = valueX; this.valueY = valueY; this.valueZ = valueZ;
+        this.rotationX = rotationX; this.rotationY = rotationY; this.rotationZ = rotationZ;
         this.trunk = trunk;
         this.action = action;
         this.valueV = Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));

@@ -5,6 +5,7 @@
 package featureextractor.weka;
 
 import java.util.List;
+import java.util.Random;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
@@ -78,7 +79,8 @@ public class Weka {
     
     public Evaluation testClassifier(Classifier cModel, Instances isTestingSet) throws Exception {
         Evaluation eTest = new Evaluation(isTrainingSet);
-        eTest.evaluateModel(cModel, isTestingSet);
+        //eTest.evaluateModel(cModel, isTestingSet);
+        eTest.crossValidateModel(classifier, isTestingSet, 10, new Random(1));
         String strSummary = eTest.toSummaryString();
         System.out.println(strSummary);
         double[][] confusionMatrix=eTest.confusionMatrix();

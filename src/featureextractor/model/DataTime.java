@@ -11,11 +11,11 @@ package featureextractor.model;
 public class DataTime {
 
     private long time;
-    private double value;
-    private double filteredValue;
+    private Double value;
+    private Double filteredValue;
     private int step;
 
-    public DataTime(long time, double value, int step) {
+    public DataTime(long time, Double value, int step) {
         this.time = time;
         this.value = value;
         this.step = step;
@@ -25,7 +25,7 @@ public class DataTime {
         return time;
     }
 
-    public double getValue() {
+    public Double getValue() {
         return value;
     }
 

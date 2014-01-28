@@ -21,11 +21,14 @@ import org.jfree.chart.plot.IntervalMarker;
 public class Batch {
 
     private List<SingleCoordinateSet> values = new ArrayList<SingleCoordinateSet>();
+    private List<SingleCoordinateSet> valuesWithoutGravity = new ArrayList<SingleCoordinateSet>();
     private static HashMap<Integer, String> coordinates_mapping = new HashMap<Integer, String>();
     private List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
     private String title;
     private String mode;
     private int trunk = 0;
+    private int bufferDuration = 2000;
+    private DecimalFormat numberFormat = new DecimalFormat("#0.00");
     
     static {
         coordinates_mapping.put(0, "X");
@@ -73,6 +76,10 @@ public class Batch {
     public List<SingleCoordinateSet> getValues() {
         return values;
     }
+    
+    public List<SingleCoordinateSet> getValuesWithoutGravity() {
+        return valuesWithoutGravity;
+    }
 
     public Batch(List<Sample> samples) throws Exception {
         if (samples.isEmpty()) {
@@ -91,7 +98,7 @@ public class Batch {
         }
     }
 
-    public void removeGravity() {
+    /*public void removeGravity() {
         System.out.println("Removing gravity from samples");
         double alpha = 0.8;
         for (SingleCoordinateSet set : values) {
@@ -101,6 +108,59 @@ public class Batch {
                 dataTime.setValue(dataTime.getValue()-g);
             }
         }
+    }*/
+    
+    public void removeGravity() {
+        
+        for (int i = 0; i < values.size(); i++) {
+                
+            SingleCoordinateSet set = values.get(i);
+            
+            long meanDistanceTimestamp = 0;
+            for (int index = 1; index < set.getValues().size(); index++) {
+                meanDistanceTimestamp += (set.getValues().get(index).getTime() - set.getValues().get(index-1).getTime());
+            }
+            meanDistanceTimestamp /= set.getValues().size();
+            
+            List<DataTime> buffer = new ArrayList<DataTime>();
+            int bufferSize = bufferDuration / (int)(meanDistanceTimestamp / 1000000);
+            boolean bufferFull = false;
+            int nextPositionPoint = 0; 
+            SingleCoordinateSet valuesNoGravity = new SingleCoordinateSet();
+            valuesNoGravity.setTitle(set.getTitle());
+            
+            for (DataTime dataTime : set.getValues()) {
+                
+                buffer.add(nextPositionPoint, dataTime);
+                nextPositionPoint++;
+                
+                if (nextPositionPoint == bufferSize) {
+                    nextPositionPoint = 0;
+                    bufferFull = true;
+                }
+                
+                if (bufferFull) {
+                    float meanValues = 0;
+
+                    for (int j = 0; j < bufferSize; j++) {
+                        meanValues += buffer.get(j).getValue();
+                    }
+                    
+                    meanValues /= bufferSize;
+                    
+                    System.out.println("Media: " + numberFormat.format(meanValues));
+                    
+                    valuesNoGravity.addValue(new DataTime(dataTime.getTime(), 
+                            dataTime.getValue() - meanValues, dataTime.getStep()));
+                }
+                else {
+                    valuesNoGravity.addValue(new DataTime(dataTime.getTime(), null, dataTime.getStep()));
+                }
+            }
+            valuesWithoutGravity.add(valuesNoGravity);
+        }
+        
+        
     }
 
     public void printFeatures() {
