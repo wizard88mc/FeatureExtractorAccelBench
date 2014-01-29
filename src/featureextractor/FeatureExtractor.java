@@ -191,7 +191,8 @@ public class FeatureExtractor {
         try {
             System.out.println("Detected sampling rate: " + db_extractor.getSamplingRate(this.linear) + "Hz");
             // create samples from db rows            
-            ArrayList<Sample> samples = db_extractor.extract(action, this.linear);
+            ArrayList<Sample> samplesAccelerometer = db_extractor.extract(action, false);
+            ArrayList<Sample> samplesLinearAcceleration = db_extractor.extract(action, true);
 
             // create samples batches by selected mode
             batches = null;
@@ -247,12 +248,6 @@ public class FeatureExtractor {
                     break;
                 default:
                     throw new Exception("Unknown batch creation mode");
-            }
-
-            if (GRAVITY_REMOVE) {
-                for (Batch batch : batches) {
-                    batch.removeGravity();
-                }
             }
 
             // loop through batches

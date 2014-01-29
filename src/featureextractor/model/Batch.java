@@ -22,6 +22,10 @@ public class Batch {
 
     private List<SingleCoordinateSet> values = new ArrayList<SingleCoordinateSet>();
     private List<SingleCoordinateSet> valuesWithoutGravity = new ArrayList<SingleCoordinateSet>();
+    private List<SingleCoordinateSet> valuesRotated = new ArrayList<SingleCoordinateSet>();
+    private List<SingleCoordinateSet> valuesWithoutGravityRotated = new ArrayList<SingleCoordinateSet>();
+    private List<SingleCoordinateSet> valuesLinear = new ArrayList<SingleCoordinateSet>();
+    private List<SingleCoordinateSet> valuesLinearRotated = new ArrayList<SingleCoordinateSet>();
     private static HashMap<Integer, String> coordinates_mapping = new HashMap<Integer, String>();
     private List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
     private String title;
@@ -81,36 +85,24 @@ public class Batch {
         return valuesWithoutGravity;
     }
 
-    public Batch(List<Sample> samples) throws Exception {
-        if (samples.isEmpty()) {
+    public Batch(List<Sample> samplesAccelerometer, List<Sample> samplesLinear) throws Exception {
+        if (samplesAccelerometer.isEmpty()) {
             throw new Exception("No element given for this batch");
         }
         for (int i = 0; i < 4; i++) {
             values.add(new SingleCoordinateSet());
             values.get(i).setTitle(coordinates_mapping.get(i));
         }
-        for (int axis = 0; axis < samples.size(); axis++) {
-            Sample sample = samples.get(axis);
+        for (int axis = 0; axis < samplesAccelerometer.size(); axis++) {
+            Sample sample = samplesAccelerometer.get(axis);
             values.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
             values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
             values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
             values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueV(), sample.getStep()));
         }
     }
-
-    /*public void removeGravity() {
-        System.out.println("Removing gravity from samples");
-        double alpha = 0.8;
-        for (SingleCoordinateSet set : values) {
-            double g=0;
-            for (DataTime dataTime : set.getValues()) {
-                g = alpha * g + (1 - alpha) * dataTime.getValue();
-                dataTime.setValue(dataTime.getValue()-g);
-            }
-        }
-    }*/
     
-    public void removeGravity() {
+    public void removeGravity(List<Sample> samplesAccelerometer) {
         
         for (int i = 0; i < values.size(); i++) {
                 

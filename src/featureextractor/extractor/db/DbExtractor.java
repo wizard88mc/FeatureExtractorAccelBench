@@ -220,12 +220,12 @@ public class DbExtractor {
         if (action != null && checkActionExistence(action, linear)) {
             throw new AccelBenchException("No sample for action '" + action + "'");
         }
-        String query = "SELECT ROWID, x, y, z, rotationX, rotationY, rotationZ, trunk, action, timestamp, step, mode  FROM " 
-                + getRightDB(linear) + " WHERE action=? ORDER BY ROWID";
+        String queryAccelerometer = "SELECT ROWID, x, y, z, rotationX, rotationY, rotationZ, trunk, action, timestamp, step, mode  FROM " 
+                + getRightDB(false) + " WHERE action=? ORDER BY ROWID";
         if (action == null) {
-            query = "SELECT ROWID, x, y, z, rotationX, rotationY, rotationZ, trunk, action, timestamp, step, mode FROM " + getRightDB(linear) + " ORDER BY ROWID";
+            queryAccelerometer = "SELECT ROWID, x, y, z, rotationX, rotationY, rotationZ, trunk, action, timestamp, step, mode FROM " + getRightDB(linear) + " ORDER BY ROWID";
         }
-        PreparedStatement ps = connection.prepareStatement(query);
+        PreparedStatement ps = connection.prepareStatement(queryAccelerometer);
         if (action != null) {
             System.out.println("Filtering by action: " + action);
             ps.setString(1, action);
