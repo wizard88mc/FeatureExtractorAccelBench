@@ -189,7 +189,7 @@ public class FeatureExtractor {
             throw new Exception("No source DB set");
         }
         try {
-            System.out.println("Detected sampling rate: " + db_extractor.getSamplingRate(this.linear) + "Hz");
+            System.out.println("Detected sampling rate: " + db_extractor.getSamplingRate(true) + "Hz");
             // create samples from db rows            
             ArrayList<Sample> samplesAccelerometer = db_extractor.extract(action, false);
             ArrayList<Sample> samplesLinearAcceleration = db_extractor.extract(action, true);
@@ -199,7 +199,7 @@ public class FeatureExtractor {
             switch (mode) {
                 case INTERLAPPING_FIXED_SIZE:
                     System.out.println("Selected interlapping sliding window with a fixed size of " + batch_size + " samples");
-                    batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
+                    batches = SamplesUtils.getInterlappingFixedSizeBatches(samplesAccelerometer, batch_size);
                     break;
                 case INTERLAPPING_SIZE_BY_STEP_AVG:
                     try {
@@ -211,40 +211,40 @@ public class FeatureExtractor {
                         batch_size++; // make sure it's an even number
                     }
                     System.out.println("Selected interlapping sliding window with a fixed size of " + batch_size + " samples (average step sampling)");
-                    batches = SamplesUtils.getInterlappingFixedSizeBatches(samples, batch_size);
+                    batches = SamplesUtils.getInterlappingFixedSizeBatches(samplesAccelerometer, batch_size);
                     break;
                 case NON_INTERLAPPING_SIZE_BY_STEP_AVG:
                     batch_size = db_extractor.getAvgSamplesForStep(this.linear);
                     System.out.println("Selected non-interlapping sliding window with a fixed size of " + batch_size + " samples (average step sampling)");
-                    batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samples, batch_size);
+                    batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samplesAccelerometer, batch_size);
                     break;
                 case NON_INTERLAPPING_FIXED_SIZE:
                     System.out.println("Selected non-interlapping sliding window with a fixed size of " + batch_size + " samples");
-                    batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samples, batch_size);
+                    batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samplesAccelerometer, batch_size);
                     break;
                 case RANGE:
                     System.out.println("Selected range " + start + " - " + max);
-                    batches = SamplesUtils.getRangeBatch(samples, start, max);
+                    batches = SamplesUtils.getRangeBatch(samplesAccelerometer, start, max);
                     break;
                 case RANGE_FROM_START:
                     System.out.println("Selected first " + range + " samples");
-                    batches = SamplesUtils.getSingleFixedSizeBatch(samples, range);
+                    batches = SamplesUtils.getSingleFixedSizeBatch(samplesAccelerometer, range);
                     break;
                 case FIXED_TIME_LAPSE:
                     System.out.println("Selected fixed time range (" + time_range + " ms)");
-                    batches = SamplesUtils.getBatchesByTimeRange(samples, time_range);
+                    batches = SamplesUtils.getBatchesByTimeRange(samplesAccelerometer, time_range);
                     break;
                 case BY_TRUNK:
                     System.out.println("Selected batches by trunk");
-                    batches = SamplesUtils.getBatchesByTrunk(samples, db_extractor, this.linear);
+                    batches = SamplesUtils.getBatchesByTrunk(samplesAccelerometer, db_extractor, this.linear);
                     break;
                 case BY_STEP:
                     System.out.println("Selected batches by step");
-                    batches = SamplesUtils.getBatchesByStep(samples);
+                    batches = SamplesUtils.getBatchesByStep(samplesAccelerometer);
                     break;
                 case ALL:
                     System.out.println("Selected a single batch with all samples");
-                    batches = SamplesUtils.getAll(samples);
+                    //batches = SamplesUtils.getAll(samples);
                     break;
                 default:
                     throw new Exception("Unknown batch creation mode");
@@ -303,7 +303,12 @@ public class FeatureExtractor {
         int max_plot = 200;
         for (Batch batch : batches) {
             if (max_plot > 0) {
-                new Plot(batch, this.db_extractor, this.linear);
+                new Plot(batch, this.db_extractor, true, false, false, false);
+                new Plot(batch, this.db_extractor, true, false, false, true);
+                new Plot(batch, this.db_extractor, false, true, false, false);
+                new Plot(batch, this.db_extractor, false, true, false, true);
+                new Plot(batch, this.db_extractor, false, false, true, false);
+                new Plot(batch, this.db_extractor, false, false, true, true);
             }
             max_plot--;
 //            GralPlot plot2 = new GralPlot(batch);
@@ -318,7 +323,12 @@ public class FeatureExtractor {
         int i = 0;
         for (Batch batch : batches) {
             if (i >= start) {
-                new Plot(batch, this.db_extractor, this.linear);
+                new Plot(batch, this.db_extractor, true, false, false, false);
+                new Plot(batch, this.db_extractor, true, false, false, true);
+                new Plot(batch, this.db_extractor, false, true, false, false);
+                new Plot(batch, this.db_extractor, false, true, false, true);
+                new Plot(batch, this.db_extractor, false, false, true, false);
+                new Plot(batch, this.db_extractor, false, false, true, true);
             }
             i++;
         }
@@ -331,7 +341,12 @@ public class FeatureExtractor {
         int i = 0;
         for (Batch batch : batches) {
             if (i >= start && i <= end) {
-                new Plot(batch, this.db_extractor, this.linear);
+                new Plot(batch, this.db_extractor, true, false, false, false);
+                new Plot(batch, this.db_extractor, true, false, false, true);
+                new Plot(batch, this.db_extractor, false, true, false, false);
+                new Plot(batch, this.db_extractor, false, true, false, true);
+                new Plot(batch, this.db_extractor, false, false, true, false);
+                new Plot(batch, this.db_extractor, false, false, true, true);
             }
             i++;
         }

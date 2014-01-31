@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
-    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/1">
-        <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/App.java</file>
-        <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/FeatureExtractor.java</file>
-        <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/weka/ARFF.java</file>
-    </open-files>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/extractor/db/DbExtractor.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/Sample.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/plot/Plot.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/FeatureExtractor.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/Batch.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/utils/SamplesUtils.java</file>
             <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/App.java</file>
         </group>
     </open-files>

@@ -55,51 +55,6 @@ public class SamplesUtils {
             throw new Exception("No sample provided");
         }
         return db_extractor.extractByTrunk(linear);
-//        int num_samples = values.size();
-//        List<Batch> batches = new ArrayList<Batch>();
-//        List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
-//        int i = 0;
-//        int trunk = 1;
-//        int step_marker_start = 0;
-//        long step_marker_start_timestamp = 0;
-//        int step = 0;
-//        List<Sample> samples_for_batch = new ArrayList<Sample>();
-//        while (i < num_samples) {
-//            if (values.get(i).getTrunk() == trunk) {
-//                step = values.get(i).getStep();
-//                if (step != 0 && step_marker_start == 0) {
-//                    step_marker_start = values.get(i).getStep();
-//                    step_marker_start_timestamp = (long) (values.get(i).getTime() / Plot.time_divisor);
-//                } else if (step != 0 && step != step_marker_start) {
-//                    markers.add(new IntervalMarker(step_marker_start_timestamp, (long) (values.get(i).getTime() / Plot.time_divisor)));
-//                    step_marker_start = 0;
-//                }
-//                samples_for_batch.add(values.get(i));
-//                i++;
-//            } else {
-//                if (samples_for_batch.isEmpty()==false) {
-//                    Batch batch = new Batch(samples_for_batch);
-//                    batch.setTrunk(trunk);
-//                    batch.setMarkers(markers);
-//                    batch.setTitle("Trunk " + trunk + ": " + values.get(i - 1).getAction());
-//                    batches.add(batch);
-//                    samples_for_batch.clear();
-//                    markers.clear();
-//                    trunk = values.get(i).getTrunk();
-//                }
-//            }
-//        }
-//        if (samples_for_batch.isEmpty() == false) {
-//            Batch batch = new Batch(samples_for_batch);
-//            batch.setTrunk(trunk);
-//            batch.setMarkers(markers);
-//            batch.setTitle("Trunk " + trunk + ": " + values.get(i - 1).getAction());
-//            batches.add(batch);
-//            samples_for_batch.clear();
-//            markers.clear();
-//        }
-//
-//        return batches;
     }
 
     public static List<Batch> getBatchesByStep(ArrayList<Sample> values) throws Exception {

@@ -187,14 +187,14 @@ public class App {
                 case TRUNK_PLOTTER:
 //                    String[] still_dbs=new String[]{"flat/accelbench_20131121002432_NEXUS.db", "flat/accelbench_20131121002259_GALAXY.db"};
 //                    for (String db : dbs) {
-                    String db2 = "matteo/accelbench.db";
+                    String db2 = "matteo/accelbench_20140130182200.db";
                     db2 = "michele/accelbench_20140128090735.db";
                     featureExtractor.setDb("data/completo/" + db2);
                     System.out.println("data/completo/" + db2);
                     //                  featureExtractor.setTrunkIDs();
                     featureExtractor.setArffEnabled(false); // disable ARFF creation
                     featureExtractor.setFeatureEnabled(false); // disable feature calculation
-                    featureExtractor.setGravity_remove(true);
+                    featureExtractor.setGravity_remove(false);
                     featureExtractor.setLinearOrNot(false);
                     featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
                     featureExtractor.extract();

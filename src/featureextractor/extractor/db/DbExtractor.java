@@ -255,11 +255,12 @@ public class DbExtractor {
     public List<Batch> extractByTrunk(boolean linear) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
         this.connect();
         List<Sample> values = new ArrayList<Sample>();
+        List<Sample> valuesLinear = new ArrayList<Sample>();
         List<Batch> batches = new ArrayList<Batch>();
         
-        String correctDb = getRightDB(linear);
+        String dbAccelerometer = getRightDB(false);
 
-        String query = "SELECT trunk, MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + correctDb + " GROUP BY trunk";
+        String query = "SELECT trunk, MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + dbAccelerometer + " GROUP BY trunk";
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         int trunk_id = 0, min = 0, max = 0;
@@ -268,7 +269,7 @@ public class DbExtractor {
             trunk_id = rs.getInt("trunk");
             min = rs.getInt("minid");
             max = rs.getInt("maxid");
-            query = "SELECT * FROM " + correctDb + " WHERE ROWID>=? AND ROWID<=?";
+            query = "SELECT * FROM " + dbAccelerometer + " WHERE ROWID>=? AND ROWID<=?";
             PreparedStatement get_stmt = connection.prepareStatement(query);
             get_stmt.setInt(1, min);
             get_stmt.setInt(2, max);
@@ -283,13 +284,45 @@ public class DbExtractor {
                 }
                 lastTimestamp = rs2.getLong("timestamp");
             }
-            Batch batch = new Batch(values);
+            
+            String linearDB = getRightDB(true);
+            String queryLinear = "SELECT MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + linearDB + " WHERE trunk = " + trunk_id;
+            PreparedStatement psLinear = connection.prepareStatement(queryLinear);
+            ResultSet rsLinear = psLinear.executeQuery();
+            int minLinear = 0, maxLinear = 0;
+            long lastTimestampLinear = 0;
+            while (rsLinear.next()) {
+                minLinear = rsLinear.getInt("minid");
+                maxLinear = rsLinear.getInt("maxid");
+                queryLinear = "SELECT * FROM " + linearDB + " WHERE ROWID>=? AND ROWID<=?";
+                PreparedStatement get_stmtLinear = connection.prepareStatement(queryLinear);
+                get_stmtLinear.setInt(1, minLinear);
+                get_stmtLinear.setInt(2, maxLinear);
+                ResultSet rs2Linear = get_stmtLinear.executeQuery();
+                while (rs2Linear.next()) {
+                    valuesLinear.add(new Sample(rs2Linear.getLong("timestamp"), rs2Linear.getDouble("x"), rs2Linear.getDouble("y"), rs2Linear.getDouble("z"), 
+                            rs2Linear.getDouble("rotationX"), rs2Linear.getDouble("rotationY"), rs2Linear.getDouble("rotationZ"), 
+                            rs2Linear.getInt("trunk"), rs2Linear.getString("action"), rs2Linear.getInt("step"), rs2Linear.getString("mode")));
+
+                    if (lastTimestampLinear != 0) {
+                        System.out.println("Diff: " + (rs2Linear.getLong("timestamp") - lastTimestampLinear)/ 1000000);
+                    }
+                    lastTimestamp = rs2Linear.getLong("timestamp");
+                }
+            }
+            
+            Batch batch = new Batch(values, valuesLinear);
             batch.setTrunk(trunk_id);
             batch.setMode(values.get(0).getMode());
             batch.setTitle("Trunk " + trunk_id + ": " + values.get(0).getAction());
             batches.add(batch);
             values.clear();
+            valuesLinear.clear();
         }
+        
+        
+        
+        
         return batches;
     }
 

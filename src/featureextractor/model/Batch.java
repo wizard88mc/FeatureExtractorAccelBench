@@ -31,14 +31,14 @@ public class Batch {
     private String title;
     private String mode;
     private int trunk = 0;
-    private int bufferDuration = 2000;
+    private int bufferDuration = 500;
     private DecimalFormat numberFormat = new DecimalFormat("#0.00");
     
     static {
         coordinates_mapping.put(0, "X");
         coordinates_mapping.put(1, "Y");
         coordinates_mapping.put(2, "Z");
-        coordinates_mapping.put(3, "|V|");
+        //coordinates_mapping.put(3, "|V|");
     }
 
     public String getMode() {
@@ -84,75 +84,134 @@ public class Batch {
     public List<SingleCoordinateSet> getValuesWithoutGravity() {
         return valuesWithoutGravity;
     }
+    
+    public List<SingleCoordinateSet> getLinearValues() {
+        return valuesLinear;
+    }
+    
+    public List<SingleCoordinateSet> getValuesRotated() {
+        return valuesRotated;
+    }
+    
+    public List<SingleCoordinateSet> getValuesWithoutGravityRotated() {
+        return valuesWithoutGravityRotated;
+    }
+    
+    public List<SingleCoordinateSet> getLinearValuesRotated() {
+        return valuesLinearRotated;
+    }
 
     public Batch(List<Sample> samplesAccelerometer, List<Sample> samplesLinear) throws Exception {
         if (samplesAccelerometer.isEmpty()) {
             throw new Exception("No element given for this batch");
         }
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             values.add(new SingleCoordinateSet());
             values.get(i).setTitle(coordinates_mapping.get(i));
+            
+            valuesWithoutGravity.add(new SingleCoordinateSet());
+            valuesWithoutGravity.get(i).setTitle(coordinates_mapping.get(i));
+            
+            valuesRotated.add(new SingleCoordinateSet());
+            valuesRotated.get(i).setTitle(coordinates_mapping.get(i));
+            
+            valuesWithoutGravityRotated.add(new SingleCoordinateSet());
+            valuesWithoutGravityRotated.get(i).setTitle(coordinates_mapping.get(i));
+            
+            valuesLinear.add(new SingleCoordinateSet());
+            valuesLinear.get(i).setTitle(coordinates_mapping.get(i));
+            
+            valuesLinearRotated.add(new SingleCoordinateSet());
+            valuesLinearRotated.get(i).setTitle(coordinates_mapping.get(i));
         }
+        
+        removeGravity(samplesAccelerometer);
+        
         for (int axis = 0; axis < samplesAccelerometer.size(); axis++) {
             Sample sample = samplesAccelerometer.get(axis);
             values.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
             values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
             values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
-            values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueV(), sample.getStep()));
+            //values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueV(), sample.getStep()));
+            
+            valuesWithoutGravity.get(0).addValue(new DataTime(sample.getTime(), sample.getNoGravityX(), sample.getStep()));
+            valuesWithoutGravity.get(1).addValue(new DataTime(sample.getTime(), sample.getNoGravityY(), sample.getStep()));
+            valuesWithoutGravity.get(2).addValue(new DataTime(sample.getTime(), sample.getNoGravityZ(), sample.getStep()));
+            
+            valuesRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX(), sample.getStep()));
+            valuesRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY(), sample.getStep()));
+            valuesRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedZ(), sample.getStep()));
+            
+            valuesWithoutGravityRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityX(), sample.getStep()));
+            valuesWithoutGravityRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityY(), sample.getStep()));
+            valuesWithoutGravityRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityZ(), sample.getStep()));
         }
+        
+        if (samplesLinear != null) {
+            for (int i = 0; i < samplesLinear.size(); i++) {
+
+                Sample sample = samplesLinear.get(i);
+                valuesLinear.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
+                valuesLinear.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
+                valuesLinear.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
+
+                valuesLinearRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX(), sample.getStep()));
+                valuesLinearRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY(), sample.getStep()));
+                valuesLinearRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedZ(), sample.getStep()));
+            }
+        }
+        else { throw new Exception("No linear values provided"); }
+    }
+    
+    public Batch(List<Sample> samples) throws Exception {
+        this(samples, null);
     }
     
     public void removeGravity(List<Sample> samplesAccelerometer) {
         
-        for (int i = 0; i < values.size(); i++) {
-                
-            SingleCoordinateSet set = values.get(i);
-            
-            long meanDistanceTimestamp = 0;
-            for (int index = 1; index < set.getValues().size(); index++) {
-                meanDistanceTimestamp += (set.getValues().get(index).getTime() - set.getValues().get(index-1).getTime());
-            }
-            meanDistanceTimestamp /= set.getValues().size();
-            
-            List<DataTime> buffer = new ArrayList<DataTime>();
-            int bufferSize = bufferDuration / (int)(meanDistanceTimestamp / 1000000);
-            boolean bufferFull = false;
-            int nextPositionPoint = 0; 
-            SingleCoordinateSet valuesNoGravity = new SingleCoordinateSet();
-            valuesNoGravity.setTitle(set.getTitle());
-            
-            for (DataTime dataTime : set.getValues()) {
-                
-                buffer.add(nextPositionPoint, dataTime);
-                nextPositionPoint++;
-                
-                if (nextPositionPoint == bufferSize) {
-                    nextPositionPoint = 0;
-                    bufferFull = true;
-                }
-                
-                if (bufferFull) {
-                    float meanValues = 0;
-
-                    for (int j = 0; j < bufferSize; j++) {
-                        meanValues += buffer.get(j).getValue();
-                    }
-                    
-                    meanValues /= bufferSize;
-                    
-                    System.out.println("Media: " + numberFormat.format(meanValues));
-                    
-                    valuesNoGravity.addValue(new DataTime(dataTime.getTime(), 
-                            dataTime.getValue() - meanValues, dataTime.getStep()));
-                }
-                else {
-                    valuesNoGravity.addValue(new DataTime(dataTime.getTime(), null, dataTime.getStep()));
-                }
-            }
-            valuesWithoutGravity.add(valuesNoGravity);
+        long meanDistanceTimestamp = 0;
+        for (int index = 1; index < samplesAccelerometer.size(); index++) {
+            meanDistanceTimestamp += (samplesAccelerometer.get(index).getTime() - samplesAccelerometer.get(index-1).getTime());
         }
+        meanDistanceTimestamp /= samplesAccelerometer.size();
         
-        
+        List<Sample> buffer = new ArrayList<Sample>();
+        int bufferSize = bufferDuration / (int)(meanDistanceTimestamp / 1000000);
+        boolean bufferFull = false;
+        int nextPositionPoint = 0; 
+
+        for (int index = 0; index < samplesAccelerometer.size(); index++) {
+            
+            Sample sample = samplesAccelerometer.get(index);
+            buffer.add(nextPositionPoint, sample);
+            nextPositionPoint++;
+            
+            if (nextPositionPoint == bufferSize) {
+                nextPositionPoint = 0;
+                bufferFull = true;
+            }
+            
+            if (bufferFull) {
+                
+                float meanValueX = 0, meanValueY = 0, meanValueZ = 0;
+                
+                for (int i = 0; i < bufferSize; i++) {
+                    meanValueX += buffer.get(i).getValueX();
+                    meanValueY += buffer.get(i).getValueY();
+                    meanValueZ += buffer.get(i).getValueZ();
+                }
+                
+                meanValueX /= bufferSize;
+                meanValueY /= bufferSize;
+                meanValueZ /= bufferSize;
+                
+                sample.hasNoGravityValues();
+                sample.setNoGravityX(sample.getValueX() - meanValueX);
+                sample.setNoGravityY(sample.getValueY() - meanValueY);
+                sample.setNoGravityZ(sample.getValueZ() - meanValueZ);
+                
+            }
+        }
     }
 
     public void printFeatures() {

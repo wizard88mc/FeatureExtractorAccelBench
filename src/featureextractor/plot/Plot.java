@@ -50,14 +50,15 @@ public class Plot extends javax.swing.JFrame {
     private long last_marker = 0;
     private boolean alreadyPrintedGravity = false;
 
-    private void addPlot(boolean gravity) {
+    private void addPlot(boolean accelerometer, boolean accelerometerNoGravity, 
+            boolean linear, boolean rotation) {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setMinimumSize(new Dimension(1024, 768));
         chart = ChartFactory.createXYLineChart(
-                batch.getTitle()+(batch.getMode()!=null?" ("+batch.getMode()+")":""),
+                defineCorrectTitle(batch, accelerometer, accelerometerNoGravity, linear, rotation),
                 "Timestamp",
                 "m/s^2",
-                this.createDataset(batch, gravity),
+                this.createDataset(batch, accelerometer, accelerometerNoGravity, linear, rotation),
                 PlotOrientation.VERTICAL,
                 true,
                 true,
@@ -105,15 +106,46 @@ public class Plot extends javax.swing.JFrame {
         this.setVisible(true);
         
     }
+    
+    private String defineCorrectTitle(Batch batch, boolean accelerometer, 
+            boolean accelerometerNoGravity, boolean linear, boolean rotation) {
+        
+        String baseString = batch.getTitle()+(batch.getMode()!=null?" ("+batch.getMode()+")":"");
+        
+        if (accelerometer && !rotation) {
+            baseString += " SOLO ACCELEROMETRO";
+        }
+        else if (accelerometer && rotation) {
+            baseString += " ACCELEROMETRO + ROTATION";
+        }
+        else if (accelerometerNoGravity && !rotation) {
+            baseString += " ACCELEROMETRO - GRAVITY";
+        }
+        else if (accelerometerNoGravity && rotation) {
+            baseString += " ACCELEROMETRO - GRAVITY + ROTATION";
+        }
+        else if (linear && !rotation) {
+            baseString += " LINEAR";
+        }
+        else if (linear && rotation) {
+            baseString += " LINEAR + ROTATION";
+        }
+        
+        return baseString;
+        
+    }
 
     /**
-     * Creates a plot object 
      * 
      * @param batch
      * @param db_extractor
-     * @param linear 
+     * @param accelerometer
+     * @param accelerometerNoGravity
+     * @param linear
+     * @param rotation 
      */
-    public Plot(Batch batch, DbExtractor db_extractor, boolean linear) {
+    public Plot(Batch batch, DbExtractor db_extractor, boolean accelerometer, 
+            boolean accelerometerNoGravity, boolean linear, boolean rotation) {
         this.db_extractor = db_extractor;
         this.batch = batch;
         this.linear = linear;
@@ -124,7 +156,7 @@ public class Plot extends javax.swing.JFrame {
             System.out.println(ex.getMessage());
         }
         initComponents();
-        addPlot(featureextractor.FeatureExtractor.GRAVITY_REMOVE);
+        addPlot(accelerometer, accelerometerNoGravity, linear, rotation);
     }
 
     public JPanel getMainPanel() {
@@ -135,11 +167,25 @@ public class Plot extends javax.swing.JFrame {
         return txtSelected;
     }
 
-    private XYDataset createDataset(Batch batch, boolean gravity) {
+    private XYDataset createDataset(Batch batch, boolean accelerometer, boolean accelerometerNoGravity,
+        boolean linear, boolean rotation) {
         java.util.List<SingleCoordinateSet> axes = batch.getValues();
-        if (gravity) {
+        if (accelerometer && rotation) {
+            axes = batch.getValuesRotated();
+        }
+        else if (accelerometerNoGravity && !rotation) {
             axes = batch.getValuesWithoutGravity();
         }
+        else if (accelerometerNoGravity && rotation) {
+            axes = batch.getValuesWithoutGravityRotated();
+        }
+        else if (linear && !rotation) {
+            axes = batch.getLinearValues();
+        }
+        else if (linear && rotation) {
+            axes = batch.getLinearValuesRotated();
+        }
+        
         dataset = new XYSeriesCollection();
         for (int axis = 0; axis < axes.size(); axis++) {
             XYSeries series = new XYSeries(axes.get(axis).getTitle());

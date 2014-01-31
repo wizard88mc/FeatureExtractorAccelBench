@@ -11,10 +11,13 @@ package featureextractor.model;
 public class Sample {
 
     final private long time;
+    private boolean hasNoGravityValues = false;
     final private double valueX;
+    private double noGravityX;
     final private double valueY;
+    private double noGravityY;
     final private double valueZ;
-    final private double valueV;
+    private double noGravityZ;
     final private double rotationX;
     final private double rotationY;
     final private double rotationZ;
@@ -30,11 +33,24 @@ public class Sample {
         this.rotationX = rotationX; this.rotationY = rotationY; this.rotationZ = rotationZ;
         this.trunk = trunk;
         this.action = action;
-        this.valueV = Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));
         this.step = (step > 0 ? step : 0);
         this.mode = mode;
     }
-
+    
+    public void setNoGravityX(double x) {
+        this.noGravityX = x;
+    }
+    public void setNoGravityY(double y) {
+        this.noGravityY = y;
+    }
+    public void setNoGravityZ(double z) {
+        this.noGravityZ = z;
+    }
+    
+    public void hasNoGravityValues() {
+        this.hasNoGravityValues = true;
+    }
+    
     public String getMode() {
         return mode;
     }
@@ -64,15 +80,87 @@ public class Sample {
     }
 
     public double getValueV() {
-        return valueV;
+        return Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));
     }
 
     public int getTrunk() {
         return trunk;
     }
+    
+    private double getRotatedAxis(boolean wantX, boolean wantY, boolean wantZ, 
+            boolean useNoGravityValues) {
+        
+        double norm = Math.sqrt(Math.pow(rotationX, 2) + Math.pow(rotationY, 2) + 
+                Math.pow(rotationZ, 2));
+        double alpha = 2 * Math.asin(norm);
+        
+        double x = rotationX / norm, y = rotationY / norm, z = rotationZ / norm;
+        double xSquare = Math.pow(x, 2), ySquare = Math.pow(y, 2), zSquare = Math.pow(z, 2);
+        
+        double sinAlpha = Math.sin(alpha), cosAlpha = Math.cos(alpha);
+        
+        double xFirst = valueX, yFirst = valueY, zFirst = valueZ;
+        
+        if (useNoGravityValues) {
+            xFirst = noGravityX; yFirst = noGravityY; zFirst = noGravityZ;
+        }
+        
+        if (wantX) {
+            return ((xSquare + (1 - xSquare) * cosAlpha) * xFirst +
+                (((1 - cosAlpha) * x * y) - sinAlpha * z) * yFirst +
+                (((1 - cosAlpha) * x * z) + sinAlpha * y) * zFirst);
+        }
+        else if (wantY) {
+            return ((((1 - cosAlpha) * y * x) + sinAlpha * z) * xFirst +
+                (ySquare + (1 - ySquare) * cosAlpha) * yFirst +
+                (((1 - cosAlpha) * y * z) - sinAlpha * x)  * zFirst);
+        }
+        else if (wantZ) {
+            return ((((1 - cosAlpha) * z * x) - sinAlpha * y) * xFirst +
+                        ((1 - cosAlpha) * z * y + sinAlpha * x) * yFirst +
+                        (zSquare + (1 - zSquare) * cosAlpha) * zFirst);
+        }
+        return -1;
+    }
+    
+    public double getRotatedX() {
+        return getRotatedAxis(true, false, false, false);
+    }
+    
+    public double getRotatedY() {
+        return getRotatedAxis(false, true, false, false);
+    }
+    
+    public double getRotatedZ() {
+        return getRotatedAxis(false, false, true, false);
+    }
+    
+    public double getRotatedNoGravityX() {
+        return getRotatedAxis(true, false, false, true);
+    }
+    
+    public double getRotatedNoGravityY() {
+        return getRotatedAxis(false, true, false, true);
+    }
+    
+    public double getRotatedNoGravityZ() {
+        return getRotatedAxis(false, false, true, true);
+    }
+    
+    public double getNoGravityX() {
+        return (float)noGravityX;
+    }
+    
+    public double getNoGravityY() {
+        return (float)noGravityY;
+    }
+    
+    public double getNoGravityZ() {
+        return (float)noGravityZ;
+    }
 
     @Override
     public String toString() {
-        return "[" + time + "," + valueX + "," + valueY + "," + valueZ + "]\t(|V|=" + valueV + ")";
+        return "[" + time + "," + valueX + "," + valueY + "," + valueZ + "]\t(|V|=" + getValueV() + ")";
     }
 }
