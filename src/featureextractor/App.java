@@ -7,7 +7,6 @@ package featureextractor;
 import featureextractor.weka.Weka;
 import java.io.File;
 import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 
 /**
@@ -197,6 +196,8 @@ public class App {
                     featureExtractor.setGravity_remove(false);
                     featureExtractor.setLinearOrNot(false);
                     featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
+                    featureExtractor.setSlidingWindowSize(500);
+                    featureExtractor.createFinalDB();
                     featureExtractor.extract();
 //                  featureExtractor.enableMinDiff((float) 0);
                     featureExtractor.plot();

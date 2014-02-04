@@ -5,9 +5,8 @@
 package featureextractor;
 
 import featureextractor.comparator.MeanComparator;
-import featureextractor.comparator.StdComparator;
-import featureextractor.comparator.VarianceComparator;
 import featureextractor.extractor.db.AccelBenchException;
+import featureextractor.extractor.db.DBDataManager;
 import featureextractor.utils.SamplesUtils;
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Sample;
@@ -23,7 +22,6 @@ import featureextractor.weka.ARFFAttribute;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +37,7 @@ public class FeatureExtractor {
     private static final String ARFF_RELATION = "StairDetection";
     private ARFF arff;
     private DbExtractor db_extractor = null;
+    private DBDataManager dbDataManager = null;
     private List<Batch> batches = null;
     private int range = 1000; // default
     private int start = 0; // default
@@ -46,7 +45,9 @@ public class FeatureExtractor {
     private boolean arff_enabled = true;
     private boolean feature_enabled = true;
     private long time_range = 488000000; // ms
+    private double sizeSlidingWindow = 500; // milliseconds
     private String[] features_types = new String[]{"std", "mean", "variance"};
+    
 
     public enum BATCH_CREATION_MODE {
 
@@ -81,6 +82,15 @@ public class FeatureExtractor {
             throw new FileNotFoundException(file.getAbsolutePath() + " not found");
         }
         db_extractor = new DbExtractor(file);
+    }
+    
+    public void createFinalDB() {
+        try {
+            dbDataManager = new DBDataManager(sizeSlidingWindow);
+        }
+        catch(IOException exc) {
+            System.out.println(exc);
+        }
     }
 
     public long getTime_range() {
@@ -297,6 +307,10 @@ public class FeatureExtractor {
 
     public void setMax(int max) {
         this.max = max;
+    }
+    
+    public void setSlidingWindowSize(double size) {
+        this.sizeSlidingWindow = size;
     }
 
     public void plot() {

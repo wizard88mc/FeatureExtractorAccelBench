@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jfree.chart.plot.IntervalMarker;
 
 /**
- *
+ * This class represents a single 
  * @author Nicola Beghin
  */
 public class Batch {
