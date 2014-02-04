@@ -38,6 +38,7 @@ public class Batch {
         coordinates_mapping.put(0, "X");
         coordinates_mapping.put(1, "Y");
         coordinates_mapping.put(2, "Z");
+        coordinates_mapping.put(3, "X+Y");
         //coordinates_mapping.put(3, "|V|");
     }
 
@@ -105,7 +106,7 @@ public class Batch {
         if (samplesAccelerometer.isEmpty()) {
             throw new Exception("No element given for this batch");
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < coordinates_mapping.size(); i++) {
             values.add(new SingleCoordinateSet());
             values.get(i).setTitle(coordinates_mapping.get(i));
             
@@ -132,19 +133,23 @@ public class Batch {
             values.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
             values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
             values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
+            values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueXAndYMean(), sample.getStep()));
             //values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueV(), sample.getStep()));
             
             valuesWithoutGravity.get(0).addValue(new DataTime(sample.getTime(), sample.getNoGravityX(), sample.getStep()));
             valuesWithoutGravity.get(1).addValue(new DataTime(sample.getTime(), sample.getNoGravityY(), sample.getStep()));
             valuesWithoutGravity.get(2).addValue(new DataTime(sample.getTime(), sample.getNoGravityZ(), sample.getStep()));
+            valuesWithoutGravity.get(3).addValue(new DataTime(sample.getTime(), sample.getNoGravityXAndYMean(), sample.getStep()));
             
             valuesRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX(), sample.getStep()));
             valuesRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY(), sample.getStep()));
             valuesRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedZ(), sample.getStep()));
+            valuesRotated.get(3).addValue(new DataTime(sample.getTime(), sample.getRotatedXAndYMean(), sample.getStep()));
             
             valuesWithoutGravityRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityX(), sample.getStep()));
             valuesWithoutGravityRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityY(), sample.getStep()));
             valuesWithoutGravityRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityZ(), sample.getStep()));
+            valuesWithoutGravityRotated.get(3).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityXAndYMean(), sample.getStep()));
         }
         
         if (samplesLinear != null) {
@@ -154,10 +159,12 @@ public class Batch {
                 valuesLinear.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
                 valuesLinear.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
                 valuesLinear.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
+                valuesLinear.get(3).addValue(new DataTime(sample.getTime(), sample.getValueXAndYMean(), sample.getStep()));
 
                 valuesLinearRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX(), sample.getStep()));
                 valuesLinearRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY(), sample.getStep()));
                 valuesLinearRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedZ(), sample.getStep()));
+                valuesLinearRotated.get(3).addValue(new DataTime(sample.getTime(), sample.getRotatedXAndYMean(), sample.getStep()));
             }
         }
         else { throw new Exception("No linear values provided"); }

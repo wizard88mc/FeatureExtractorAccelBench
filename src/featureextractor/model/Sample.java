@@ -78,6 +78,10 @@ public class Sample {
     public double getValueZ() {
         return valueZ;
     }
+    
+    public double getValueXAndYMean() {
+        return (valueX + valueY) / (double)2;
+    }
 
     public double getValueV() {
         return Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));
@@ -135,6 +139,10 @@ public class Sample {
         return getRotatedAxis(false, false, true, false);
     }
     
+    public double getRotatedXAndYMean() {
+        return (getRotatedX() + getRotatedY()) / (double)2;
+    }
+    
     public double getRotatedNoGravityX() {
         return getRotatedAxis(true, false, false, true);
     }
@@ -147,16 +155,24 @@ public class Sample {
         return getRotatedAxis(false, false, true, true);
     }
     
+    public double getRotatedNoGravityXAndYMean() {
+        return (getRotatedNoGravityX() + getRotatedNoGravityY()) / (double) 2;
+    }
+    
     public double getNoGravityX() {
-        return (float)noGravityX;
+        return noGravityX;
     }
     
     public double getNoGravityY() {
-        return (float)noGravityY;
+        return noGravityY;
     }
     
     public double getNoGravityZ() {
-        return (float)noGravityZ;
+        return noGravityZ;
+    }
+    
+    public double getNoGravityXAndYMean() {
+        return (noGravityX + noGravityY) / (double)2;
     }
 
     @Override

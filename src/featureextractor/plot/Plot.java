@@ -277,7 +277,7 @@ public class Plot extends javax.swing.JFrame {
         jPanel3.add(checkZ);
 
         checkV.setSelected(true);
-        checkV.setText("|V|");
+        checkV.setText("(X+Y) / 2");
         checkV.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 checkVStateChanged(evt);
