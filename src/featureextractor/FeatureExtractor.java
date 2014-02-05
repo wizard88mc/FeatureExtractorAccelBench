@@ -14,6 +14,7 @@ import featureextractor.model.Batch;
 import featureextractor.model.DataTime;
 import featureextractor.model.FeatureSet;
 import featureextractor.model.SingleCoordinateSet;
+import featureextractor.model.SlidingWindow;
 import featureextractor.model.TimeFeature;
 import featureextractor.model.TrunkFixSpec;
 import featureextractor.plot.Plot;
@@ -45,9 +46,8 @@ public class FeatureExtractor {
     private boolean arff_enabled = true;
     private boolean feature_enabled = true;
     private long time_range = 488000000; // ms
-    private double sizeSlidingWindow = 500; // milliseconds
+    private long sizeSlidingWindow = 500000000; // milliseconds
     private String[] features_types = new String[]{"std", "mean", "variance"};
-    
 
     public enum BATCH_CREATION_MODE {
 
@@ -193,6 +193,32 @@ public class FeatureExtractor {
     public void setGravity_remove(boolean gravity_remove) {
         this.GRAVITY_REMOVE = gravity_remove;
     }
+    
+    public void populateDatabase() {
+        
+        try {
+            /**
+             * Retrieve all the data from the DB that are labeled as STAIR_DOWNSTAIRS
+             */
+            ArrayList<Sample> samplesAccelerometerDownstairs = db_extractor.extract("STAIR_DOWNSTAIRS", false);
+            /**
+             * Creates the batch using steps
+             */
+            List<Batch> baseBatches = db_extractor.extractByTrunkAndAction("STAIR_DOWNSTAIRS");
+            /**
+             * Once I have the batches, for each batch I have to create the corresponding 
+             * set of sliding window 
+             */
+            List<SlidingWindow> batchAccelerometerNoGravity = 
+                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatches.get(0).getValuesWithoutGravityRotated(), sizeSlidingWindow, 4);
+            
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+            System.out.println(exc);
+        }
+        
+    }
 
     public void extract(String action, String className) throws Exception {
         if (db_extractor == null) {
@@ -203,7 +229,7 @@ public class FeatureExtractor {
             // create samples from db rows            
             ArrayList<Sample> samplesAccelerometer = db_extractor.extract(action, false);
             ArrayList<Sample> samplesLinearAcceleration = db_extractor.extract(action, true);
-
+              
             // create samples batches by selected mode
             batches = null;
             switch (mode) {
@@ -309,7 +335,7 @@ public class FeatureExtractor {
         this.max = max;
     }
     
-    public void setSlidingWindowSize(double size) {
+    public void setSlidingWindowSize(long size) {
         this.sizeSlidingWindow = size;
     }
 

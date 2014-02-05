@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  *
@@ -25,7 +26,7 @@ public class DBDataManager {
         db = new File(finalFile);
         db.createNewFile();
         try {
-            connect();
+            initializeDB();
         }
         catch(Exception exc) {
             System.out.println(exc);
@@ -40,6 +41,23 @@ public class DBDataManager {
             Class.forName("org.sqlite.JDBC"); // ClassNotFoundException
             connection = DriverManager.getConnection("jdbc:sqlite:" + db.getAbsolutePath());
         }
+    }
+    
+    private void initializeDB() throws FileNotFoundException, ClassNotFoundException, SQLException {
+        
+        connect();
+        
+        Statement stmt = connection.createStatement();
+        //String createDB = "CREATE DATABASE IF NOT EXISTS dbFinalSamples";
+        String createTable = "CREATE TABLE IF NOT EXISTS samples " + 
+                "(ID INT AUTO INCREMENT PRIMARY KEY,"
+                + "timestampt DOUBLE NOT NULL,"
+                + "x DOUBLE NOT NULL, y DOUBLE NOT NULL, z DOUBLE NOT NULL,"
+                + "rotationX DOUBLE NOT NULL, rotationY DOUBLE NOT NULL, rotationZ DOUBLE NOT NULL,"
+                + "label STRING NOT NULL, delay INT NOT NULL, trunk INT, mode STRING, LINEAR BOOLEAN DEFAULT 0)";
+        
+        //stmt.executeUpdate(createDB);
+        stmt.executeUpdate(createTable);
     }
     
     

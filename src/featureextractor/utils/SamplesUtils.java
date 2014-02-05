@@ -8,11 +8,12 @@ import featureextractor.comparator.SampleTimeComparator;
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Sample;
 import featureextractor.model.Batch;
-import featureextractor.plot.Plot;
+import featureextractor.model.DataTime;
+import featureextractor.model.SingleCoordinateSet;
+import featureextractor.model.SlidingWindow;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.jfree.chart.plot.IntervalMarker;
 
 /**
  *
@@ -142,5 +143,62 @@ public class SamplesUtils {
         }
         // last batch skipped if dimension not big enough
         return batches;
+    }
+    
+    public static List<SlidingWindow> getBatchesWithSlidingWindowAndFixedTime(List<SingleCoordinateSet> values, 
+            long duration, int numberOverlappingWindows) throws Exception {
+        
+        List<SlidingWindow> finalBatches = new ArrayList<SlidingWindow>();
+        List<Sample> samplesForSingleBatch = new ArrayList<Sample>();
+        
+        List<DataTime> valuesToCalculateSlidingWindow = values.get(0).getValues();
+        
+        for (int indexStartingWindow = 0; indexStartingWindow < valuesToCalculateSlidingWindow.size(); ) {
+            
+            boolean windowCompleted = false;
+            int finalPoint = 0;
+            for (int indexSlidingWindow = indexStartingWindow; 
+                    indexSlidingWindow < valuesToCalculateSlidingWindow.size() && !windowCompleted; 
+                    indexSlidingWindow++) {
+                
+                if ((valuesToCalculateSlidingWindow.get(indexSlidingWindow).getTime() - 
+                        valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime()) <= duration) {
+                    
+                    //samplesForSingleBatch.add(values.get(indexSlidingWindow));
+                    
+                }
+                else {
+                    windowCompleted = true;
+                    finalPoint = indexSlidingWindow; // last point tof the sliding window
+                }
+                
+            }
+            
+            if ((finalPoint + 1 < valuesToCalculateSlidingWindow.size()) && (valuesToCalculateSlidingWindow.get(finalPoint + 1).getTime() - 
+                    valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime()) >= duration 
+                    ) { // means that the sliding window is complete
+                
+                List<SingleCoordinateSet> elementsForSlidingWindow = new ArrayList<SingleCoordinateSet>();
+                
+                for (int i = 0; i < values.size(); i++) {
+                    
+                    SingleCoordinateSet coordinateSet = new SingleCoordinateSet(values.get(i).getValues().subList(indexStartingWindow, finalPoint));
+                    coordinateSet.setTitle(values.get(i).getTitle());
+                    elementsForSlidingWindow.add(i, coordinateSet);
+                }
+                finalBatches.add(new SlidingWindow(elementsForSlidingWindow));
+                
+                long increaseTime = duration / numberOverlappingWindows;
+                
+                boolean stop = false;
+                for (int i = indexStartingWindow + 1; i < values.size() && !stop; i++) {
+                    if (valuesToCalculateSlidingWindow.get(i).getTime() - valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime() >= increaseTime) {
+                        indexStartingWindow = i;
+                        stop = true;
+                    }
+                }
+            }
+        }
+        return finalBatches;
     }
 }

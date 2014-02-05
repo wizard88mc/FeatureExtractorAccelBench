@@ -319,10 +319,78 @@ public class DbExtractor {
             values.clear();
             valuesLinear.clear();
         }
+        return batches;
+    }
+    
+    public List<Batch> extractByTrunkAndAction(String action) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
         
+        this.connect();
+        List<Sample> values = new ArrayList<Sample>();
+        List<Sample> valuesLinear = new ArrayList<Sample>();
+        List<Batch> batches = new ArrayList<Batch>();
         
-        
-        
+        String dbAccelerometer = getRightDB(false);
+
+        String query = "SELECT trunk, MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + dbAccelerometer + 
+                " WHERE action = \"" + action + "\" GROUP BY trunk";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+        int trunk_id = 0, min = 0, max = 0;
+        long lastTimestamp = 0;
+        while (rs.next()) {
+            trunk_id = rs.getInt("trunk");
+            min = rs.getInt("minid");
+            max = rs.getInt("maxid");
+            query = "SELECT * FROM " + dbAccelerometer + " WHERE ROWID>=? AND ROWID<=?";
+            PreparedStatement get_stmt = connection.prepareStatement(query);
+            get_stmt.setInt(1, min);
+            get_stmt.setInt(2, max);
+            ResultSet rs2 = get_stmt.executeQuery();
+            while (rs2.next()) {
+                values.add(new Sample(rs2.getLong("timestamp"), rs2.getDouble("x"), rs2.getDouble("y"), rs2.getDouble("z"), 
+                        rs2.getDouble("rotationX"), rs2.getDouble("rotationY"), rs2.getDouble("rotationZ"), 
+                        rs2.getInt("trunk"), rs2.getString("action"), rs2.getInt("step"), rs2.getString("mode")));
+                
+                if (lastTimestamp != 0) {
+                    System.out.println("Diff: " + (rs2.getLong("timestamp") - lastTimestamp)/ 1000000);
+                }
+                lastTimestamp = rs2.getLong("timestamp");
+            }
+            
+            String linearDB = getRightDB(true);
+            String queryLinear = "SELECT MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + linearDB + " WHERE trunk = " + trunk_id;
+            PreparedStatement psLinear = connection.prepareStatement(queryLinear);
+            ResultSet rsLinear = psLinear.executeQuery();
+            int minLinear = 0, maxLinear = 0;
+            long lastTimestampLinear = 0;
+            while (rsLinear.next()) {
+                minLinear = rsLinear.getInt("minid");
+                maxLinear = rsLinear.getInt("maxid");
+                queryLinear = "SELECT * FROM " + linearDB + " WHERE ROWID>=? AND ROWID<=?";
+                PreparedStatement get_stmtLinear = connection.prepareStatement(queryLinear);
+                get_stmtLinear.setInt(1, minLinear);
+                get_stmtLinear.setInt(2, maxLinear);
+                ResultSet rs2Linear = get_stmtLinear.executeQuery();
+                while (rs2Linear.next()) {
+                    valuesLinear.add(new Sample(rs2Linear.getLong("timestamp"), rs2Linear.getDouble("x"), rs2Linear.getDouble("y"), rs2Linear.getDouble("z"), 
+                            rs2Linear.getDouble("rotationX"), rs2Linear.getDouble("rotationY"), rs2Linear.getDouble("rotationZ"), 
+                            rs2Linear.getInt("trunk"), rs2Linear.getString("action"), rs2Linear.getInt("step"), rs2Linear.getString("mode")));
+
+                    if (lastTimestampLinear != 0) {
+                        System.out.println("Diff: " + (rs2Linear.getLong("timestamp") - lastTimestampLinear)/ 1000000);
+                    }
+                    lastTimestamp = rs2Linear.getLong("timestamp");
+                }
+            }
+            
+            Batch batch = new Batch(values, valuesLinear);
+            batch.setTrunk(trunk_id);
+            batch.setMode(values.get(0).getMode());
+            batch.setTitle("Trunk " + trunk_id + ": " + values.get(0).getAction());
+            batches.add(batch);
+            values.clear();
+            valuesLinear.clear();
+        }
         return batches;
     }
 
