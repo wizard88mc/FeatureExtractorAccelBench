@@ -145,20 +145,24 @@ public class Batch {
             values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueXAndYMean(), sample.getStep()));
             //values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueV(), sample.getStep()));
             
-            valuesWithoutGravity.get(0).addValue(new DataTime(sample.getTime(), sample.getNoGravityX(), sample.getStep()));
-            valuesWithoutGravity.get(1).addValue(new DataTime(sample.getTime(), sample.getNoGravityY(), sample.getStep()));
-            valuesWithoutGravity.get(2).addValue(new DataTime(sample.getTime(), sample.getNoGravityZ(), sample.getStep()));
-            valuesWithoutGravity.get(3).addValue(new DataTime(sample.getTime(), sample.getNoGravityXAndYMean(), sample.getStep()));
+            if (sample.getHasNoGravityValues()) {
+                valuesWithoutGravity.get(0).addValue(new DataTime(sample.getTime(), sample.getNoGravityX(), sample.getStep()));
+                valuesWithoutGravity.get(1).addValue(new DataTime(sample.getTime(), sample.getNoGravityY(), sample.getStep()));
+                valuesWithoutGravity.get(2).addValue(new DataTime(sample.getTime(), sample.getNoGravityZ(), sample.getStep()));
+                valuesWithoutGravity.get(3).addValue(new DataTime(sample.getTime(), sample.getNoGravityXAndYMean(), sample.getStep()));
+            }
             
             valuesRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX(), sample.getStep()));
             valuesRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY(), sample.getStep()));
             valuesRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedZ(), sample.getStep()));
             valuesRotated.get(3).addValue(new DataTime(sample.getTime(), sample.getRotatedXAndYMean(), sample.getStep()));
             
-            valuesWithoutGravityRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityX(), sample.getStep()));
-            valuesWithoutGravityRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityY(), sample.getStep()));
-            valuesWithoutGravityRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityZ(), sample.getStep()));
-            valuesWithoutGravityRotated.get(3).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityXAndYMean(), sample.getStep()));
+            if (sample.getHasNoGravityValues()) {
+                valuesWithoutGravityRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityX(), sample.getStep()));
+                valuesWithoutGravityRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityY(), sample.getStep()));
+                valuesWithoutGravityRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityZ(), sample.getStep()));
+                valuesWithoutGravityRotated.get(3).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityXAndYMean(), sample.getStep()));
+            }
         }
         
         if (samplesLinear != null) {

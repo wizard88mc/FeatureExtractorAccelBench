@@ -209,10 +209,15 @@ public class FeatureExtractor {
              * Once I have the batches, for each batch I have to create the corresponding 
              * set of sliding window 
              */
+            List<SlidingWindow> windowsAccelerometerNoGravityDownstairs = new ArrayList<SlidingWindow>();
             for (int i = 0; i < baseBatchesDownstairs.size(); i++) {
                 
-                List<SlidingWindow> batchAccelerometerNoGravityDownstairs = 
+                windowsAccelerometerNoGravityDownstairs = 
                         SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesDownstairs.get(i), sizeSlidingWindow, 4, false);
+            }
+            
+            for (SlidingWindow window: windowsAccelerometerNoGravityDownstairs) {
+                dbDataManager.addNewSlidingWindow(window, "STAIR_DOWNSTAIRS", false);
             }
         }
         catch(Exception exc) {

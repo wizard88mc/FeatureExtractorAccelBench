@@ -27,8 +27,13 @@ public class SlidingWindow {
         coordinates.add(3, "X+Y");
     }
     
+    
     public SlidingWindow(List<SingleCoordinateSet> values) {
         this.values = values;
+    }
+    
+    public List<SingleCoordinateSet> getValues() {
+        return this.values;
     }
     
     public void setSupposedAction(String action) {

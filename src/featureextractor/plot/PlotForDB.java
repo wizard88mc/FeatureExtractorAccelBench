@@ -46,15 +46,14 @@ public class PlotForDB extends javax.swing.JFrame {
     private List<XYSeries> series_container = new ArrayList<XYSeries>();
     private JFreeChart chart;
 
-    private void addPlot(boolean accelerometer, boolean accelerometerNoGravity, 
-            boolean linear, boolean rotation) {
+    private void addPlot() {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setMinimumSize(new Dimension(1024, 768));
         chart = ChartFactory.createXYLineChart(
-                defineCorrectTitle(batch, accelerometer, accelerometerNoGravity, linear, rotation),
+                window.getSupposedAction(),
                 "Timestamp",
                 "m/s^2",
-                this.createDataset(batch, accelerometer, accelerometerNoGravity, linear, rotation),
+                this.createDataset(window),
                 PlotOrientation.VERTICAL,
                 true,
                 true,
@@ -77,33 +76,6 @@ public class PlotForDB extends javax.swing.JFrame {
         this.setVisible(true);
         
     }
-    
-    private String defineCorrectTitle(Batch batch, boolean accelerometer, 
-            boolean accelerometerNoGravity, boolean linear, boolean rotation) {
-        
-        String baseString = batch.getTitle()+(batch.getMode()!=null?" ("+batch.getMode()+")":"");
-        
-        if (accelerometer && !rotation) {
-            baseString += " SOLO ACCELEROMETRO";
-        }
-        else if (accelerometer && rotation) {
-            baseString += " ACCELEROMETRO + ROTATION";
-        }
-        else if (accelerometerNoGravity && !rotation) {
-            baseString += " ACCELEROMETRO - GRAVITY";
-        }
-        else if (accelerometerNoGravity && rotation) {
-            baseString += " ACCELEROMETRO - GRAVITY + ROTATION";
-        }
-        else if (linear && !rotation) {
-            baseString += " LINEAR";
-        }
-        else if (linear && rotation) {
-            baseString += " LINEAR + ROTATION";
-        }
-        
-        return baseString;
-    }
 
     /**
      * 
@@ -114,13 +86,12 @@ public class PlotForDB extends javax.swing.JFrame {
      * @param linear
      * @param rotation 
      */
-    public PlotForDB(SlidingWindow window, DbExtractor db_extractor, boolean accelerometer, 
-            boolean accelerometerNoGravity, boolean linear, boolean rotation) {
+    public PlotForDB(SlidingWindow window, DbExtractor db_extractor) {
         this.db_extractor = db_extractor;
         this.window = window;
         this.linear = linear;
         initComponents();
-        addPlot(accelerometer, accelerometerNoGravity, linear, rotation);
+        addPlot();
     }
 
     public JPanel getMainPanel() {
@@ -131,24 +102,8 @@ public class PlotForDB extends javax.swing.JFrame {
         return txtSelected;
     }
 
-    private XYDataset createDataset(Batch batch, boolean accelerometer, boolean accelerometerNoGravity,
-        boolean linear, boolean rotation) {
-        java.util.List<SingleCoordinateSet> axes = batch.getValues();
-        if (accelerometer && rotation) {
-            axes = batch.getValuesRotated();
-        }
-        else if (accelerometerNoGravity && !rotation) {
-            axes = batch.getValuesWithoutGravity();
-        }
-        else if (accelerometerNoGravity && rotation) {
-            axes = batch.getValuesWithoutGravityRotated();
-        }
-        else if (linear && !rotation) {
-            axes = batch.getLinearValues();
-        }
-        else if (linear && rotation) {
-            axes = batch.getLinearValuesRotated();
-        }
+    private XYDataset createDataset(SlidingWindow window) {
+        java.util.List<SingleCoordinateSet> axes = window.getValues();
         
         dataset = new XYSeriesCollection();
         for (int axis = 0; axis < axes.size(); axis++) {

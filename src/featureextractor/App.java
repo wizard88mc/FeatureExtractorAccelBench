@@ -199,9 +199,9 @@ public class App {
                     featureExtractor.setSlidingWindowSize(500000000);
                     featureExtractor.createFinalDB();
                     featureExtractor.populateDatabase();
-                    featureExtractor.extract();
+                    //featureExtractor.extract();
 //                  featureExtractor.enableMinDiff((float) 0);
-                    featureExtractor.plot();
+                    //featureExtractor.plot();
 //                    }
                     break;
 

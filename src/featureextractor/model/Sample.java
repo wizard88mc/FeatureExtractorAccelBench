@@ -51,6 +51,10 @@ public class Sample {
         this.hasNoGravityValues = true;
     }
     
+    public boolean getHasNoGravityValues() {
+        return hasNoGravityValues;
+    }
+    
     public String getMode() {
         return mode;
     }
