@@ -30,6 +30,7 @@ public class Batch {
     private List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
     private String title;
     private String mode;
+    private String action;
     private int trunk = 0;
     private int bufferDuration = 500;
     private DecimalFormat numberFormat = new DecimalFormat("#0.00");
@@ -56,6 +57,14 @@ public class Batch {
 
     public String getTitle() {
         return title;
+    }
+    
+    public void setAction(String action) {
+        this.action = action;
+    }
+    
+    public String getAction() {
+        return this.action;
     }
 
     public int getTrunk() {

@@ -145,15 +145,20 @@ public class SamplesUtils {
         return batches;
     }
     
-    public static List<SlidingWindow> getBatchesWithSlidingWindowAndFixedTime(List<SingleCoordinateSet> values, 
-            long duration, int numberOverlappingWindows) throws Exception {
+    public static List<SlidingWindow> getBatchesWithSlidingWindowAndFixedTime(Batch batch, 
+            long duration, int numberOverlappingWindows, boolean linear) throws Exception {
         
+        List<SingleCoordinateSet> values = batch.getValuesWithoutGravityRotated();
+        if (linear) {
+            values = batch.getLinearValuesRotated();
+        }
         List<SlidingWindow> finalBatches = new ArrayList<SlidingWindow>();
         List<Sample> samplesForSingleBatch = new ArrayList<Sample>();
         
         List<DataTime> valuesToCalculateSlidingWindow = values.get(0).getValues();
-        
-        for (int indexStartingWindow = 0; indexStartingWindow < valuesToCalculateSlidingWindow.size(); ) {
+        boolean endWindow = false;
+        for (int indexStartingWindow = 0; indexStartingWindow < valuesToCalculateSlidingWindow.size()
+                && !endWindow; ) {
             
             boolean windowCompleted = false;
             int finalPoint = 0;
@@ -165,13 +170,11 @@ public class SamplesUtils {
                         valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime()) <= duration) {
                     
                     //samplesForSingleBatch.add(values.get(indexSlidingWindow));
-                    
                 }
                 else {
                     windowCompleted = true;
-                    finalPoint = indexSlidingWindow; // last point tof the sliding window
+                    finalPoint = indexSlidingWindow; // last point of the sliding window
                 }
-                
             }
             
             if ((finalPoint + 1 < valuesToCalculateSlidingWindow.size()) && (valuesToCalculateSlidingWindow.get(finalPoint + 1).getTime() - 
@@ -186,17 +189,25 @@ public class SamplesUtils {
                     coordinateSet.setTitle(values.get(i).getTitle());
                     elementsForSlidingWindow.add(i, coordinateSet);
                 }
+                SlidingWindow window = new SlidingWindow(elementsForSlidingWindow);
+                window.setSupposedAction(batch.getTitle());
+                window.setPlaceAction(batch.getMode());
                 finalBatches.add(new SlidingWindow(elementsForSlidingWindow));
                 
                 long increaseTime = duration / numberOverlappingWindows;
                 
                 boolean stop = false;
-                for (int i = indexStartingWindow + 1; i < values.size() && !stop; i++) {
+                for (int i = indexStartingWindow + 1; i < valuesToCalculateSlidingWindow.size() && !stop; i++) {
+                    System.out.println(indexStartingWindow + "," + i + "," + (valuesToCalculateSlidingWindow.get(i).getTime() - valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime()));
+                    System.out.println(valuesToCalculateSlidingWindow.get(i).getTime() - valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime() >= increaseTime);
                     if (valuesToCalculateSlidingWindow.get(i).getTime() - valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime() >= increaseTime) {
                         indexStartingWindow = i;
                         stop = true;
                     }
                 }
+            }
+            else {
+                endWindow = true;
             }
         }
         return finalBatches;

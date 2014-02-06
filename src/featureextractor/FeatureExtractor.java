@@ -204,14 +204,16 @@ public class FeatureExtractor {
             /**
              * Creates the batch using steps
              */
-            List<Batch> baseBatches = db_extractor.extractByTrunkAndAction("STAIR_DOWNSTAIRS");
+            List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction("STAIR_DOWNSTAIRS");
             /**
              * Once I have the batches, for each batch I have to create the corresponding 
              * set of sliding window 
              */
-            List<SlidingWindow> batchAccelerometerNoGravity = 
-                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatches.get(0).getValuesWithoutGravityRotated(), sizeSlidingWindow, 4);
-            
+            for (int i = 0; i < baseBatchesDownstairs.size(); i++) {
+                
+                List<SlidingWindow> batchAccelerometerNoGravityDownstairs = 
+                        SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesDownstairs.get(i), sizeSlidingWindow, 4, false);
+            }
         }
         catch(Exception exc) {
             exc.printStackTrace();

@@ -1,6 +1,7 @@
 
 package featureextractor.extractor.db;
 
+import featureextractor.model.SlidingWindow;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -58,6 +59,10 @@ public class DBDataManager {
         
         //stmt.executeUpdate(createDB);
         stmt.executeUpdate(createTable);
+    }
+    
+    public void addNewSlidingWindow(SlidingWindow window, String action, boolean linear) {
+        
     }
     
     

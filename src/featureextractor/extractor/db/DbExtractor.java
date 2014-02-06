@@ -386,6 +386,7 @@ public class DbExtractor {
             Batch batch = new Batch(values, valuesLinear);
             batch.setTrunk(trunk_id);
             batch.setMode(values.get(0).getMode());
+            batch.setAction(values.get(0).getAction());
             batch.setTitle("Trunk " + trunk_id + ": " + values.get(0).getAction());
             batches.add(batch);
             values.clear();

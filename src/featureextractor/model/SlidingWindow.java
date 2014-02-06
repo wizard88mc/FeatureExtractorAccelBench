@@ -17,6 +17,8 @@ public class SlidingWindow {
     
     private List<SingleCoordinateSet> values = new ArrayList<SingleCoordinateSet>();
     private static List<String> coordinates = new ArrayList();
+    private String supposedAction;
+    private String placeAction;
     
     static {
         coordinates.add(0, "X");
@@ -27,6 +29,22 @@ public class SlidingWindow {
     
     public SlidingWindow(List<SingleCoordinateSet> values) {
         this.values = values;
+    }
+    
+    public void setSupposedAction(String action) {
+        this.supposedAction = action;
+    }
+    
+    public void setPlaceAction(String place) {
+        this.placeAction = place;
+    }
+    
+    public String getSupposedAction() {
+        return this.supposedAction;
+    }
+    
+    public String getPlaceAction() {
+        return this.placeAction;
     }
     
 }
