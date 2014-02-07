@@ -198,8 +198,7 @@ public class SamplesUtils {
                 
                 boolean stop = false;
                 for (int i = indexStartingWindow + 1; i < valuesToCalculateSlidingWindow.size() && !stop; i++) {
-                    System.out.println(indexStartingWindow + "," + i + "," + (valuesToCalculateSlidingWindow.get(i).getTime() - valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime()));
-                    System.out.println(valuesToCalculateSlidingWindow.get(i).getTime() - valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime() >= increaseTime);
+                    
                     if (valuesToCalculateSlidingWindow.get(i).getTime() - valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime() >= increaseTime) {
                         indexStartingWindow = i;
                         stop = true;

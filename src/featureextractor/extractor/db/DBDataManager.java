@@ -63,6 +63,52 @@ public class DBDataManager {
         
         //stmt.executeUpdate(createDB);
         ps.executeUpdate();
+        
+        String createTableDB = "CREATE TABLE IF NOT EXISTS databases "
+                + "(ID INT AUTO INCREMENT PRIMARY KEY,"
+                + "name STRING)";
+        
+        PreparedStatement ps1 = connection.prepareStatement(createTableDB);
+        ps1.executeUpdate();
+    }
+    
+    public void newDB(String dbName) {
+        
+        try {
+            this.connect();
+            String queryToInsert = "INSERT INTO databases(name) VALUES (\"?\")";
+            PreparedStatement ps = connection.prepareStatement(queryToInsert);
+            ps.setString(1, dbName);
+            
+            ps.executeUpdate();
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+            System.out.println(exc);
+        }
+    }
+    
+    public boolean checkDBAlreadyInserted(String name) {
+        
+        try {
+            connect();
+            
+            String query = "SELECT * FROM databases WHERE name = \"?\"";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+            if (!rs.first()) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+            System.out.println(exc);
+            return false;
+        }
     }
     
     private int getLastTrunk(boolean linear) {

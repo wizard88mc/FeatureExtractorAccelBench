@@ -19,6 +19,8 @@ public class SlidingWindow {
     private static List<String> coordinates = new ArrayList();
     private String supposedAction;
     private String placeAction;
+    public static long lastTimestampEndDownstair = 0;
+    public static long lastTimestampEndUpstair = 0;
     
     static {
         coordinates.add(0, "X");

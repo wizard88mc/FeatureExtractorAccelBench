@@ -4,6 +4,7 @@
  */
 package featureextractor.plot;
 
+import featureextractor.App;
 import featureextractor.extractor.db.DBDataManager;
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Batch;
@@ -39,7 +40,6 @@ public class PlotForDB extends javax.swing.JFrame {
 
     public final static int time_divisor = 10000000;
     private boolean linear;
-    private final DbExtractor db_extractor;
     private DBDataManager dbDataManager;
     private final SlidingWindow window;
     private XYSeriesCollection dataset;
@@ -86,8 +86,8 @@ public class PlotForDB extends javax.swing.JFrame {
      * @param linear
      * @param rotation 
      */
-    public PlotForDB(SlidingWindow window, DbExtractor db_extractor) {
-        this.db_extractor = db_extractor;
+    public PlotForDB(SlidingWindow window, DBDataManager dbDataManager, boolean linear) {
+        this.dbDataManager = dbDataManager;
         this.window = window;
         this.linear = linear;
         initComponents();
@@ -291,7 +291,24 @@ public class PlotForDB extends javax.swing.JFrame {
     private void btnSaveStairsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveStairsActionPerformed
         try {
             //db_extractor.setSteps(batch.getMarkers(), batch.getTrunk(), this.linear);
-            dbDataManager.addNewSlidingWindow(window, window.getSupposedAction(), linear);
+            
+            if (window.getSupposedAction().equals(App.STAIR_DOWNSTAIRS)) {
+                SingleCoordinateSet firstSet = window.getValues().get(0);
+                if (firstSet.getValues().get(firstSet.getValues().size() - 1).getTime() > SlidingWindow.lastTimestampEndDownstair) {
+                    
+                    dbDataManager.addNewSlidingWindow(window, window.getSupposedAction(), linear);
+                }
+                SlidingWindow.lastTimestampEndDownstair = firstSet.getValues().get(firstSet.getValues().size() - 1).getTime();
+            }
+            else if (window.getSupposedAction().equals(App.STAIR_UPSTAIRS)) {
+                SingleCoordinateSet firstSet = window.getValues().get(0);
+                if (firstSet.getValues().get(firstSet.getValues().size() - 1).getTime() > SlidingWindow.lastTimestampEndUpstair) {
+                    
+                    dbDataManager.addNewSlidingWindow(window, window.getSupposedAction(), linear);
+                }
+                SlidingWindow.lastTimestampEndUpstair = firstSet.getValues().get(firstSet.getValues().size() - 1).getTime();
+            }
+            
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
@@ -355,7 +372,21 @@ public class PlotForDB extends javax.swing.JFrame {
 
     private void btnDeleteAllStepsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAllStepsActionPerformed
         try {
-            dbDataManager.addNewSlidingWindow(window, "NO_STAIRS", linear);
+            if (window.getSupposedAction().equals(App.STAIR_DOWNSTAIRS)) {
+                SingleCoordinateSet firstSet = window.getValues().get(0);
+                if (firstSet.getValues().get(firstSet.getValues().size() - 1).getTime() > SlidingWindow.lastTimestampEndDownstair) {
+                    
+                    dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, linear);
+                }
+            }
+            else if (window.getSupposedAction().equals(App.STAIR_UPSTAIRS)) {
+                SingleCoordinateSet firstSet = window.getValues().get(0);
+                if (firstSet.getValues().get(firstSet.getValues().size() - 1).getTime() > SlidingWindow.lastTimestampEndUpstair) {
+                    
+                    dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, linear);
+                }
+            }
+            
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();

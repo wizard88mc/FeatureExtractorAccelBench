@@ -79,16 +79,21 @@ public class App {
 
     }; // "accelbench_matteo.db", "accelbench_prof.db", 
     final private static String[] validation_dbs = dbs; // "accelbench_20131110161959_NONSTAIRS.db", 
-    final private static String[] actions = new String[]{"NON_STAIR", "STAIR_DOWNSTAIRS", "STAIR_UPSTAIRS"};
+    final public static String NO_STAIR = "NON_STAIR";
+    final public static String STAIR_DOWNSTAIRS = "STAIR_DOWNSTAIRS";
+    final public static String STAIR_UPSTAIRS = "STAIR_UPSTAIRS";
+    final private static String[] actions = new String[]{NO_STAIR, STAIR_DOWNSTAIRS, STAIR_UPSTAIRS};
+    
 
     private enum MODE {
 
         VALIDATOR, // validates classifier against a given feature set
         CLASSIFIER, // loop through each defined db, extract and merge features, train the classifier
         TRUNK_PLOTTER, // plot each trunk to enable step marking
-        STEP_AVG_CALCULATOR // plot each trunk to enable step marking
+        STEP_AVG_CALCULATOR, // plot each trunk to enable step marking,
+        BUILD_DB_SLIDING_WINDOW // Build the Database with all the sliding window
     };
-    private static MODE mode = MODE.TRUNK_PLOTTER;
+    private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor();
@@ -199,9 +204,9 @@ public class App {
                     featureExtractor.setSlidingWindowSize(500000000);
                     featureExtractor.createFinalDB();
                     featureExtractor.populateDatabase();
-                    //featureExtractor.extract();
-//                  featureExtractor.enableMinDiff((float) 0);
-                    //featureExtractor.plot();
+                    featureExtractor.extract();
+                    featureExtractor.enableMinDiff((float) 0);
+                    featureExtractor.plot();
 //                    }
                     break;
 
@@ -222,6 +227,30 @@ public class App {
 //                    float average_step_duration = (float) sum / (float) stair_db;
 //                    System.out.println("AVG STEP DURATION: " + average_step_duration + ": " + 60 * average_step_duration + " ms");
                     break;
+                    
+                case BUILD_DB_SLIDING_WINDOW: {
+                    String[] dbs = {"matteo/accelbench_20140130182200.db",
+                        "matteo/accelbench_20140127101346.db",
+                        "matteo/accelbench_20140127113057.db",
+                        "matteo/accelbench_20140127172252.db",
+                        "matteo/accelbench_20140128182904.db",
+                        "michele/accelbench_20140127092832.db",
+                        "michele/accelbench_20140128090735.db"};
+                    
+                    featureExtractor.setSlidingWindowSize(500000000);
+                    featureExtractor.setNumberOverlappingWindow(4);
+                    featureExtractor.createFinalDB();
+                    
+                    for (String db: dbs) {
+                        
+                        if (!featureExtractor.getDBManager().checkDBAlreadyInserted(db)) {
+                            featureExtractor.getDBManager().newDB(db);
+                            featureExtractor.setDb("data/completo/" + db);
+                            featureExtractor.populateDatabase();
+                        }
+                        break;
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

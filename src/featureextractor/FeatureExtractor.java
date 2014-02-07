@@ -18,6 +18,7 @@ import featureextractor.model.SlidingWindow;
 import featureextractor.model.TimeFeature;
 import featureextractor.model.TrunkFixSpec;
 import featureextractor.plot.Plot;
+import featureextractor.plot.PlotForDB;
 import featureextractor.weka.ARFF;
 import featureextractor.weka.ARFFAttribute;
 import java.io.File;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -47,6 +49,7 @@ public class FeatureExtractor {
     private boolean feature_enabled = true;
     private long time_range = 488000000; // ms
     private long sizeSlidingWindow = 500000000; // milliseconds
+    private int numberOverlappingWindows = 1;
     private String[] features_types = new String[]{"std", "mean", "variance"};
 
     public enum BATCH_CREATION_MODE {
@@ -74,6 +77,14 @@ public class FeatureExtractor {
     
     public void setLinearOrNot(boolean linear) {
         this.linear = linear;
+    }
+    
+    public void setNumberOverlappingWindow(int number) {
+        numberOverlappingWindows = number;
+    }
+    
+    public DBDataManager getDBManager() {
+        return dbDataManager;
     }
 
     public void setDb(String db_path) throws Exception {
@@ -202,35 +213,63 @@ public class FeatureExtractor {
              */
             List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction("STAIR_DOWNSTAIRS");
             List<Batch> baseBatchesUpstairs = db_extractor.extractByTrunkAndAction("STAIR_UPSTAIRS");
-            List<Batch> baseBatchesNoStairs = db_extractor.extractByTrunkAndAction("NON_STAIRS");
+            List<Batch> baseBatchesNoStairs = db_extractor.extractByTrunkAndAction("NON_STAIR");
             /**
              * Once I have the batches, for each batch I have to create the corresponding 
              * set of sliding window 
              */
             List<SlidingWindow> windowsAccelerometerNoGravityDownstairs = new ArrayList<SlidingWindow>();
+            List<SlidingWindow> windowsLinearDownstairs = new ArrayList<SlidingWindow>();
             List<SlidingWindow> windowsAccelerometerNoGravityUpstairs = new ArrayList<SlidingWindow>();
+            List<SlidingWindow> windowsLinearUpstairs = new ArrayList<SlidingWindow>();
             List<SlidingWindow> windowsAccelerometerNoGravityNoStairs = new ArrayList<SlidingWindow>();
+            List<SlidingWindow> windowsLinearNoStairs = new ArrayList<SlidingWindow>();
             
             for (int i = 0; i < baseBatchesDownstairs.size(); i++) {
                 
                 windowsAccelerometerNoGravityDownstairs.addAll(
-                        SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesDownstairs.get(i), sizeSlidingWindow, 4, false));
+                        SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesDownstairs.get(i), sizeSlidingWindow, 
+                                numberOverlappingWindows, false));
+                
+                windowsLinearDownstairs.addAll(
+                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesDownstairs.get(i), sizeSlidingWindow, 
+                            numberOverlappingWindows, true));
             }
             
             for (int i = 0; i < baseBatchesUpstairs.size(); i++) {
                 
                 windowsAccelerometerNoGravityUpstairs.addAll(
-                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesUpstairs.get(i), sizeSlidingWindow, 4, false));
+                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesUpstairs.get(i), sizeSlidingWindow, 
+                            numberOverlappingWindows, false));
+                
+                windowsLinearUpstairs.addAll(
+                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesUpstairs.get(i), sizeSlidingWindow, 
+                            numberOverlappingWindows, true));
             }
             
             for (int i = 0; i < baseBatchesNoStairs.size(); i++) {
                 
                 windowsAccelerometerNoGravityNoStairs.addAll(
-                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesNoStairs.get(i), sizeSlidingWindow, 4, false));
+                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesNoStairs.get(i), sizeSlidingWindow, 
+                            numberOverlappingWindows, false));
+                
+                windowsLinearNoStairs.addAll(
+                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesNoStairs.get(i), sizeSlidingWindow, 
+                            numberOverlappingWindows, true));
             }
             
             for (SlidingWindow window: windowsAccelerometerNoGravityNoStairs) {
-                dbDataManager.addNewSlidingWindow(window, "NON_STAIRS", false);
+                dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, false);
+            }
+            for (SlidingWindow window: windowsLinearNoStairs) {
+                dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, true);
+            }
+            
+            for (int i = windowsAccelerometerNoGravityDownstairs.size() - 1; 
+                    i >= 0; i--) {
+                
+                new PlotForDB(windowsAccelerometerNoGravityDownstairs.get(i), dbDataManager, false);
+                
             }
         }
         catch(Exception exc) {
