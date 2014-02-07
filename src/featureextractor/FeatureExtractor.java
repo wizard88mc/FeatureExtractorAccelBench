@@ -198,26 +198,39 @@ public class FeatureExtractor {
         
         try {
             /**
-             * Retrieve all the data from the DB that are labeled as STAIR_DOWNSTAIRS
-             */
-            ArrayList<Sample> samplesAccelerometerDownstairs = db_extractor.extract("STAIR_DOWNSTAIRS", false);
-            /**
              * Creates the batch using steps
              */
             List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction("STAIR_DOWNSTAIRS");
+            List<Batch> baseBatchesUpstairs = db_extractor.extractByTrunkAndAction("STAIR_UPSTAIRS");
+            List<Batch> baseBatchesNoStairs = db_extractor.extractByTrunkAndAction("NON_STAIRS");
             /**
              * Once I have the batches, for each batch I have to create the corresponding 
              * set of sliding window 
              */
             List<SlidingWindow> windowsAccelerometerNoGravityDownstairs = new ArrayList<SlidingWindow>();
+            List<SlidingWindow> windowsAccelerometerNoGravityUpstairs = new ArrayList<SlidingWindow>();
+            List<SlidingWindow> windowsAccelerometerNoGravityNoStairs = new ArrayList<SlidingWindow>();
+            
             for (int i = 0; i < baseBatchesDownstairs.size(); i++) {
                 
-                windowsAccelerometerNoGravityDownstairs = 
-                        SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesDownstairs.get(i), sizeSlidingWindow, 4, false);
+                windowsAccelerometerNoGravityDownstairs.addAll(
+                        SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesDownstairs.get(i), sizeSlidingWindow, 4, false));
             }
             
-            for (SlidingWindow window: windowsAccelerometerNoGravityDownstairs) {
-                dbDataManager.addNewSlidingWindow(window, "STAIR_DOWNSTAIRS", false);
+            for (int i = 0; i < baseBatchesUpstairs.size(); i++) {
+                
+                windowsAccelerometerNoGravityUpstairs.addAll(
+                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesUpstairs.get(i), sizeSlidingWindow, 4, false));
+            }
+            
+            for (int i = 0; i < baseBatchesNoStairs.size(); i++) {
+                
+                windowsAccelerometerNoGravityNoStairs.addAll(
+                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesNoStairs.get(i), sizeSlidingWindow, 4, false));
+            }
+            
+            for (SlidingWindow window: windowsAccelerometerNoGravityNoStairs) {
+                dbDataManager.addNewSlidingWindow(window, "NON_STAIRS", false);
             }
         }
         catch(Exception exc) {

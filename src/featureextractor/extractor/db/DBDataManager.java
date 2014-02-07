@@ -52,16 +52,17 @@ public class DBDataManager {
         
         connect();
         
-        Statement stmt = connection.createStatement();
-        //String createDB = "CREATE DATABASE IF NOT EXISTS dbFinalSamples";
         String createTable = "CREATE TABLE IF NOT EXISTS samples " + 
                 "(ID INT AUTO INCREMENT PRIMARY KEY,"
                 + "timestamp DOUBLE NOT NULL,"
                 + "x DOUBLE NOT NULL, y DOUBLE NOT NULL, z DOUBLE NOT NULL,"
                 + "action STRING NOT NULL, trunk INT, mode STRING, linear BOOLEAN DEFAULT 0)";
         
+        PreparedStatement ps = connection.prepareStatement(createTable);
+        //String createDB = "CREATE DATABASE IF NOT EXISTS dbFinalSamples";
+        
         //stmt.executeUpdate(createDB);
-        stmt.executeUpdate(createTable);
+        ps.executeUpdate();
     }
     
     private int getLastTrunk(boolean linear) {
