@@ -248,8 +248,8 @@ public class App {
                             featureExtractor.setDb("data/completo/" + db);
                             featureExtractor.populateDatabase();
                         }
-                        break;
                     }
+                    break;
                 }
             }
         } catch (Exception e) {

@@ -257,9 +257,13 @@ public class FeatureExtractor {
                     SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesNoStairs.get(i), sizeSlidingWindow, 
                             numberOverlappingWindows, true));
             }
-            
+            int k = 0;
             for (SlidingWindow window: windowsAccelerometerNoGravityNoStairs) {
+                if (k % 20 == 0) {
+                    System.out.println("Inserisco " + k + "di " + windowsAccelerometerNoGravityNoStairs.size());
+                }
                 dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, false);
+                k++;
             }
             for (SlidingWindow window: windowsLinearNoStairs) {
                 dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, true);

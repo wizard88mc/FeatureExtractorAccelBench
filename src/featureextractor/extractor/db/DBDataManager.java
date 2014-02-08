@@ -25,11 +25,11 @@ public class DBDataManager {
     
     public DBDataManager(double millisecondsSlidingWindow) throws IOException {
         
-        String finalFile = "data/dbWindows" 
+        /*String finalFile = "data/dbWindows" 
                 + Integer.toString((int)millisecondsSlidingWindow)
                 + ".db";
         db = new File(finalFile);
-        db.createNewFile();
+        db.createNewFile();*/
         try {
             initializeDB();
         }
@@ -38,25 +38,29 @@ public class DBDataManager {
         }
     }
     
-    private void connect() throws FileNotFoundException, ClassNotFoundException, SQLException {
+    private void connect() throws FileNotFoundException, ClassNotFoundException, SQLException, InstantiationException,
+            IllegalAccessException{
         if (connection == null) {
-            if (db.exists() == false) {
+            /*if (db.exists() == false) {
                 throw new FileNotFoundException("No db found at " + db.getAbsolutePath());
-            }
-            Class.forName("org.sqlite.JDBC"); // ClassNotFoundException
-            connection = DriverManager.getConnection("jdbc:sqlite:" + db.getAbsolutePath());
+            }*/
+            //Class.forName("org.sqlite.JDBC"); // ClassNotFoundException
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            //connection = DriverManager.getConnection("jdbc:sqlite:" + db.getAbsolutePath());
+            connection = DriverManager.getConnection("jdbc:mysql://localhost/accelbench?user=matteo&password=matteo");
         }
     }
     
-    private void initializeDB() throws FileNotFoundException, ClassNotFoundException, SQLException {
+    private void initializeDB() throws FileNotFoundException, ClassNotFoundException, SQLException, InstantiationException,
+            IllegalAccessException {
         
         connect();
         
         String createTable = "CREATE TABLE IF NOT EXISTS samples " + 
-                "(ID INT AUTO INCREMENT PRIMARY KEY,"
+                "(ID INT AUTO_INCREMENT PRIMARY KEY,"
                 + "timestamp DOUBLE NOT NULL,"
                 + "x DOUBLE NOT NULL, y DOUBLE NOT NULL, z DOUBLE NOT NULL,"
-                + "action STRING NOT NULL, trunk INT, mode STRING, linear BOOLEAN DEFAULT 0)";
+                + "action VARCHAR(50) NOT NULL, trunk INT, mode VARCHAR(50) NOT NULL, isLinear TINYINT(1) DEFAULT 0)";
         
         PreparedStatement ps = connection.prepareStatement(createTable);
         //String createDB = "CREATE DATABASE IF NOT EXISTS dbFinalSamples";
@@ -64,9 +68,9 @@ public class DBDataManager {
         //stmt.executeUpdate(createDB);
         ps.executeUpdate();
         
-        String createTableDB = "CREATE TABLE IF NOT EXISTS databases "
-                + "(ID INT AUTO INCREMENT PRIMARY KEY,"
-                + "name STRING)";
+        String createTableDB = "CREATE TABLE IF NOT EXISTS databasesInserted "
+                + "(ID INTEGER AUTO_INCREMENT PRIMARY KEY,"
+                + "dbName VARCHAR(50) NOT NULL)";
         
         PreparedStatement ps1 = connection.prepareStatement(createTableDB);
         ps1.executeUpdate();
@@ -76,9 +80,8 @@ public class DBDataManager {
         
         try {
             this.connect();
-            String queryToInsert = "INSERT INTO databases(name) VALUES (\"?\")";
+            String queryToInsert = "INSERT INTO databasesInserted(dbName) VALUES (\"" + dbName + "\")";
             PreparedStatement ps = connection.prepareStatement(queryToInsert);
-            ps.setString(1, dbName);
             
             ps.executeUpdate();
         }
@@ -93,11 +96,10 @@ public class DBDataManager {
         try {
             connect();
             
-            String query = "SELECT * FROM databases WHERE name = \"?\"";
+            String query = "SELECT * FROM databasesInserted WHERE dbName = \"" + name+ "\"";
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
-            if (!rs.first()) {
+            if (!rs.next()) {
                 return false;
             }
             else {
@@ -116,7 +118,7 @@ public class DBDataManager {
         
         try {
             connect();
-            String query = "SELECT MAX(trunk) as trunk FROM samples WHERE linear = " + (linear==true?1:0);
+            String query = "SELECT MAX(trunk) as trunk FROM samples WHERE isLinear = " + (linear==true?1:0);
             PreparedStatement ps = connection.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
             rs.next();
@@ -144,7 +146,7 @@ public class DBDataManager {
                     z = values.get(2).getValues().get(i).getValue();
             
             String queryInsert = "INSERT INTO samples (timestamp, x, y, z," +
-                    " action, trunk, mode, linear) VALUES (?,?,?,?,?,?,?,?)";
+                    " action, trunk, mode, isLinear) VALUES (?,?,?,?,?,?,?,?)";
             try {
                 connect();
                 PreparedStatement ps = connection.prepareStatement(queryInsert);
@@ -155,7 +157,7 @@ public class DBDataManager {
                 ps.setString(5, action);
                 ps.setInt(6, newTrunkID);
                 ps.setString(7, window.getPlaceAction());
-                ps.setBoolean(8, linear);
+                ps.setInt(8, linear==false?0:1);
                 
                 ps.execute();
             }

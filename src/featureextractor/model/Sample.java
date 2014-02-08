@@ -100,6 +100,9 @@ public class Sample {
         
         double norm = Math.sqrt(Math.pow(rotationX, 2) + Math.pow(rotationY, 2) + 
                 Math.pow(rotationZ, 2));
+        if (norm >1) {
+            norm = 1;
+        }
         double alpha = 2 * Math.asin(norm);
         
         double x = rotationX / norm, y = rotationY / norm, z = rotationZ / norm;
@@ -124,15 +127,29 @@ public class Sample {
                 (((1 - cosAlpha) * y * z) - sinAlpha * x)  * zFirst);
         }
         else if (wantZ) {
-            return ((((1 - cosAlpha) * z * x) - sinAlpha * y) * xFirst +
+            double value = ((((1 - cosAlpha) * z * x) - sinAlpha * y) * xFirst +
                         ((1 - cosAlpha) * z * y + sinAlpha * x) * yFirst +
                         (zSquare + (1 - zSquare) * cosAlpha) * zFirst);
+            if (Double.isNaN(value)) {
+                System.out.println("none");
+                return -1;
+            }
+            else {
+                return value;
+            }
         }
         return -1;
     }
     
     public double getRotatedX() {
-        return getRotatedAxis(true, false, false, false);
+        double value = getRotatedAxis(true, false, false, false);
+        if (Double.isNaN(value)) {
+            System.out.println("None");
+            return -1;
+        }
+        else {
+            return value;
+        }
     }
     
     public double getRotatedY() {
