@@ -273,6 +273,9 @@ public class FeatureExtractor {
                     i >= 0; i--) {
                 
                 new PlotForDB(windowsAccelerometerNoGravityDownstairs.get(i), dbDataManager, false);
+                if (i%10 == 0) {
+                    System.out.println("waiting");
+                }
                 
             }
         }
