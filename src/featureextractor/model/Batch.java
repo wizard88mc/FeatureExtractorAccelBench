@@ -32,7 +32,7 @@ public class Batch {
     private String mode;
     private String action;
     private int trunk = 0;
-    private int bufferDuration = 500;
+    private int bufferDuration = 500000000;
     private DecimalFormat numberFormat = new DecimalFormat("#0.00");
     
     static {
@@ -189,47 +189,44 @@ public class Batch {
     
     public void removeGravity(List<Sample> samplesAccelerometer) {
         
-        long meanDistanceTimestamp = 0;
-        for (int index = 1; index < samplesAccelerometer.size(); index++) {
-            meanDistanceTimestamp += (samplesAccelerometer.get(index).getTime() - samplesAccelerometer.get(index-1).getTime());
-        }
-        meanDistanceTimestamp /= samplesAccelerometer.size();
-        
         List<Sample> buffer = new ArrayList<Sample>();
-        int bufferSize = bufferDuration / (int)(meanDistanceTimestamp / 1000000);
         boolean bufferFull = false;
         int nextPositionPoint = 0; 
 
         for (int index = 0; index < samplesAccelerometer.size(); index++) {
             
             Sample sample = samplesAccelerometer.get(index);
-            buffer.add(nextPositionPoint, sample);
-            nextPositionPoint++;
             
-            if (nextPositionPoint == bufferSize) {
-                nextPositionPoint = 0;
+            if (buffer.size() > 0 && (sample.getTime() - buffer.get(0).getTime()) > 
+                    bufferDuration) {
                 bufferFull = true;
+            }
+            else {
+                bufferFull = false;
+                buffer.add(sample);
             }
             
             if (bufferFull) {
                 
                 float meanValueX = 0, meanValueY = 0, meanValueZ = 0;
                 
-                for (int i = 0; i < bufferSize; i++) {
+                for (int i = 0; i < buffer.size(); i++) {
                     meanValueX += buffer.get(i).getValueX();
                     meanValueY += buffer.get(i).getValueY();
                     meanValueZ += buffer.get(i).getValueZ();
                 }
                 
-                meanValueX /= bufferSize;
-                meanValueY /= bufferSize;
-                meanValueZ /= bufferSize;
+                meanValueX /= buffer.size();
+                meanValueY /= buffer.size();
+                meanValueZ /= buffer.size();
                 
                 sample.hasNoGravityValues();
                 sample.setNoGravityX(sample.getValueX() - meanValueX);
                 sample.setNoGravityY(sample.getValueY() - meanValueY);
                 sample.setNoGravityZ(sample.getValueZ() - meanValueZ);
                 
+                buffer.remove(0);
+                buffer.add(sample);
             }
         }
     }

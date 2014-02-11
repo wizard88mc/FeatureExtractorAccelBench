@@ -167,25 +167,22 @@ public class SamplesUtils {
                     indexSlidingWindow++) {
                 
                 if ((valuesToCalculateSlidingWindow.get(indexSlidingWindow).getTime() - 
-                        valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime()) <= duration) {
+                        valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime()) > duration) {
                     
-                    //samplesForSingleBatch.add(values.get(indexSlidingWindow));
-                }
-                else {
                     windowCompleted = true;
-                    finalPoint = indexSlidingWindow; // last point of the sliding window
+                    finalPoint = indexSlidingWindow -1; // last point of the sliding window
                 }
             }
             
             if ((finalPoint + 1 < valuesToCalculateSlidingWindow.size()) && (valuesToCalculateSlidingWindow.get(finalPoint + 1).getTime() - 
-                    valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime()) >= duration 
+                    valuesToCalculateSlidingWindow.get(indexStartingWindow).getTime()) > duration 
                     ) { // means that the sliding window is complete
                 
                 List<SingleCoordinateSet> elementsForSlidingWindow = new ArrayList<SingleCoordinateSet>();
                 
                 for (int i = 0; i < values.size(); i++) {
                     
-                    SingleCoordinateSet coordinateSet = new SingleCoordinateSet(values.get(i).getValues().subList(indexStartingWindow, finalPoint));
+                    SingleCoordinateSet coordinateSet = new SingleCoordinateSet(values.get(i).getValues().subList(indexStartingWindow, finalPoint +1));
                     coordinateSet.setTitle(values.get(i).getTitle());
                     elementsForSlidingWindow.add(i, coordinateSet);
                 }

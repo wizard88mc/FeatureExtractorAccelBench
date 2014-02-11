@@ -198,14 +198,14 @@ public class App {
                     //                  featureExtractor.setTrunkIDs();
                     featureExtractor.setArffEnabled(false); // disable ARFF creation
                     featureExtractor.setFeatureEnabled(false); // disable feature calculation
-                    featureExtractor.setGravity_remove(false);
+                    featureExtractor.setGravity_remove(true);
                     featureExtractor.setLinearOrNot(false);
                     featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
                     featureExtractor.setSlidingWindowSize(500000000);
-                    featureExtractor.createFinalDB();
-                    featureExtractor.populateDatabase();
-                    featureExtractor.extract();
                     featureExtractor.enableMinDiff((float) 0);
+                    //featureExtractor.createFinalDB();
+                    //featureExtractor.populateDatabase();
+                    featureExtractor.extract();
                     featureExtractor.plot();
 //                    }
                     break;

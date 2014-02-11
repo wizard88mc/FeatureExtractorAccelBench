@@ -291,23 +291,9 @@ public class PlotForDB extends javax.swing.JFrame {
     private void btnSaveStairsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveStairsActionPerformed
         try {
             //db_extractor.setSteps(batch.getMarkers(), batch.getTrunk(), this.linear);
-            
-            if (window.getSupposedAction().equals(App.STAIR_DOWNSTAIRS)) {
-                SingleCoordinateSet firstSet = window.getValues().get(0);
-                if (firstSet.getValues().get(firstSet.getValues().size() - 1).getTime() > SlidingWindow.lastTimestampEndDownstair) {
-                    
-                    dbDataManager.addNewSlidingWindow(window, window.getSupposedAction(), linear);
-                }
-                SlidingWindow.lastTimestampEndDownstair = firstSet.getValues().get(firstSet.getValues().size() - 1).getTime();
-            }
-            else if (window.getSupposedAction().equals(App.STAIR_UPSTAIRS)) {
-                SingleCoordinateSet firstSet = window.getValues().get(0);
-                if (firstSet.getValues().get(firstSet.getValues().size() - 1).getTime() > SlidingWindow.lastTimestampEndUpstair) {
-                    
-                    dbDataManager.addNewSlidingWindow(window, window.getSupposedAction(), linear);
-                }
-                SlidingWindow.lastTimestampEndUpstair = firstSet.getValues().get(firstSet.getValues().size() - 1).getTime();
-            }
+                  
+            dbDataManager.addNewSlidingWindow(window, window.getSupposedAction(), linear);
+            dbDataManager.addNewSlidingWindow(window, window.getSupposedAction(), linear);
             
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);

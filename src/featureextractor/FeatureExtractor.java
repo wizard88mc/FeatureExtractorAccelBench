@@ -260,13 +260,18 @@ public class FeatureExtractor {
             int k = 0;
             for (SlidingWindow window: windowsAccelerometerNoGravityNoStairs) {
                 if (k % 20 == 0) {
-                    System.out.println("Inserisco " + k + "di " + windowsAccelerometerNoGravityNoStairs.size());
+                    System.out.println("Accelerometro: Inserisco " + k + "di " + windowsAccelerometerNoGravityNoStairs.size());
                 }
                 dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, false);
                 k++;
             }
+            k = 0;
             for (SlidingWindow window: windowsLinearNoStairs) {
+                if (k % 20 == 0) {
+                    System.out.println("Linear: Inserisco " + k + "di " + windowsLinearNoStairs.size());
+                }
                 dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, true);
+                k++;
             }
             
             for (int i = windowsAccelerometerNoGravityDownstairs.size() - 1; 
@@ -276,7 +281,31 @@ public class FeatureExtractor {
                 if (i%10 == 0) {
                     System.out.println("waiting");
                 }
+            }
+            
+            for (int i = windowsLinearDownstairs.size() - 1; i>= 0; i--) {
                 
+                new PlotForDB(windowsLinearDownstairs.get(i), dbDataManager, true);
+                if (i%10 == 0) {
+                    System.out.println("waiting");
+                }
+            }
+            
+            for (int i = windowsAccelerometerNoGravityUpstairs.size() - 1; 
+                    i >= 0; i--) {
+                
+                new PlotForDB(windowsAccelerometerNoGravityUpstairs.get(i), dbDataManager, false);
+                if (i%10 == 0) {
+                    System.out.println("waiting");
+                }
+            }
+            
+            for (int i = windowsLinearUpstairs.size() - 1; i>= 0; i--) {
+                
+                new PlotForDB(windowsLinearUpstairs.get(i), dbDataManager, true);
+                if (i%10 == 0) {
+                    System.out.println("waiting");
+                }
             }
         }
         catch(Exception exc) {
