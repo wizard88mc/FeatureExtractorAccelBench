@@ -301,7 +301,6 @@ public class FeatureExtractor {
             }
             
             for (int i = windowsLinearUpstairs.size() - 1; i>= 0; i--) {
-                
                 new PlotForDB(windowsLinearUpstairs.get(i), dbDataManager, true);
                 if (i%10 == 0) {
                     System.out.println("waiting");
