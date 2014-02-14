@@ -91,9 +91,10 @@ public class App {
         CLASSIFIER, // loop through each defined db, extract and merge features, train the classifier
         TRUNK_PLOTTER, // plot each trunk to enable step marking
         STEP_AVG_CALCULATOR, // plot each trunk to enable step marking,
-        BUILD_DB_SLIDING_WINDOW // Build the Database with all the sliding window
+        BUILD_DB_SLIDING_WINDOW, // Build the Database with all the sliding window
+        CLEAN_DB_SLIDING_WINDOW // Cleans SlidingWindow DB from possible copies
     };
-    private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
+    private static MODE mode = MODE.CLEAN_DB_SLIDING_WINDOW;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor();
@@ -249,6 +250,15 @@ public class App {
                             featureExtractor.populateDatabase();
                         }
                     }
+                    break;
+                }
+                
+                case CLEAN_DB_SLIDING_WINDOW: {
+                    
+                    featureExtractor.setSlidingWindowSize(500000000);
+                    featureExtractor.createFinalDB();
+                    featureExtractor.cleanDB();
+                    
                     break;
                 }
             }

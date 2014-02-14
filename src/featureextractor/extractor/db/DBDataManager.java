@@ -1,6 +1,7 @@
 
 package featureextractor.extractor.db;
 
+import featureextractor.model.DataTime;
 import featureextractor.model.SingleCoordinateSet;
 import featureextractor.model.SlidingWindow;
 import java.io.File;
@@ -11,7 +12,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -23,7 +26,7 @@ public class DBDataManager {
     private File db;
     private Connection connection = null;
     
-    public DBDataManager(double millisecondsSlidingWindow) throws IOException {
+    public DBDataManager(int slidingWindowSize) throws IOException {
         
         /*String finalFile = "data/dbWindows" 
                 + Integer.toString((int)millisecondsSlidingWindow)
@@ -31,11 +34,15 @@ public class DBDataManager {
         db = new File(finalFile);
         db.createNewFile();*/
         try {
-            initializeDB();
+            initializeDB(slidingWindowSize);
         }
         catch(Exception exc) {
             System.out.println(exc);
         }
+    }
+    
+    public DBDataManager() {
+        
     }
     
     private void connect() throws FileNotFoundException, ClassNotFoundException, SQLException, InstantiationException,
@@ -51,13 +58,13 @@ public class DBDataManager {
         }
     }
     
-    private void initializeDB() throws FileNotFoundException, ClassNotFoundException, SQLException, InstantiationException,
+    private void initializeDB(int slidingWindowSize) throws FileNotFoundException, ClassNotFoundException, SQLException, InstantiationException,
             IllegalAccessException {
         
         connect();
         
-        String createTable = "CREATE TABLE IF NOT EXISTS samples " + 
-                "(ID INT AUTO_INCREMENT PRIMARY KEY,"
+        String createTable = "CREATE TABLE IF NOT EXISTS samples" + slidingWindowSize + 
+                " (ID INT AUTO_INCREMENT PRIMARY KEY,"
                 + "timestamp DOUBLE NOT NULL,"
                 + "x DOUBLE NOT NULL, y DOUBLE NOT NULL, z DOUBLE NOT NULL,"
                 + "action VARCHAR(50) NOT NULL, trunk INT, mode VARCHAR(50) NOT NULL, isLinear TINYINT(1) DEFAULT 0)";
@@ -68,8 +75,8 @@ public class DBDataManager {
         //stmt.executeUpdate(createDB);
         ps.executeUpdate();
         
-        String createTableDB = "CREATE TABLE IF NOT EXISTS databasesInserted "
-                + "(ID INTEGER AUTO_INCREMENT PRIMARY KEY,"
+        String createTableDB = "CREATE TABLE IF NOT EXISTS databasesInserted" + slidingWindowSize
+                + " (ID INTEGER AUTO_INCREMENT PRIMARY KEY,"
                 + "dbName VARCHAR(50) NOT NULL)";
         
         PreparedStatement ps1 = connection.prepareStatement(createTableDB);
@@ -168,5 +175,76 @@ public class DBDataManager {
         }
     }
     
+    public List<SlidingWindow> getSlidinwWindows(int slidingWindowSize, String action, boolean linear) {
+        
+        List<SlidingWindow> slidingWindows = new ArrayList<SlidingWindow>();
+        
+        try {
+            connect();
+            
+            String queryGetTrunks = "SELECT DISTINCT(trunk) AS trunkID FROM samples" + slidingWindowSize + " WHERE "
+                    + "action=\"" +action +"\" AND isLinear=" + (linear==false?0:1); 
+            PreparedStatement ps = connection.prepareStatement(queryGetTrunks);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                
+                int trunk = rs.getInt("trunkID");
+                String mode = null;
+                String queryGetIDS = "SELECT * FROM samples" + slidingWindowSize + " WHERE "
+                        + "action=\"" + action + "\" and isLinear=" + (linear==false?0:1)+
+                        " and trunk=" + trunk;
+                
+                PreparedStatement ps1 = connection.prepareStatement(queryGetIDS);
+                ResultSet rs1 = ps1.executeQuery();
+                
+                List<SingleCoordinateSet> singleCoordinateSet = new LinkedList<SingleCoordinateSet>();
+                singleCoordinateSet.add(new SingleCoordinateSet("X"));
+                singleCoordinateSet.add(new SingleCoordinateSet("Y"));
+                singleCoordinateSet.add(new SingleCoordinateSet("Z"));
+                
+                while (rs1.next()) {
+                    double timestamp = rs1.getDouble("timestamp"),
+                            x = rs1.getDouble("x"), y = rs1.getDouble("y"),
+                            z = rs1.getDouble("z");
+                    if (mode == null) {
+                        mode = rs1.getString("mode");
+                    }
+                    
+                    singleCoordinateSet.get(0).addValue(new DataTime(timestamp, x, -1));
+                    singleCoordinateSet.get(1).addValue(new DataTime(timestamp, y, -1));
+                    singleCoordinateSet.get(2).addValue(new DataTime(timestamp, z, -1));
+                }
+                
+                slidingWindows.add(new SlidingWindow(action, mode, singleCoordinateSet, linear, trunk));
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+            System.out.println(exc);
+        }
+        return slidingWindows;
+    }
     
+    public int deleteTrunk(int slidingWindowSize, int trunkID, boolean linear, String action) {
+        
+        String query = "DELETE FROM samples"+slidingWindowSize+ " WHERE "
+                + "trunk="+trunkID+" AND isLinear=" + (linear==false?0:1) + " and "
+                + "action = \"" + action + "\"";
+        
+        try {
+            connect();
+            
+            PreparedStatement ps = connection.prepareStatement(query);
+            
+            int result = ps.executeUpdate();
+            return result;
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+            System.out.println(exc);
+            return -1;
+        }
+        
+    }
 }

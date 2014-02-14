@@ -97,7 +97,7 @@ public class FeatureExtractor {
     
     public void createFinalDB() {
         try {
-            dbDataManager = new DBDataManager(sizeSlidingWindow);
+            dbDataManager = new DBDataManager((int)sizeSlidingWindow / 1000000);
         }
         catch(IOException exc) {
             System.out.println(exc);
@@ -257,7 +257,7 @@ public class FeatureExtractor {
                     SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesNoStairs.get(i), sizeSlidingWindow, 
                             numberOverlappingWindows, true));
             }
-            int k = 0;
+            /*int k = 0;
             for (SlidingWindow window: windowsAccelerometerNoGravityNoStairs) {
                 if (k % 20 == 0) {
                     System.out.println("Accelerometro: Inserisco " + k + "di " + windowsAccelerometerNoGravityNoStairs.size());
@@ -281,10 +281,10 @@ public class FeatureExtractor {
                 if (i%10 == 0) {
                     System.out.println("waiting");
                 }
-            }
+            }*/
             
-            for (int i = windowsLinearDownstairs.size() - 1; i>= 0; i--) {
-                
+            //for (int i = windowsLinearDownstairs.size() - 1; i>= 0; i--) {
+            for (int i = 650 - 1; i>= 0; i--) {
                 new PlotForDB(windowsLinearDownstairs.get(i), dbDataManager, true);
                 if (i%10 == 0) {
                     System.out.println("waiting");
@@ -608,5 +608,47 @@ public class FeatureExtractor {
         return this.arff;
     }
     
+    private void searchForCopyOfSlidingWindow(List<SlidingWindow> slidingWindows, boolean linear) {
+        
+        for (int i = 0; i < slidingWindows.size(); i++) {
+            
+            for (int j = i+1; j < slidingWindows.size(); ) {
+                if (slidingWindows.get(i).equals(slidingWindows.get(j))) {
+
+                    System.out.println("Window " + i + " uguale window " + j);
+                    
+                    // Remove sliding window from the db and from the List
+                    dbDataManager.deleteTrunk((int)sizeSlidingWindow/1000000, 
+                            slidingWindows.get(j).getTrunk(), linear, slidingWindows.get(j).getSupposedAction());
+                    slidingWindows.remove(j);
+                }
+                else {
+                    j++;
+                }
+            }
+            if (i%30 == 0) {
+                System.out.println("Completed test " + i + " of " + slidingWindows.size());
+            }
+        }
+        
+    }
     
+    public void cleanDB() {
+        
+        System.out.println("**********Starting sliding window downstairs**********");
+        List<SlidingWindow> slidingWindowsDownstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, false);
+        System.out.println("Downstairs: " + slidingWindowsDownstairs.size());
+        searchForCopyOfSlidingWindow(slidingWindowsDownstairs, false);
+        /*System.out.println("**********Starting sliding window upstairs**********");
+        List<SlidingWindow> slidingWindowsUpstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_UPSTAIRS, false);
+        System.out.println("Upstairs: " + slidingWindowsUpstairs.size());
+        System.out.println("**********Starting sliding window downstairs linear**********");
+        List<SlidingWindow> slidingWindowsDownstairsLinear = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, true);
+        System.out.println("Downstairs Linear: " + slidingWindowsDownstairsLinear.size());
+        System.out.println("**********Starting sliding window upstairs linear**********");
+        List<SlidingWindow> slidingWindowsUpstairsLinear = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_UPSTAIRS, true);
+        System.out.println("Upstairs Linear: " + slidingWindowsUpstairsLinear.size());*/
+
+        
+    }
 }

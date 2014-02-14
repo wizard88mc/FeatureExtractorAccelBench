@@ -26,6 +26,11 @@ public class SingleCoordinateSet {
         super();
         this.values=new ArrayList<DataTime>();
     }
+    
+    public SingleCoordinateSet(String title) {
+        this();
+        this.title = title;
+    }
 
     public void setTitle(String title) {
         this.title = title;
