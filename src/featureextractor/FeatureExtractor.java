@@ -427,17 +427,21 @@ public class FeatureExtractor {
             
         List<SlidingWindow> slidingWindowsDownstairs, slidingWindowsUpstairs, slidingWindowsNoStairs;
 
-        
+        System.out.println("Starting getting sliding windows");
         slidingWindowsDownstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, linear);
+        System.out.println("Got all Sliding windows downstairs");
         slidingWindowsUpstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_UPSTAIRS, linear);
+        System.out.println("Got all sliding windows upstairs");
         slidingWindowsNoStairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.NO_STAIR, linear);
-        
-        
+        System.out.println("Got all sliding window no stairs");
         System.out.println("Got all Sliding windows");
-        List<FeaturesSlidingWindow> featuresWindowsDownstairs = getFeatures(slidingWindowsDownstairs, frequencyData),
-                featuresWindowsUpstairs = getFeatures(slidingWindowsUpstairs, frequencyData),
-                featuresWindowsNoStairs = getFeatures(slidingWindowsNoStairs, frequencyData);
         
+        System.out.println("Starting calculate features");
+        List<FeaturesSlidingWindow> featuresWindowsDownstairs = getFeatures(slidingWindowsDownstairs, frequencyData);
+        System.out.println("All features for downstairs");
+        List<FeaturesSlidingWindow> featuresWindowsUpstairs = getFeatures(slidingWindowsUpstairs, frequencyData);
+        System.out.println("All features for upstairs");
+        List<FeaturesSlidingWindow> featuresWindowsNoStairs = getFeatures(slidingWindowsNoStairs, frequencyData);
         System.out.println("Got all features");
         
         arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
