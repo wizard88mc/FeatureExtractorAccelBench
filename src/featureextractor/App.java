@@ -271,7 +271,7 @@ public class App {
                     
                     featureExtractor.extract(false, 20);
                     
-                    featureExtractor.dumpARFF(new File("StairDetectionNew.arff"));
+                    featureExtractor.dumpARFF(new File("StairDetectionNew"+20+".arff"));
                     
                     break;
                 }

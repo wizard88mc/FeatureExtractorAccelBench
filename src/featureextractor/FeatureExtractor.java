@@ -50,6 +50,7 @@ public class FeatureExtractor {
     private long time_range = 488000000; // ms
     private long sizeSlidingWindow = 500000000; // milliseconds
     private int numberOverlappingWindows = 1;
+    List<SlidingWindow> slidingWindowsDownstairs, slidingWindowsUpstairs, slidingWindowsNoStairs;
     private String[] features_types = new String[]{"std", "mean", "variance"};
 
     public enum BATCH_CREATION_MODE {
@@ -259,7 +260,7 @@ public class FeatureExtractor {
                     SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesNoStairs.get(i), sizeSlidingWindow, 
                             numberOverlappingWindows, true));
             }
-            /*int k = 0;
+            int k = 0;
             for (SlidingWindow window: windowsAccelerometerNoGravityNoStairs) {
                 if (k % 20 == 0) {
                     System.out.println("Accelerometro: Inserisco " + k + "di " + windowsAccelerometerNoGravityNoStairs.size());
@@ -283,10 +284,9 @@ public class FeatureExtractor {
                 if (i%10 == 0) {
                     System.out.println("waiting");
                 }
-            }*/
+            }
             
-            //for (int i = windowsLinearDownstairs.size() - 1; i>= 0; i--) {
-            for (int i = 650 - 1; i>= 0; i--) {
+            for (int i = windowsLinearDownstairs.size() - 1; i>= 0; i--) {
                 new PlotForDB(windowsLinearDownstairs.get(i), dbDataManager, true);
                 if (i%10 == 0) {
                     System.out.println("waiting");
@@ -424,9 +424,6 @@ public class FeatureExtractor {
             throw new Exception("No DBDataManager");
         }
 
-            
-        List<SlidingWindow> slidingWindowsDownstairs, slidingWindowsUpstairs, slidingWindowsNoStairs;
-
         System.out.println("Starting getting sliding windows");
         slidingWindowsDownstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, linear);
         System.out.println("Got all Sliding windows downstairs");
@@ -436,18 +433,45 @@ public class FeatureExtractor {
         System.out.println("Got all sliding window no stairs");
         System.out.println("Got all Sliding windows");
         
+        System.out.println("Starting cleaning Windows");
+        List<SlidingWindow> finalWindowsDownstairs = getOnlySuitableSlidingWindows(slidingWindowsDownstairs, frequencyData),
+                finalWindowsUpstairs = getOnlySuitableSlidingWindows(slidingWindowsUpstairs, frequencyData),
+                finalWindowsNoStairs = getOnlySuitableSlidingWindows(slidingWindowsNoStairs, frequencyData);
+        System.out.println("All SlidingWindow cleaned");
+        
         System.out.println("Starting calculate features");
-        List<FeaturesSlidingWindow> featuresWindowsDownstairs = getFeatures(slidingWindowsDownstairs, frequencyData);
+        List<FeaturesSlidingWindow> featuresWindowsDownstairs = getFeatures(finalWindowsDownstairs, frequencyData);
         System.out.println("All features for downstairs");
-        List<FeaturesSlidingWindow> featuresWindowsUpstairs = getFeatures(slidingWindowsUpstairs, frequencyData);
+        List<FeaturesSlidingWindow> featuresWindowsUpstairs = getFeatures(finalWindowsUpstairs, frequencyData);
         System.out.println("All features for upstairs");
-        List<FeaturesSlidingWindow> featuresWindowsNoStairs = getFeatures(slidingWindowsNoStairs, frequencyData);
+        List<FeaturesSlidingWindow> featuresWindowsNoStairs = getFeatures(finalWindowsNoStairs, frequencyData);
         System.out.println("Got all features");
         
         arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
         arff.addAllFeaturesData(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
         arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
+    }
+    
+    /**
+     * Retrieves the list of the sliding windows suitable for a particular frequency 
+     * analysis. It check whether the number of points in the sliding window is 
+     * greater or equal to the frequency.
+     * 
+     * @param possibleWindows: initial windows retrieved from the DB
+     * @param frequency: frequency at which we want to perform our analysis
+     * @return a list of SlidingWindow that have at least the number of points 
+     * equal to the frequency
+     */
+    private List<SlidingWindow> getOnlySuitableSlidingWindows(List<SlidingWindow> possibleWindows, int frequency) {
+        List<SlidingWindow> finalWindows = new ArrayList<SlidingWindow>();
         
+        for (SlidingWindow window: possibleWindows) {
+            if (window.getValues().get(0).size() >= frequency) {
+                finalWindows.add(window);
+            }
+        }
+        
+        return finalWindows;
     }
     
     private List<FeaturesSlidingWindow> getFeatures(List<SlidingWindow> slidingWindows, int frequency) {
