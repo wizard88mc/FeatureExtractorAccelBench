@@ -5,6 +5,7 @@
 package featureextractor.weka;
 
 import featureextractor.model.FeatureSet;
+import featureextractor.model.FeaturesSlidingWindow;
 import featureextractor.model.TimeFeature;
 import java.io.File;
 import java.io.IOException;
@@ -84,6 +85,30 @@ public class ARFF {
         
         
         this.addData(new ARFFData(title, data_row));
+    }
+    
+    public void addAllFeaturesData(String title, List<FeaturesSlidingWindow> features) {
+        
+        for (int i = 0; i < features.size(); i++) {
+            
+            List<Double> data_row = new ArrayList<Double>();
+            List<FeatureSet> baseFeatures = features.get(i).getBaseFeatures();
+            for (int j = 0; j < baseFeatures.size(); j++) {
+                data_row.add(baseFeatures.get(j).getMean());
+                data_row.add(baseFeatures.get(j).getStd());
+                data_row.add(baseFeatures.get(j).getVariance());
+                data_row.add(baseFeatures.get(j).getDifferenceMinMax());
+            }
+            
+            data_row.addAll(features.get(i).getRatios());
+            data_row.addAll(features.get(i).getCorrelations());
+            
+            data_row.add(features.get(i).getMagnitudeArea());
+            data_row.add(features.get(i).getSignalMagnitudeArea());
+            
+            this.addData(new ARFFData(title, data_row));
+        }
+        
     }
 
     public void addVarianceOnlyData(String title, List<FeatureSet> featureSets) {

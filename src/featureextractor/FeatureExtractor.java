@@ -13,6 +13,7 @@ import featureextractor.model.Sample;
 import featureextractor.model.Batch;
 import featureextractor.model.DataTime;
 import featureextractor.model.FeatureSet;
+import featureextractor.model.FeaturesSlidingWindow;
 import featureextractor.model.SingleCoordinateSet;
 import featureextractor.model.SlidingWindow;
 import featureextractor.model.TimeFeature;
@@ -27,7 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -71,8 +71,10 @@ public class FeatureExtractor {
 
     public FeatureExtractor() {
 //        this.initialize_ARFF();
-        this.initialize_std_ARFF(axis_to_be_considered, true, true, true, true, 
-                true, true, true, true, true);
+        //this.initialize_std_ARFF(axis_to_be_considered, true, true, true, true, 
+         //       true, true, true, true, true);
+        this.initializeARFF();
+        
     }
     
     public void setLinearOrNot(boolean linear) {
@@ -322,7 +324,6 @@ public class FeatureExtractor {
             System.out.println("Detected sampling rate: " + db_extractor.getSamplingRate(true) + "Hz");
             // create samples from db rows            
             ArrayList<Sample> samplesAccelerometer = db_extractor.extract(action, false);
-            ArrayList<Sample> samplesLinearAcceleration = db_extractor.extract(action, true);
               
             // create samples batches by selected mode
             batches = null;
@@ -417,6 +418,46 @@ public class FeatureExtractor {
         }
     }
 
+    public void extract(boolean linear, int frequencyData) throws Exception {
+        
+        if (dbDataManager == null ) {
+            throw new Exception("No DBDataManager");
+        }
+
+            
+        List<SlidingWindow> slidingWindowsDownstairs, slidingWindowsUpstairs, slidingWindowsNoStairs;
+
+        
+        slidingWindowsDownstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, linear);
+        slidingWindowsUpstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_UPSTAIRS, linear);
+        slidingWindowsNoStairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.NO_STAIR, linear);
+        
+        
+        System.out.println("Got all Sliding windows");
+        List<FeaturesSlidingWindow> featuresWindowsDownstairs = getFeatures(slidingWindowsDownstairs, frequencyData),
+                featuresWindowsUpstairs = getFeatures(slidingWindowsUpstairs, frequencyData),
+                featuresWindowsNoStairs = getFeatures(slidingWindowsNoStairs, frequencyData);
+        
+        System.out.println("Got all features");
+        
+        arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
+        arff.addAllFeaturesData(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
+        arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
+        
+    }
+    
+    private List<FeaturesSlidingWindow> getFeatures(List<SlidingWindow> slidingWindows, int frequency) {
+        
+        List<FeaturesSlidingWindow> listFeaturesSet = new ArrayList<FeaturesSlidingWindow>();
+        
+        for (int i = 0; i < slidingWindows.size(); i++) {
+            
+            listFeaturesSet.add(new FeaturesSlidingWindow(slidingWindows.get(i), frequency));
+        }
+        
+        return listFeaturesSet;
+    }
+    
     public void setRange(int range) {
         this.range = range;
     }
@@ -606,6 +647,19 @@ public class FeatureExtractor {
 
     public ARFF getARFF() {
         return this.arff;
+    }
+    
+    public void initializeARFF() {
+        
+        List<String> attributesString = FeaturesSlidingWindow.getAllAttributesName();
+        List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
+        
+        for (int i = 0; i < attributesString.size(); i++) {
+            attributes.add(new ARFFAttribute(attributesString.get(i), "REAL"));
+        }
+        
+        arff = new ARFF(ARFF_RELATION, attributes);
+        
     }
     
     private void searchForCopyOfSlidingWindow(List<SlidingWindow> slidingWindows, boolean linear) {

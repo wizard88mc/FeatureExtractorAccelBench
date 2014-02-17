@@ -28,7 +28,8 @@ public class SlidingWindow {
         coordinates.add(0, "X");
         coordinates.add(1, "Y");
         coordinates.add(2, "Z");
-        coordinates.add(3, "X+Y");
+        coordinates.add(3, "|V|");
+        coordinates.add(4, "X+Y");
     }
     
     
@@ -105,5 +106,70 @@ public class SlidingWindow {
         }
         
         return equal;
+    }
+
+    public List<Double> getMeans(int frequency) {
+        List<Double> means = new ArrayList<Double>();
+        means.add(values.get(0).getMean(frequency));
+        means.add(values.get(1).getMean(frequency));
+        means.add(values.get(2).getMean(frequency));
+        means.add(values.get(3).getMean(frequency));
+        means.add(values.get(4).getMean(frequency));
+        return means;
+    }
+    
+    public List<Double> getVariances(int frequency) {
+        List<Double> variances = new ArrayList<Double>();
+        variances.add(values.get(0).getVariance(frequency));
+        variances.add(values.get(1).getVariance(frequency));
+        variances.add(values.get(2).getVariance(frequency));
+        variances.add(values.get(3).getVariance(frequency));
+        variances.add(values.get(4).getVariance(frequency));
+        return variances;
+    }
+    
+    public List<Double> getStds(int frequency) {
+        List<Double> stds = new ArrayList<Double>();
+        stds.add(values.get(0).getStandardDeviation(frequency));
+        stds.add(values.get(1).getStandardDeviation(frequency));
+        stds.add(values.get(2).getStandardDeviation(frequency));
+        stds.add(values.get(3).getStandardDeviation(frequency));
+        stds.add(values.get(4).getStandardDeviation(frequency));
+        return stds;
+    }
+    
+    public List<Double> getMins(int frequency) {
+        List<Double> mins = new ArrayList<Double>();
+        mins.add(values.get(0).getMin(frequency));
+        mins.add(values.get(1).getMin(frequency));
+        mins.add(values.get(2).getMin(frequency));
+        mins.add(values.get(3).getMin(frequency));
+        mins.add(values.get(4).getMin(frequency));
+        return mins;
+    }
+    
+    public List<Double> getMaxs(int frequency) {
+        List<Double> maxs = new ArrayList<Double>();
+        maxs.add(values.get(0).getMax(frequency));
+        maxs.add(values.get(1).getMax(frequency));
+        maxs.add(values.get(2).getMax(frequency));
+        maxs.add(values.get(3).getMax(frequency));
+        maxs.add(values.get(4).getMax(frequency));
+        return maxs;
+    }
+    
+    public Double getMeanMagnitude() {
+        
+        double meanMagnitude = 0.0;
+        
+        
+        return meanMagnitude;
+    }
+    
+    public Double getSignalMagnitudeArea() {
+        
+        double signalMagnitudeArea = 0.0;
+        
+        return signalMagnitudeArea;
     }
 }

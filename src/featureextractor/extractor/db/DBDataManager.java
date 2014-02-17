@@ -12,7 +12,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,12 +26,7 @@ public class DBDataManager {
     private Connection connection = null;
     
     public DBDataManager(int slidingWindowSize) throws IOException {
-        
-        /*String finalFile = "data/dbWindows" 
-                + Integer.toString((int)millisecondsSlidingWindow)
-                + ".db";
-        db = new File(finalFile);
-        db.createNewFile();*/
+
         try {
             initializeDB(slidingWindowSize);
         }
@@ -202,6 +196,8 @@ public class DBDataManager {
                 singleCoordinateSet.add(new SingleCoordinateSet("X"));
                 singleCoordinateSet.add(new SingleCoordinateSet("Y"));
                 singleCoordinateSet.add(new SingleCoordinateSet("Z"));
+                singleCoordinateSet.add(new SingleCoordinateSet("|V|"));
+                singleCoordinateSet.add(new SingleCoordinateSet("X+Y"));
                 
                 while (rs1.next()) {
                     double timestamp = rs1.getDouble("timestamp"),
@@ -214,6 +210,9 @@ public class DBDataManager {
                     singleCoordinateSet.get(0).addValue(new DataTime(timestamp, x, -1));
                     singleCoordinateSet.get(1).addValue(new DataTime(timestamp, y, -1));
                     singleCoordinateSet.get(2).addValue(new DataTime(timestamp, z, -1));
+                    singleCoordinateSet.get(3).addValue(new DataTime(timestamp, Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)), -1));
+                    singleCoordinateSet.get(4).addValue(new DataTime(timestamp, (x+y) / 2, -1));
+                    
                 }
                 
                 slidingWindows.add(new SlidingWindow(action, mode, singleCoordinateSet, linear, trunk));

@@ -48,12 +48,43 @@ public class SingleCoordinateSet {
         this.values.add(ctd);
     }
     
-    public double getMax() {
-        return Collections.max(this.values, new CoupleTimeDataComparator()).getValue();
+    public double getMax(int frequency) {
+        double minDeltaTime = 0.0, lastTimeStamp = 0.0, maxValue = Double.MIN_VALUE;
+        
+        if (frequency != -1) {
+            minDeltaTime = (double)1000000000 / frequency;
+        }
+        
+        for (int i = 0; i < this.values.size(); i++) {
+            if (values.get(i).getTime() - lastTimeStamp > minDeltaTime) {
+                if (maxValue < values.get(i).getValue()) {
+                    maxValue = values.get(i).getValue();
+                }
+                
+                lastTimeStamp = values.get(i).getTime();
+            }
+        }
+        return maxValue;
     }
 
-    public double getMin() {
-        return Collections.min(this.values, new CoupleTimeDataComparator()).getValue();
+    public double getMin(int frequency) {
+        double minDeltaTime = 0.0, lastTimeStamp = 0.0, minValue = Double.MAX_VALUE;
+        
+        if (frequency != -1) {
+            minDeltaTime = (double)1000000000 / frequency;
+        }
+        
+        for (int i = 0; i < this.values.size(); i++) {
+            if (values.get(i).getTime() - lastTimeStamp > minDeltaTime) { 
+                
+                if (minValue > values.get(i).getValue()) {
+                    minValue = values.get(i).getValue();
+                }
+                
+                lastTimeStamp = values.get(i).getTime();
+            }
+        }
+        return minValue;
     }
     
     
@@ -72,33 +103,57 @@ public class SingleCoordinateSet {
     public void normalize(List<SingleCoordinateSet> values) {
         ArrayList<Double> maxmin=new ArrayList<Double>();
         for(int i=0; i<values.size(); i++) {
-            maxmin.add(values.get(i).getMin());
-            maxmin.add(values.get(i).getMax());        
+            maxmin.add(values.get(i).getMin(-1));
+            maxmin.add(values.get(i).getMax(-1));        
         }
         for(int i=0; i<values.size(); i++) {
             values.get(i).normalize(Collections.min(maxmin).doubleValue(), Collections.max(maxmin).doubleValue());
         }
     }
     
-    public double getMean() {
-        double sum=0;
-        for(DataTime ctd: this.values) {
-            sum+=ctd.getValue();
+    public double getMean(int frequency) {
+        
+        double minDelta = 0.0;
+        if (frequency != -1) {
+            minDelta = (double)1000000000 / frequency;
         }
-        return sum/this.values.size();
+        double sum=0, lastTimestamp = 0.0;
+        int elements = 0; 
+        for (int i = 0; i < this.values.size(); i++) {
+            
+            if (this.values.get(i).getTime() - lastTimestamp >= minDelta) {
+                elements++;
+                sum += this.values.get(i).getValue();
+                lastTimestamp = this.values.get(i).getTime();
+            }
+            
+        }
+        return sum/elements;
     }
     
-    public double getVariance() {
-        double mean=this.getMean();
-        double variance=0;
-        for(DataTime ctd: this.values) {
-            variance+=Math.pow((ctd.getValue() - mean), 2);
+    public double getVariance(int frequency) {
+        double mean=this.getMean(frequency);
+        double minDelta = 0.0;
+        if (frequency != -1) {
+            minDelta = (double)1000000000 / frequency;
         }
-        return variance/this.values.size();
+        double variance=0, lastTimestamp = 0;
+        int elements = 0;
+        
+        for (int i = 0; i < this.values.size(); i++) {
+            
+            if (this.values.get(i).getTime() - lastTimestamp >= minDelta) {
+                variance += this.values.get(i).getValue();
+                elements++;
+                lastTimestamp = this.values.get(i).getTime();
+            }
+            
+        }
+        return variance/elements;
     }
     
-    public double getStandardDeviation() {
-        return Math.sqrt(this.getVariance());
+    public double getStandardDeviation(int frequency) {
+        return Math.sqrt(this.getVariance(frequency));
     }
     
     public int size() {

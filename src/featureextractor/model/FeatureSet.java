@@ -18,6 +18,8 @@ public class FeatureSet {
     private double std;
     private double minValue;
     private double maxValue;
+    
+    public static String[] VALUES = new String[]{"mean", "std", "variance", "diffMinMax"};
 
     public FeatureSet(double mean, double variance, double std, double minValue, 
             double maxValue) {
@@ -67,6 +69,4 @@ public class FeatureSet {
         NumberFormat nf = new DecimalFormat("0.#####");
         return "\n"+title+"\tMEAN "+nf.format(this.mean)+"\tVARIANCE "+nf.format(this.variance)+"\tSTD "+nf.format(this.std);
     }
-    
-    
 }

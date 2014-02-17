@@ -92,9 +92,10 @@ public class App {
         TRUNK_PLOTTER, // plot each trunk to enable step marking
         STEP_AVG_CALCULATOR, // plot each trunk to enable step marking,
         BUILD_DB_SLIDING_WINDOW, // Build the Database with all the sliding window
-        CLEAN_DB_SLIDING_WINDOW // Cleans SlidingWindow DB from possible copies
+        CLEAN_DB_SLIDING_WINDOW, // Cleans SlidingWindow DB from possible copies
+        NEW_FEATURES_EXTRACTOR // extract features using sliding windows
     };
-    private static MODE mode = MODE.CLEAN_DB_SLIDING_WINDOW;
+    private static MODE mode = MODE.NEW_FEATURES_EXTRACTOR;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor();
@@ -258,6 +259,19 @@ public class App {
                     featureExtractor.setSlidingWindowSize(500000000);
                     featureExtractor.createFinalDB();
                     featureExtractor.cleanDB();
+                    
+                    break;
+                }
+                
+                case NEW_FEATURES_EXTRACTOR: {
+                    
+                    featureExtractor.setSlidingWindowSize(500000000);
+                    featureExtractor.setNumberOverlappingWindow(4);
+                    featureExtractor.createFinalDB();
+                    
+                    featureExtractor.extract(false, 20);
+                    
+                    featureExtractor.dumpARFF(new File("StairDetectionNew.arff"));
                     
                     break;
                 }

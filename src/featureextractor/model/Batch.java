@@ -39,7 +39,8 @@ public class Batch {
         coordinates_mapping.put(0, "X");
         coordinates_mapping.put(1, "Y");
         coordinates_mapping.put(2, "Z");
-        coordinates_mapping.put(3, "X+Y");
+        coordinates_mapping.put(3, "|V|");
+        coordinates_mapping.put(4, "X+Y");
         //coordinates_mapping.put(3, "|V|");
     }
 
@@ -241,9 +242,9 @@ public class Batch {
         for (int i = 0; i < values.size(); i++) {
             values.get(i).normalize(values);
             features.add(new FeatureSet(coordinates_mapping.get(i), 
-                    values.get(i).getMean(), values.get(i).getVariance(), 
-                    values.get(i).getStandardDeviation(), 
-                    values.get(i).getMin(), values.get(i).getMax()));
+                    values.get(i).getMean(-1), values.get(i).getVariance(-1), 
+                    values.get(i).getStandardDeviation(-1), 
+                    values.get(i).getMin(-1), values.get(i).getMax(-1)));
         }
         return features;
     }
