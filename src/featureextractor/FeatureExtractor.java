@@ -615,7 +615,7 @@ public class FeatureExtractor {
             for (int j = i+1; j < slidingWindows.size(); ) {
                 if (slidingWindows.get(i).equals(slidingWindows.get(j))) {
 
-                    System.out.println("Window " + i + " uguale window " + j);
+                    // System.out.println("Window " + i + " uguale window " + j);
                     
                     // Remove sliding window from the db and from the List
                     dbDataManager.deleteTrunk((int)sizeSlidingWindow/1000000, 
@@ -639,16 +639,25 @@ public class FeatureExtractor {
         List<SlidingWindow> slidingWindowsDownstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, false);
         System.out.println("Downstairs: " + slidingWindowsDownstairs.size());
         searchForCopyOfSlidingWindow(slidingWindowsDownstairs, false);
-        /*System.out.println("**********Starting sliding window upstairs**********");
+        System.out.println("New size Downstairs: " + slidingWindowsDownstairs.size());
+        
+        System.out.println("**********Starting sliding window upstairs**********");
         List<SlidingWindow> slidingWindowsUpstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_UPSTAIRS, false);
         System.out.println("Upstairs: " + slidingWindowsUpstairs.size());
+        searchForCopyOfSlidingWindow(slidingWindowsUpstairs, false);
+        System.out.println("New size Upstairs: " + slidingWindowsUpstairs.size());
+        
         System.out.println("**********Starting sliding window downstairs linear**********");
         List<SlidingWindow> slidingWindowsDownstairsLinear = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, true);
         System.out.println("Downstairs Linear: " + slidingWindowsDownstairsLinear.size());
+        searchForCopyOfSlidingWindow(slidingWindowsDownstairsLinear, true);
+        System.out.println("New size downstairs linear: " + slidingWindowsDownstairsLinear.size());
+        
         System.out.println("**********Starting sliding window upstairs linear**********");
         List<SlidingWindow> slidingWindowsUpstairsLinear = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_UPSTAIRS, true);
-        System.out.println("Upstairs Linear: " + slidingWindowsUpstairsLinear.size());*/
-
+        System.out.println("Upstairs Linear: " + slidingWindowsUpstairsLinear.size());
+        searchForCopyOfSlidingWindow(slidingWindowsUpstairsLinear, true);
+        System.out.println("New size upstairs linear: " + slidingWindowsUpstairsLinear.size());
         
     }
 }
