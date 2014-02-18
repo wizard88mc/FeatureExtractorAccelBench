@@ -143,7 +143,7 @@ public class SingleCoordinateSet {
         for (int i = 0; i < this.values.size(); i++) {
             
             if (this.values.get(i).getTime() - lastTimestamp >= minDelta) {
-                variance += this.values.get(i).getValue();
+                variance += Math.pow(this.values.get(i).getValue() - mean, 2);
                 elements++;
                 lastTimestamp = this.values.get(i).getTime();
             }

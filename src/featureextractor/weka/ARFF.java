@@ -10,6 +10,7 @@ import featureextractor.model.TimeFeature;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +23,7 @@ public class ARFF {
 
     private String title = "StairDetection";
     private List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
-    private List<String> classes = new ArrayList<String>();
+    public static List<String> classes = new ArrayList<String>();
     private List<ARFFData> data = new ArrayList<ARFFData>();
 
     public ARFF(String title, List<ARFFAttribute> attributes) {
@@ -50,6 +51,10 @@ public class ARFF {
         if (this.classes.contains(className) == false) {
             this.classes.add(className);
         }
+    }
+    
+    public static void AddClasses(String[] classes) {
+        ARFF.classes = new ArrayList<String>(Arrays.asList(classes));
     }
 
     public void writeToFile(File file) throws IOException {
@@ -103,7 +108,7 @@ public class ARFF {
             data_row.addAll(features.get(i).getRatios());
             data_row.addAll(features.get(i).getCorrelations());
             
-            data_row.add(features.get(i).getMagnitudeArea());
+            data_row.add(features.get(i).getMagnitudeMean());
             data_row.add(features.get(i).getSignalMagnitudeArea());
             
             this.addData(new ARFFData(title, data_row));
@@ -156,6 +161,10 @@ public class ARFF {
     public void addData(ARFFData data) {
         this.data.add(data);
     }
+    
+    public void resetData() {
+        this.data.clear();
+    }
 
     @Override
     public String toString() {
@@ -164,7 +173,7 @@ public class ARFF {
         for (ARFFAttribute attribute : attributes) {
             sb.append("\n" + attribute);
         }
-        sb.append("\n@ATTRIBUTE class {" + StringUtils.join(classes, ",") + "}");
+        sb.append("\n@ATTRIBUTE class {" + StringUtils.join(ARFF.classes, ",") + "}");
         sb.append("\n@DATA");
         for (ARFFData row : data) {
             sb.append("\n" + row);

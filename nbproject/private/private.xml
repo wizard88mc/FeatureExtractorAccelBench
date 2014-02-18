@@ -5,15 +5,14 @@
         <group>
             <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/SingleCoordinateSet.java</file>
             <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/extractor/db/DBDataManager.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/TimeFeature.java</file>
             <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/SlidingWindow.java</file>
-            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/extractor/db/DbExtractor.java</file>
-            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/Sample.java</file>
-            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/DataTime.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/FeatureSet.java</file>
             <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/FeatureExtractor.java</file>
-            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/Batch.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/weka/ARFF.java</file>
             <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/utils/SamplesUtils.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/FeaturesSlidingWindow.java</file>
             <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/App.java</file>
         </group>
     </open-files>
 </project-private>
-

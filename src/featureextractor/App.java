@@ -4,6 +4,7 @@
  */
 package featureextractor;
 
+import featureextractor.weka.ARFF;
 import featureextractor.weka.Weka;
 import java.io.File;
 import weka.classifiers.Classifier;
@@ -269,9 +270,30 @@ public class App {
                     featureExtractor.setNumberOverlappingWindow(4);
                     featureExtractor.createFinalDB();
                     
-                    featureExtractor.extract(false, 20);
+                    ARFF.AddClasses(new String[]{App.NO_STAIR, App.STAIR_DOWNSTAIRS, App.STAIR_UPSTAIRS});
                     
-                    featureExtractor.dumpARFF(new File("StairDetectionNew"+20+".arff"));
+                    featureExtractor.retrieveSlidingWindows(false);
+                    
+                    int[] frequencies = new int[]{10, 15, 20, 25, 30, 50, 100};
+                    
+                    for (int frequency: frequencies) {
+                        featureExtractor.getARFF().resetData();
+                        System.out.println("Frequency: " + frequency);
+                        featureExtractor.extract(frequency);
+
+                        featureExtractor.dumpARFF(new File("StairDetectionNew"+frequency+".arff"));
+                        System.out.println("Completed frequency: " + frequency);
+                    }
+                    
+                    featureExtractor.retrieveSlidingWindows(true);
+                    for (int frequency: frequencies) {
+                        featureExtractor.getARFF().resetData();
+                        System.out.println("Frequency linear: " + frequency);
+                        featureExtractor.extract(frequency);
+
+                        featureExtractor.dumpARFF(new File("StairDetectionNew"+frequency+"Linear.arff"));
+                        System.out.println("Frequency linear completed: " + frequency);
+                    }
                     
                     break;
                 }

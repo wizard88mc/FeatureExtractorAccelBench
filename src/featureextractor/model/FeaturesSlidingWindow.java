@@ -14,7 +14,7 @@ import java.util.List;
 public class FeaturesSlidingWindow {
     
     private List<FeatureSet> features = new ArrayList<FeatureSet>();
-    private double magnitudeArea = 0.0;
+    private double magnitudeMean = 0.0;
     private double signalMagnitudeArea = 0.0;
     private String action;
     private List<Double> correlations = new ArrayList<Double>();
@@ -38,7 +38,8 @@ public class FeaturesSlidingWindow {
         
         this.action = window.getSupposedAction();
         
-        calculateMagnitudeArea();
+        calculateRatios();
+        calculateMagnitudeMean();
         calculateSingalMagnitudeArea(window.getValues(), frequency);
         calculateCorrelations(window, frequency);
     }
@@ -46,13 +47,13 @@ public class FeaturesSlidingWindow {
     /**
      * Calculates the magnitude Area of the set of features
      */
-    private void calculateMagnitudeArea() {
+    private void calculateMagnitudeMean() {
         
-        magnitudeArea = Math.sqrt(Math.pow(features.get(0).getMean(), 2) + Math.pow(features.get(1).getMean(), features.get(2).getMean()));
+        magnitudeMean = Math.sqrt(Math.pow(features.get(0).getMean(), 2) + Math.pow(features.get(1).getMean(), 2) + Math.pow(features.get(2).getMean(), 2));
     }
     
-    public double getMagnitudeArea() {
-        return magnitudeArea;
+    public double getMagnitudeMean() {
+        return magnitudeMean;
     }
     
     /**
@@ -100,6 +101,10 @@ public class FeaturesSlidingWindow {
                 Double correlation = covariance / 
                         (features.get(i).getStd() * features.get(j).getStd());
                 
+                if (Double.isNaN(correlation)) {
+                    correlation = 0.0;
+                }
+                
                 correlations.add(correlation);
             }
             
@@ -142,15 +147,31 @@ public class FeaturesSlidingWindow {
      * Calculates ratios between mean, std, variance and difference min/max values
      * between all the axis
      */
-    public void calculateRatios() {
+    private void calculateRatios() {
         
         for (int i = 0; i < features.size() -1 ; i++) {
             for (int j = i+1; j < features.size(); j++) {
                 
-                ratios.add(features.get(i).getMean() / features.get(j).getMean());
-                ratios.add(features.get(i).getStd() / features.get(j).getStd());
-                ratios.add(features.get(i).getVariance() / features.get(j).getVariance());
-                ratios.add(features.get(i).getDifferenceMinMax() / features.get(j).getDifferenceMinMax());
+                Double ratioMean = features.get(i).getMean() / features.get(j).getMean(),
+                        ratioStd = features.get(i).getStd() / features.get(j).getStd(),
+                        ratioVariance = features.get(i).getVariance() / features.get(j).getVariance(),
+                        ratioMinMax = features.get(i).getDifferenceMinMax() / features.get(j).getDifferenceMinMax();
+                if (Double.isNaN(ratioMean) || Double.isInfinite(ratioMean)) {
+                    ratioMean = 0.0;
+                }
+                if (Double.isNaN(ratioStd) || Double.isInfinite(ratioStd)) {
+                    ratioStd = 0.0;
+                }
+                if (Double.isNaN(ratioVariance) || Double.isInfinite(ratioVariance)) {
+                    ratioVariance = 0.0;
+                }
+                if (Double.isNaN(ratioMinMax) || Double.isInfinite(ratioMinMax)) {
+                    ratioMinMax = 0.0;
+                }
+                ratios.add(ratioMean);
+                ratios.add(ratioStd);
+                ratios.add(ratioVariance);
+                ratios.add(ratioMinMax);
             }
         }
     }

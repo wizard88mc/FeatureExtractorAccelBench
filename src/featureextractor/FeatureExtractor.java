@@ -417,13 +417,12 @@ public class FeatureExtractor {
             System.exit(-1);
         }
     }
-
-    public void extract(boolean linear, int frequencyData) throws Exception {
-        
-        if (dbDataManager == null ) {
-            throw new Exception("No DBDataManager");
+    
+    public void retrieveSlidingWindows(boolean linear) {
+        if (slidingWindowsDownstairs != null) {
+            slidingWindowsDownstairs.clear(); slidingWindowsUpstairs.clear();
+            slidingWindowsNoStairs.clear();
         }
-
         System.out.println("Starting getting sliding windows");
         slidingWindowsDownstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, linear);
         System.out.println("Got all Sliding windows downstairs");
@@ -432,6 +431,13 @@ public class FeatureExtractor {
         slidingWindowsNoStairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.NO_STAIR, linear);
         System.out.println("Got all sliding window no stairs");
         System.out.println("Got all Sliding windows");
+    }
+
+    public void extract(int frequencyData) throws Exception {
+        
+        if (dbDataManager == null ) {
+            throw new Exception("No DBDataManager");
+        }
         
         System.out.println("Starting cleaning Windows");
         List<SlidingWindow> finalWindowsDownstairs = getOnlySuitableSlidingWindows(slidingWindowsDownstairs, frequencyData),
@@ -450,6 +456,11 @@ public class FeatureExtractor {
         arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
         arff.addAllFeaturesData(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
         arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
+        
+        System.out.println("Number of downstairs windows: " + finalWindowsDownstairs.size());
+        System.out.println("Number of upstairs windows: " + finalWindowsUpstairs.size());
+        System.out.println("Number of no stairs windows: " + finalWindowsNoStairs.size());
+        
     }
     
     /**
