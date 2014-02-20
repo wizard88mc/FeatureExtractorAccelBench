@@ -1,5 +1,5 @@
 /*
- * Class that calculates all the features related to a particular sliding window
+ * Class that calculates all the features of a particular sliding window
  */
 
 package featureextractor.model;
@@ -122,7 +122,7 @@ public class FeaturesSlidingWindow {
     private Double calculateCovariance(List<DataTime> first, List<DataTime> second, 
             int frequency) {
         
-        Double correlation = 0.0, sumX = 0.0, sumY = 0.0, product = 0.0; 
+        Double covariance = 0.0, sumX = 0.0, sumY = 0.0, product = 0.0; 
         double minDelta = (double)1000000000 / frequency;
         double lastTimestamp = 0.0; int numberOfElements = 0;
       
@@ -137,10 +137,10 @@ public class FeaturesSlidingWindow {
             }
         }
         
-        correlation = (product / numberOfElements) - 
+        covariance = (product / numberOfElements) - 
                 ((sumX * sumY) / Math.pow(numberOfElements, 2));
         
-        return correlation;
+        return covariance;
     }
     
     /**

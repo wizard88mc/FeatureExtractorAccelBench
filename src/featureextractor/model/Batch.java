@@ -4,18 +4,15 @@
  */
 package featureextractor.model;
 
-import featureextractor.utils.SamplesUtils;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.jfree.chart.plot.IntervalMarker;
 
 /**
- * This class represents a single 
+ * This class represents a single batch
  * @author Nicola Beghin
  */
 public class Batch {
@@ -191,8 +188,7 @@ public class Batch {
     public void removeGravity(List<Sample> samplesAccelerometer) {
         
         List<Sample> buffer = new ArrayList<Sample>();
-        boolean bufferFull = false;
-        int nextPositionPoint = 0; 
+        boolean bufferFull = false; 
 
         for (int index = 0; index < samplesAccelerometer.size(); index++) {
             

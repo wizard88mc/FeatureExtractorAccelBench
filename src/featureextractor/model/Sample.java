@@ -124,7 +124,7 @@ public class Sample {
         else if (wantY) {
             return ((((1 - cosAlpha) * y * x) + sinAlpha * z) * xFirst +
                 (ySquare + (1 - ySquare) * cosAlpha) * yFirst +
-                (((1 - cosAlpha) * y * z) - sinAlpha * x)  * zFirst);
+                (((1 - cosAlpha) * y * z) - sinAlpha * x) * zFirst);
         }
         else if (wantZ) {
             double value = ((((1 - cosAlpha) * z * x) - sinAlpha * y) * xFirst +
