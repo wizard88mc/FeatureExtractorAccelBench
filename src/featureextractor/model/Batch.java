@@ -26,6 +26,8 @@ public class Batch {
     private List<SingleCoordinateSet> valuesWithoutGravityRotated = new ArrayList<SingleCoordinateSet>();
     private List<SingleCoordinateSet> valuesLinear = new ArrayList<SingleCoordinateSet>();
     private List<SingleCoordinateSet> valuesLinearRotated = new ArrayList<SingleCoordinateSet>();
+    private List<SingleCoordinateSet> valuesPMitzell = new ArrayList<SingleCoordinateSet>();
+    private List<SingleCoordinateSet> valuesHMitzell = new ArrayList<SingleCoordinateSet>();
     private static HashMap<Integer, String> coordinates_mapping = new HashMap<Integer, String>();
     private List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
     private String title;
@@ -41,6 +43,7 @@ public class Batch {
         coordinates_mapping.put(2, "Z");
         coordinates_mapping.put(3, "|V|");
         coordinates_mapping.put(4, "X+Y");
+        
         //coordinates_mapping.put(3, "|V|");
     }
 
@@ -111,6 +114,14 @@ public class Batch {
     public List<SingleCoordinateSet> getLinearValuesRotated() {
         return valuesLinearRotated;
     }
+    
+    public List<SingleCoordinateSet> getPVectorMitzell() {
+        return valuesPMitzell;
+    }
+    
+    public List<SingleCoordinateSet> getHVectorMitzell() {
+        return valuesHMitzell;
+    }
 
     public Batch(List<Sample> samplesAccelerometer, List<Sample> samplesLinear) throws Exception {
         if (samplesAccelerometer.isEmpty()) {
@@ -134,6 +145,11 @@ public class Batch {
             
             valuesLinearRotated.add(new SingleCoordinateSet());
             valuesLinearRotated.get(i).setTitle(coordinates_mapping.get(i));
+        }
+        
+        for (int i = 0; i < 3; i++) {
+            valuesPMitzell.add(new SingleCoordinateSet(coordinates_mapping.get(i)));
+            valuesHMitzell.add(new SingleCoordinateSet(coordinates_mapping.get(i)));
         }
         
         removeGravity(samplesAccelerometer);
@@ -192,7 +208,6 @@ public class Batch {
         
         List<Sample> buffer = new ArrayList<Sample>();
         boolean bufferFull = false;
-        int nextPositionPoint = 0; 
 
         for (int index = 0; index < samplesAccelerometer.size(); index++) {
             
@@ -225,6 +240,29 @@ public class Batch {
                 sample.setNoGravityX(sample.getValueX() - meanValueX);
                 sample.setNoGravityY(sample.getValueY() - meanValueY);
                 sample.setNoGravityZ(sample.getValueZ() - meanValueZ);
+                
+                double normMeanValues = (double)Math.sqrt(Math.pow(meanValueX, 2) + Math.pow(meanValueY, 2) + 
+                        Math.pow(meanValueY, 2));
+                
+                double vectorProduct = ((sample.getValueX() - meanValueX) * meanValueX
+                        + (sample.getValueY() - meanValueY) * meanValueY +
+                        (sample.getValueZ() - meanValueZ) * meanValueZ) / Math.pow(normMeanValues, 2);
+                
+                double vectorPComponentX = meanValueX * vectorProduct,
+                        vectorPComponentY = meanValueY * vectorProduct,
+                        vectorPComponentZ = meanValueZ * vectorProduct;
+                
+                double vectorHComponentX = sample.getNoGravityX() * vectorPComponentX,
+                        vectorHComponentY = sample.getNoGravityY() * vectorPComponentY,
+                        vectorHComponentZ = sample.getNoGravityZ() * vectorPComponentZ;
+                
+                valuesPMitzell.get(0).getValues().add(new DataTime(sample.getTime(), vectorPComponentX, sample.getStep()));
+                valuesPMitzell.get(1).getValues().add(new DataTime(sample.getTime(), vectorPComponentY, sample.getStep()));
+                valuesPMitzell.get(2).getValues().add(new DataTime(sample.getTime(), vectorPComponentZ, sample.getStep()));
+                
+                valuesHMitzell.get(0).getValues().add(new DataTime(sample.getTime(), vectorHComponentX, sample.getStep()));
+                valuesHMitzell.get(1).getValues().add(new DataTime(sample.getTime(), vectorHComponentY, sample.getStep()));
+                valuesHMitzell.get(2).getValues().add(new DataTime(sample.getTime(), vectorHComponentZ, sample.getStep()));
                 
                 buffer.remove(0);
                 buffer.add(sample);

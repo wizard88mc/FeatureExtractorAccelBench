@@ -246,10 +246,16 @@ public class App {
                     
                     for (String db: dbs) {
                         
-                        if (!featureExtractor.getDBManager().checkDBAlreadyInserted(db)) {
+                        /* if (!featureExtractor.getDBManager().checkDBAlreadyInserted(db)) {
                             featureExtractor.getDBManager().newDB(db);
                             featureExtractor.setDb("data/completo/" + db);
                             featureExtractor.populateDatabase();
+                        }*/
+                        
+                        if (!featureExtractor.getDBManager().checkDBAlreadyInserted(db)) {
+                            
+                            featureExtractor.setDb("data/completo/" + db);
+                            featureExtractor.insertPAndHVectorsMitzell();
                         }
                     }
                     break;

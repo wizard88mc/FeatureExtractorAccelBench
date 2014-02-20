@@ -24,9 +24,10 @@ public class DBDataManager {
 
     private File db;
     private Connection connection = null;
+    private int slidingWindowSize;
     
     public DBDataManager(int slidingWindowSize) throws IOException {
-
+        this.slidingWindowSize = slidingWindowSize;
         try {
             initializeDB(slidingWindowSize);
         }
@@ -167,6 +168,36 @@ public class DBDataManager {
                 System.out.println(exc);
             }
         }
+    }
+    
+    public int addPAndHVectorMitzell(double timestamp, String action, double vectorPX, double vectorPY, 
+            double vectorPZ, double vectorHX, double vectorHY, double vectorHZ) {
+        
+        try {
+            connect();
+            
+            String query = "UPDATE samples" + this.slidingWindowSize + 
+                    "SET mitzellPX=?, mitzellPY=?, mitzellPZ=?, mitzellHX=?,"
+                    + " mitzellHY=?, mitzellHZ=? WHERE action=\"" + action + "\" AND "
+                    + "timestamp=? and isLinear=0";
+            
+            PreparedStatement ps = connection.prepareCall(query);
+            ps.setDouble(1, vectorPX);
+            ps.setDouble(2, vectorPY);
+            ps.setDouble(3, vectorPZ);
+            ps.setDouble(4, vectorHX);
+            ps.setDouble(5, vectorHY);
+            ps.setDouble(6, vectorHZ);
+            ps.setDouble(7, timestamp);
+            
+            return ps.executeUpdate();
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+            System.out.println(exc.toString());
+            return 0;
+        }
+        
     }
     
     public List<SlidingWindow> getSlidinwWindows(int slidingWindowSize, String action, boolean linear) {

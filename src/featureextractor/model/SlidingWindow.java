@@ -16,6 +16,8 @@ import java.util.List;
 public class SlidingWindow {
     
     private List<SingleCoordinateSet> values = new ArrayList<SingleCoordinateSet>();
+    private List<SingleCoordinateSet> valuesPMitzell = new ArrayList<SingleCoordinateSet>();
+    private List<SingleCoordinateSet> valuesHMitzell = new ArrayList<SingleCoordinateSet>();
     private static List<String> coordinates = new ArrayList();
     private String supposedAction;
     private String placeAction;
@@ -45,6 +47,13 @@ public class SlidingWindow {
     public SlidingWindow(String action, String placeAction, List<SingleCoordinateSet> values, boolean linear, int trunk) {
         this(values); this.linear = linear;
         this.trunk = trunk; this.supposedAction = action; this.placeAction = placeAction;
+    }
+    
+    public SlidingWindow(String action, String placeAction, List<SingleCoordinateSet> values, 
+            List<SingleCoordinateSet> vectorPMitzell, List<SingleCoordinateSet> vectorHMitzell, 
+            boolean linear, int trunk) {
+        this(action, placeAction, values, linear, trunk);
+        this.valuesPMitzell = vectorPMitzell; this.valuesHMitzell = vectorHMitzell;
     }
     
     public List<SingleCoordinateSet> getValues() {
@@ -118,6 +127,22 @@ public class SlidingWindow {
         return means;
     }
     
+    public List<Double> getMeansPVector(int frequency) {
+        List<Double> means = new ArrayList<Double>();
+        means.add(valuesPMitzell.get(0).getMean(frequency));
+        means.add(valuesPMitzell.get(1).getMean(frequency));
+        means.add(valuesPMitzell.get(2).getMean(frequency));
+        return means;
+    }
+    
+    public List<Double> getMeansHVector(int frequency) {
+        List<Double> means = new ArrayList<Double>();
+        means.add(valuesHMitzell.get(0).getMean(frequency));
+        means.add(valuesHMitzell.get(1).getMean(frequency));
+        means.add(valuesHMitzell.get(2).getMean(frequency));
+        return means;
+    }
+    
     public List<Double> getVariances(int frequency) {
         List<Double> variances = new ArrayList<Double>();
         variances.add(values.get(0).getVariance(frequency));
@@ -125,6 +150,22 @@ public class SlidingWindow {
         variances.add(values.get(2).getVariance(frequency));
         variances.add(values.get(3).getVariance(frequency));
         variances.add(values.get(4).getVariance(frequency));
+        return variances;
+    }
+    
+    public List<Double> getVariancesPVector(int frequency) {
+        List<Double> variances = new ArrayList<Double>();
+        variances.add(valuesPMitzell.get(0).getVariance(frequency));
+        variances.add(valuesPMitzell.get(1).getVariance(frequency));
+        variances.add(valuesPMitzell.get(2).getVariance(frequency));
+        return variances;
+    }
+    
+    public List<Double> getVariancesHVector(int frequency) {
+        List<Double> variances = new ArrayList<Double>();
+        variances.add(valuesHMitzell.get(0).getVariance(frequency));
+        variances.add(valuesHMitzell.get(1).getVariance(frequency));
+        variances.add(valuesHMitzell.get(2).getVariance(frequency));
         return variances;
     }
     
@@ -138,6 +179,22 @@ public class SlidingWindow {
         return stds;
     }
     
+    public List<Double> getStdsPVector(int frequency) {
+        List<Double> stds = new ArrayList<Double>();
+        stds.add(valuesPMitzell.get(0).getStandardDeviation(frequency));
+        stds.add(valuesPMitzell.get(1).getStandardDeviation(frequency));
+        stds.add(valuesPMitzell.get(2).getStandardDeviation(frequency));
+        return stds;
+    }
+    
+    public List<Double> getStdsHVector(int frequency) {
+        List<Double> stds = new ArrayList<Double>();
+        stds.add(valuesHMitzell.get(0).getStandardDeviation(frequency));
+        stds.add(valuesHMitzell.get(1).getStandardDeviation(frequency));
+        stds.add(valuesHMitzell.get(2).getStandardDeviation(frequency));
+        return stds;
+    }
+    
     public List<Double> getMins(int frequency) {
         List<Double> mins = new ArrayList<Double>();
         mins.add(values.get(0).getMin(frequency));
@@ -145,6 +202,22 @@ public class SlidingWindow {
         mins.add(values.get(2).getMin(frequency));
         mins.add(values.get(3).getMin(frequency));
         mins.add(values.get(4).getMin(frequency));
+        return mins;
+    }
+    
+    public List<Double> getMinsPVector(int frequency) {
+        List<Double> mins = new ArrayList<Double>();
+        mins.add(valuesPMitzell.get(0).getMin(frequency));
+        mins.add(valuesPMitzell.get(1).getMin(frequency));
+        mins.add(valuesPMitzell.get(2).getMin(frequency));
+        return mins;
+    }
+    
+    public List<Double> getMinsHVector(int frequency) {
+        List<Double> mins = new ArrayList<Double>();
+        mins.add(valuesHMitzell.get(0).getMin(frequency));
+        mins.add(valuesHMitzell.get(1).getMin(frequency));
+        mins.add(valuesHMitzell.get(2).getMin(frequency));
         return mins;
     }
     
@@ -158,18 +231,19 @@ public class SlidingWindow {
         return maxs;
     }
     
-    public Double getMeanMagnitude() {
-        
-        double meanMagnitude = 0.0;
-        
-        
-        return meanMagnitude;
+    public List<Double> getMaxsPVector(int frequency) {
+        List<Double> maxs = new ArrayList<Double>();
+        maxs.add(valuesPMitzell.get(0).getMax(frequency));
+        maxs.add(valuesPMitzell.get(1).getMax(frequency));
+        maxs.add(valuesPMitzell.get(2).getMax(frequency));
+        return maxs;
     }
     
-    public Double getSignalMagnitudeArea() {
-        
-        double signalMagnitudeArea = 0.0;
-        
-        return signalMagnitudeArea;
+    public List<Double> getMaxsHVector(int frequency) {
+        List<Double> maxs = new ArrayList<Double>();
+        maxs.add(valuesHMitzell.get(0).getMax(frequency));
+        maxs.add(valuesHMitzell.get(1).getMax(frequency));
+        maxs.add(valuesHMitzell.get(2).getMax(frequency));
+        return maxs;
     }
 }

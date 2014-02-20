@@ -214,9 +214,9 @@ public class FeatureExtractor {
             /**
              * Creates the batch using steps
              */
-            List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction("STAIR_DOWNSTAIRS");
-            List<Batch> baseBatchesUpstairs = db_extractor.extractByTrunkAndAction("STAIR_UPSTAIRS");
-            List<Batch> baseBatchesNoStairs = db_extractor.extractByTrunkAndAction("NON_STAIR");
+            List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction(App.STAIR_DOWNSTAIRS);
+            List<Batch> baseBatchesUpstairs = db_extractor.extractByTrunkAndAction(App.STAIR_UPSTAIRS);
+            List<Batch> baseBatchesNoStairs = db_extractor.extractByTrunkAndAction(App.NO_STAIR);
             /**
              * Once I have the batches, for each batch I have to create the corresponding 
              * set of sliding window 
@@ -314,6 +314,72 @@ public class FeatureExtractor {
             System.out.println(exc);
         }
         
+    }
+    
+    public void insertPAndHVectorsMitzell() {
+        /**
+         * Creates the batch using steps
+         */
+        try {
+            List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction("STAIR_DOWNSTAIRS");
+            List<Batch> baseBatchesUpstairs = db_extractor.extractByTrunkAndAction("STAIR_UPSTAIRS");
+            List<Batch> baseBatchesNoStairs = db_extractor.extractByTrunkAndAction("NON_STAIR");
+            
+            for (Batch batch: baseBatchesDownstairs) {
+                
+                List<SingleCoordinateSet> vectorPMitzell = batch.getPVectorMitzell();
+                List<SingleCoordinateSet> vectorHMitzell = batch.getHVectorMitzell();
+                
+                for (int i = 0; i < vectorPMitzell.get(0).getValues().size(); i++) {
+                    dbDataManager.addPAndHVectorMitzell(vectorPMitzell.get(0).getValues().get(i).getTime(), App.STAIR_DOWNSTAIRS, 
+                            vectorPMitzell.get(0).getValues().get(i).getValue(),  // X component P vector
+                            vectorPMitzell.get(1).getValues().get(i).getValue(),  // Y component P vector
+                            vectorPMitzell.get(2).getValues().get(i).getValue(),  // Z component P vector
+                            vectorHMitzell.get(0).getValues().get(i).getValue(),  // X component H vector
+                            vectorHMitzell.get(1).getValues().get(i).getValue(),  // Y component H vector
+                            vectorHMitzell.get(2).getValues().get(i).getValue()); // Z component H vector
+                }
+                
+            }
+            
+            for (Batch batch: baseBatchesUpstairs) {
+                
+                List<SingleCoordinateSet> vectorPMitzell = batch.getPVectorMitzell();
+                List<SingleCoordinateSet> vectorHMitzell = batch.getHVectorMitzell();
+                
+                for (int i = 0; i < vectorPMitzell.get(0).getValues().size(); i++) {
+                    dbDataManager.addPAndHVectorMitzell(vectorPMitzell.get(0).getValues().get(i).getTime(), App.STAIR_UPSTAIRS, 
+                            vectorPMitzell.get(0).getValues().get(i).getValue(),  // X component P vector
+                            vectorPMitzell.get(1).getValues().get(i).getValue(),  // Y component P vector
+                            vectorPMitzell.get(2).getValues().get(i).getValue(),  // Z component P vector
+                            vectorHMitzell.get(0).getValues().get(i).getValue(),  // X component H vector
+                            vectorHMitzell.get(1).getValues().get(i).getValue(),  // Y component H vector
+                            vectorHMitzell.get(2).getValues().get(i).getValue()); // Z component H vector
+                }
+                
+            }
+            
+            for (Batch batch: baseBatchesNoStairs) {
+                
+                List<SingleCoordinateSet> vectorPMitzell = batch.getPVectorMitzell();
+                List<SingleCoordinateSet> vectorHMitzell = batch.getHVectorMitzell();
+                
+                for (int i = 0; i < vectorPMitzell.get(0).getValues().size(); i++) {
+                    dbDataManager.addPAndHVectorMitzell(vectorPMitzell.get(0).getValues().get(i).getTime(), App.NO_STAIR, 
+                            vectorPMitzell.get(0).getValues().get(i).getValue(),  // X component P vector
+                            vectorPMitzell.get(1).getValues().get(i).getValue(),  // Y component P vector
+                            vectorPMitzell.get(2).getValues().get(i).getValue(),  // Z component P vector
+                            vectorHMitzell.get(0).getValues().get(i).getValue(),  // X component H vector
+                            vectorHMitzell.get(1).getValues().get(i).getValue(),  // Y component H vector
+                            vectorHMitzell.get(2).getValues().get(i).getValue()); // Z component H vector
+                }
+                
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+            System.out.println(exc.toString());
+        }
     }
 
     public void extract(String action, String className) throws Exception {
