@@ -153,7 +153,6 @@ public class SamplesUtils {
             values = batch.getLinearValuesRotated();
         }
         List<SlidingWindow> finalBatches = new ArrayList<SlidingWindow>();
-        List<Sample> samplesForSingleBatch = new ArrayList<Sample>();
         
         List<DataTime> valuesToCalculateSlidingWindow = values.get(0).getValues();
         boolean endWindow = false;
@@ -207,5 +206,84 @@ public class SamplesUtils {
             }
         }
         return finalBatches;
+    }
+    
+    public List<SlidingWindow> getSlidingWindowsOfFixedDefinition(Batch batch, boolean linear, List<SlidingWindow> toAddInitialData) {
+        
+        List<SlidingWindow> listOfWindows = new ArrayList<SlidingWindow>();
+        
+        List<SingleCoordinateSet> values = batch.getValuesWithoutGravityRotated(),
+                vectorHMitzell = batch.getHVectorMitzell(),
+                vectorPMitzell = batch.getPVectorMitzell();
+        if (linear) {
+            values = batch.getLinearValuesRotated();
+            vectorHMitzell = null;
+            vectorPMitzell = null;
+        }
+        
+        /**
+         * Search for the first two points where we move from a negative value 
+         * to a positive one
+         */
+        int startPoint = -1; 
+        for (int i = 0; i < values.get(2).size() - 1 && startPoint == -1 ; i++) {
+            
+            if (values.get(2).getValues().get(i).getValue() < 0 && 
+                    values.get(2).getValues().get(i+1).getValue() >= 0) {
+                
+                startPoint = i + 1;
+            }
+        }
+        
+        for (int i = startPoint; i < values.get(0).size(); ) {
+            
+            if (values.get(2).getValues().get(i).getValue() < 0 && 
+                    values.get(2).getValues().get(i + 1).getValue() >= 0) {
+                /**
+                 * Sliding window is ended
+                 * First point is startPoint, endPoint is i
+                 */
+                List<SingleCoordinateSet> elementsForWindow = new ArrayList<SingleCoordinateSet>(),
+                        elementsPMitzellWindow = null,
+                        elementsHMitzellWindow = null;
+                /**
+                 * Defining the List<SingleCoordinateSet> that will hold the 
+                 * data for the sliding window
+                 */
+                for (int index = 0; index < values.size(); index++) {
+                    SingleCoordinateSet elements = new SingleCoordinateSet(values.get(i).getValues().subList(startPoint, i + 1));
+                    elements.setTitle(values.get(i).getTitle());
+                    elementsForWindow.add(elements);
+                    
+                    /**
+                     * if we are using accelerometer data store even the 
+                     * mitzell vectors
+                     */
+                    if (vectorPMitzell != null) {
+                        SingleCoordinateSet elementsP = new SingleCoordinateSet(vectorPMitzell.get(i).getValues().subList(startPoint, i + 1)),
+                                elementsH = new SingleCoordinateSet(vectorHMitzell.get(i).getValues().subList(startPoint, i + 1));
+                        elementsP.setTitle(vectorPMitzell.get(i).getTitle());
+                        elementsH.setTitle(vectorHMitzell.get(i).getTitle());
+                        
+                        if (elementsPMitzellWindow == null) {
+                            elementsPMitzellWindow = new ArrayList<SingleCoordinateSet>();
+                            elementsHMitzellWindow = new ArrayList<SingleCoordinateSet>();
+                        }
+                        elementsPMitzellWindow.add(elementsP);
+                        elementsHMitzellWindow.add(elementsH);
+                    }
+                    
+                }
+                
+                startPoint = i+1;
+                i = startPoint + 1;
+            }
+            else {
+                i++;
+            }
+            
+        }
+        
+        return listOfWindows;
     }
 }

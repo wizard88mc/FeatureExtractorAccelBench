@@ -96,7 +96,7 @@ public class App {
         CLEAN_DB_SLIDING_WINDOW, // Cleans SlidingWindow DB from possible copies
         NEW_FEATURES_EXTRACTOR // extract features using sliding windows
     };
-    private static MODE mode = MODE.NEW_FEATURES_EXTRACTOR;
+    private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor();
@@ -158,13 +158,11 @@ public class App {
                         System.out.println(db_path+": "+samples_count_per_db+" samples ("+stair_samples_count_per_db+" STAIR, "+nonstair_samples_count_per_db+" nonstair)");
                         featureExtractor.setBatchSize(20);
                         featureExtractor.setArffEnabled(true);
-                        featureExtractor.setGravity_remove(false);
                         featureExtractor.setFeatureEnabled(true);
                         //featureExtractor.enableMinDiff(0.05f);
                         for (String action : actions) {
                             if (action.equals(actions[0])) {
                                 className = "NONSTAIR";
-                                featureExtractor.setTime_range(avg_step_duration);
                                 featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.FIXED_TIME_LAPSE);
                             } else {
                                 className = "STAIRS";
@@ -201,11 +199,8 @@ public class App {
                     //                  featureExtractor.setTrunkIDs();
                     featureExtractor.setArffEnabled(false); // disable ARFF creation
                     featureExtractor.setFeatureEnabled(false); // disable feature calculation
-                    featureExtractor.setGravity_remove(true);
                     featureExtractor.setLinearOrNot(false);
                     featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
-                    featureExtractor.setSlidingWindowSize(500000000);
-                    featureExtractor.enableMinDiff((float) 0);
                     //featureExtractor.createFinalDB();
                     //featureExtractor.populateDatabase();
                     featureExtractor.extract();
@@ -240,40 +235,21 @@ public class App {
                         "michele/accelbench_20140127092832.db",
                         "michele/accelbench_20140128090735.db"};
                     
-                    featureExtractor.setSlidingWindowSize(500000000);
-                    featureExtractor.setNumberOverlappingWindow(4);
                     featureExtractor.createFinalDB();
                     
                     for (String db: dbs) {
                         
-                        /* if (!featureExtractor.getDBManager().checkDBAlreadyInserted(db)) {
-                            featureExtractor.getDBManager().newDB(db);
-                            featureExtractor.setDb("data/completo/" + db);
-                            featureExtractor.populateDatabase();
-                        }*/
-                        
-                        if (!featureExtractor.getDBManager().checkDBAlreadyInserted(db)) {
+                        if (!featureExtractor.getDBTextDataManager().checkIfDatabaseAlreadyInserted(db)) {
+                            featureExtractor.getDBTextDataManager().insertNewDatabase(db);
                             
-                            featureExtractor.setDb("data/completo/" + db);
-                            featureExtractor.insertPAndHVectorsMitzell();
                         }
+                        
                     }
                     break;
                 }
                 
-                case CLEAN_DB_SLIDING_WINDOW: {
+                /*case NEW_FEATURES_EXTRACTOR: {
                     
-                    featureExtractor.setSlidingWindowSize(500000000);
-                    featureExtractor.createFinalDB();
-                    featureExtractor.cleanDB();
-                    
-                    break;
-                }
-                
-                case NEW_FEATURES_EXTRACTOR: {
-                    
-                    featureExtractor.setSlidingWindowSize(500000000);
-                    featureExtractor.setNumberOverlappingWindow(4);
                     featureExtractor.createFinalDB();
                     
                     ARFF.AddClasses(new String[]{App.NO_STAIR, App.STAIR_DOWNSTAIRS, App.STAIR_UPSTAIRS});
@@ -302,7 +278,7 @@ public class App {
                     }
                     
                     break;
-                }
+                }*/
             }
         } catch (Exception e) {
             e.printStackTrace();

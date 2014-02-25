@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package featureextractor.model;
 
 import java.text.DecimalFormat;
@@ -17,14 +13,14 @@ import org.jfree.chart.plot.IntervalMarker;
  */
 public class Batch {
 
-    private List<SingleCoordinateSet> values = new ArrayList<SingleCoordinateSet>();
-    private List<SingleCoordinateSet> valuesWithoutGravity = new ArrayList<SingleCoordinateSet>();
-    private List<SingleCoordinateSet> valuesRotated = new ArrayList<SingleCoordinateSet>();
-    private List<SingleCoordinateSet> valuesWithoutGravityRotated = new ArrayList<SingleCoordinateSet>();
-    private List<SingleCoordinateSet> valuesLinear = new ArrayList<SingleCoordinateSet>();
-    private List<SingleCoordinateSet> valuesLinearRotated = new ArrayList<SingleCoordinateSet>();
-    private List<SingleCoordinateSet> valuesPMitzell = new ArrayList<SingleCoordinateSet>();
-    private List<SingleCoordinateSet> valuesHMitzell = new ArrayList<SingleCoordinateSet>();
+    private final List<SingleCoordinateSet> values = new ArrayList<SingleCoordinateSet>();
+    private final List<SingleCoordinateSet> valuesWithoutGravity = new ArrayList<SingleCoordinateSet>();
+    private final List<SingleCoordinateSet> valuesRotated = new ArrayList<SingleCoordinateSet>();
+    private final List<SingleCoordinateSet> valuesWithoutGravityRotated = new ArrayList<SingleCoordinateSet>();
+    private final List<SingleCoordinateSet> valuesLinear = new ArrayList<SingleCoordinateSet>();
+    private final List<SingleCoordinateSet> valuesLinearRotated = new ArrayList<SingleCoordinateSet>();
+    private final List<SingleCoordinateSet> valuesPMitzell = new ArrayList<SingleCoordinateSet>();
+    private final List<SingleCoordinateSet> valuesHMitzell = new ArrayList<SingleCoordinateSet>();
     private static HashMap<Integer, String> coordinates_mapping = new HashMap<Integer, String>();
     private List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
     private String title;
@@ -38,8 +34,6 @@ public class Batch {
         coordinates_mapping.put(0, "X");
         coordinates_mapping.put(1, "Y");
         coordinates_mapping.put(2, "Z");
-        coordinates_mapping.put(3, "|V|");
-        coordinates_mapping.put(4, "X+Y");
         
         //coordinates_mapping.put(3, "|V|");
     }
@@ -156,26 +150,21 @@ public class Batch {
             values.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
             values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
             values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
-            values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueXAndYMean(), sample.getStep()));
-            //values.get(3).addValue(new DataTime(sample.getTime(), sample.getValueV(), sample.getStep()));
             
             if (sample.getHasNoGravityValues()) {
                 valuesWithoutGravity.get(0).addValue(new DataTime(sample.getTime(), sample.getNoGravityX(), sample.getStep()));
                 valuesWithoutGravity.get(1).addValue(new DataTime(sample.getTime(), sample.getNoGravityY(), sample.getStep()));
                 valuesWithoutGravity.get(2).addValue(new DataTime(sample.getTime(), sample.getNoGravityZ(), sample.getStep()));
-                valuesWithoutGravity.get(3).addValue(new DataTime(sample.getTime(), sample.getNoGravityXAndYMean(), sample.getStep()));
             }
             
             valuesRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX(), sample.getStep()));
             valuesRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY(), sample.getStep()));
             valuesRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedZ(), sample.getStep()));
-            valuesRotated.get(3).addValue(new DataTime(sample.getTime(), sample.getRotatedXAndYMean(), sample.getStep()));
             
             if (sample.getHasNoGravityValues()) {
                 valuesWithoutGravityRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityX(), sample.getStep()));
                 valuesWithoutGravityRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityY(), sample.getStep()));
                 valuesWithoutGravityRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityZ(), sample.getStep()));
-                valuesWithoutGravityRotated.get(3).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityXAndYMean(), sample.getStep()));
             }
         }
         
@@ -186,12 +175,10 @@ public class Batch {
                 valuesLinear.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
                 valuesLinear.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
                 valuesLinear.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
-                valuesLinear.get(3).addValue(new DataTime(sample.getTime(), sample.getValueXAndYMean(), sample.getStep()));
 
                 valuesLinearRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX(), sample.getStep()));
                 valuesLinearRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY(), sample.getStep()));
                 valuesLinearRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedZ(), sample.getStep()));
-                valuesLinearRotated.get(3).addValue(new DataTime(sample.getTime(), sample.getRotatedXAndYMean(), sample.getStep()));
             }
         }
         else { throw new Exception("No linear values provided"); }

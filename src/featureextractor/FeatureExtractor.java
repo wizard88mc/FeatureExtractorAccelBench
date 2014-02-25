@@ -7,6 +7,7 @@ package featureextractor;
 import featureextractor.comparator.MeanComparator;
 import featureextractor.extractor.db.AccelBenchException;
 import featureextractor.extractor.db.DBDataManager;
+import featureextractor.extractor.db.DBTextManager;
 import featureextractor.utils.SamplesUtils;
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Sample;
@@ -25,6 +26,7 @@ import featureextractor.weka.ARFFAttribute;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,13 +36,12 @@ import java.util.List;
  * @author Matteo
  */
 public class FeatureExtractor {
-
-    public static boolean GRAVITY_REMOVE = false;
+    
     public boolean linear = false;
     private static final String ARFF_RELATION = "StairDetection";
     private ARFF arff;
     private DbExtractor db_extractor = null;
-    private DBDataManager dbDataManager = null;
+    private DBTextManager dbDataTextManager = null;
     private List<Batch> batches = null;
     private int range = 1000; // default
     private int start = 0; // default
@@ -48,8 +49,6 @@ public class FeatureExtractor {
     private boolean arff_enabled = true;
     private boolean feature_enabled = true;
     private long time_range = 488000000; // ms
-    private long sizeSlidingWindow = 500000000; // milliseconds
-    private int numberOverlappingWindows = 1;
     List<SlidingWindow> slidingWindowsDownstairs, slidingWindowsUpstairs, slidingWindowsNoStairs;
     private String[] features_types = new String[]{"std", "mean", "variance"};
 
@@ -82,12 +81,8 @@ public class FeatureExtractor {
         this.linear = linear;
     }
     
-    public void setNumberOverlappingWindow(int number) {
-        numberOverlappingWindows = number;
-    }
-    
-    public DBDataManager getDBManager() {
-        return dbDataManager;
+    public DBTextManager getDBTextDataManager() {
+        return dbDataTextManager;
     }
 
     public void setDb(String db_path) throws Exception {
@@ -98,21 +93,9 @@ public class FeatureExtractor {
         db_extractor = new DbExtractor(file);
     }
     
-    public void createFinalDB() {
-        try {
-            dbDataManager = new DBDataManager((int)sizeSlidingWindow / 1000000);
-        }
-        catch(IOException exc) {
-            System.out.println(exc);
-        }
-    }
-
-    public long getTime_range() {
-        return time_range;
-    }
-
-    public void setTime_range(long time_range) {
-        this.time_range = time_range;
+    public void createFinalDB() throws IOException {
+        
+        dbDataTextManager = new DBTextManager();
     }
 
     public float getAverageStepDuration() throws Exception {
@@ -173,213 +156,6 @@ public class FeatureExtractor {
 
     public void extract() throws Exception {
         this.extract(null, null);
-    }
-
-    public void enableMinDiff(float minDiff) throws Exception {
-        if (batches == null || batches.isEmpty()) {
-            return;
-        }
-        for (Batch batch : batches) {
-            for (SingleCoordinateSet set : batch.getValues()) {
-                double last, previous;
-                boolean initialized = false;
-                int i = 0;
-                for (DataTime dt : set.getValues()) {
-                    if (!initialized) {
-                        last = dt.getValue();
-                        initialized = true;
-                    } else {
-                        previous = set.getValues().get(i - 1).getValue();
-                        if (Math.abs(previous - dt.getValue()) < minDiff) {
-                            dt.setValue(previous);
-                        }
-                    }
-                    i++;
-                }
-            }
-        }
-    }
-
-    public boolean isGravity_remove() {
-        return GRAVITY_REMOVE;
-    }
-
-    public void setGravity_remove(boolean gravity_remove) {
-        this.GRAVITY_REMOVE = gravity_remove;
-    }
-    
-    public void populateDatabase() {
-        
-        try {
-            /**
-             * Creates the batch using steps
-             */
-            List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction(App.STAIR_DOWNSTAIRS);
-            List<Batch> baseBatchesUpstairs = db_extractor.extractByTrunkAndAction(App.STAIR_UPSTAIRS);
-            List<Batch> baseBatchesNoStairs = db_extractor.extractByTrunkAndAction(App.NO_STAIR);
-            /**
-             * Once I have the batches, for each batch I have to create the corresponding 
-             * set of sliding window 
-             */
-            List<SlidingWindow> windowsAccelerometerNoGravityDownstairs = new ArrayList<SlidingWindow>();
-            List<SlidingWindow> windowsLinearDownstairs = new ArrayList<SlidingWindow>();
-            List<SlidingWindow> windowsAccelerometerNoGravityUpstairs = new ArrayList<SlidingWindow>();
-            List<SlidingWindow> windowsLinearUpstairs = new ArrayList<SlidingWindow>();
-            List<SlidingWindow> windowsAccelerometerNoGravityNoStairs = new ArrayList<SlidingWindow>();
-            List<SlidingWindow> windowsLinearNoStairs = new ArrayList<SlidingWindow>();
-            
-            for (int i = 0; i < baseBatchesDownstairs.size(); i++) {
-                
-                windowsAccelerometerNoGravityDownstairs.addAll(
-                        SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesDownstairs.get(i), sizeSlidingWindow, 
-                                numberOverlappingWindows, false));
-                
-                windowsLinearDownstairs.addAll(
-                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesDownstairs.get(i), sizeSlidingWindow, 
-                            numberOverlappingWindows, true));
-            }
-            
-            for (int i = 0; i < baseBatchesUpstairs.size(); i++) {
-                
-                windowsAccelerometerNoGravityUpstairs.addAll(
-                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesUpstairs.get(i), sizeSlidingWindow, 
-                            numberOverlappingWindows, false));
-                
-                windowsLinearUpstairs.addAll(
-                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesUpstairs.get(i), sizeSlidingWindow, 
-                            numberOverlappingWindows, true));
-            }
-            
-            for (int i = 0; i < baseBatchesNoStairs.size(); i++) {
-                
-                windowsAccelerometerNoGravityNoStairs.addAll(
-                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesNoStairs.get(i), sizeSlidingWindow, 
-                            numberOverlappingWindows, false));
-                
-                windowsLinearNoStairs.addAll(
-                    SamplesUtils.getBatchesWithSlidingWindowAndFixedTime(baseBatchesNoStairs.get(i), sizeSlidingWindow, 
-                            numberOverlappingWindows, true));
-            }
-            int k = 0;
-            for (SlidingWindow window: windowsAccelerometerNoGravityNoStairs) {
-                if (k % 20 == 0) {
-                    System.out.println("Accelerometro: Inserisco " + k + "di " + windowsAccelerometerNoGravityNoStairs.size());
-                }
-                dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, false);
-                k++;
-            }
-            k = 0;
-            for (SlidingWindow window: windowsLinearNoStairs) {
-                if (k % 20 == 0) {
-                    System.out.println("Linear: Inserisco " + k + "di " + windowsLinearNoStairs.size());
-                }
-                dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, true);
-                k++;
-            }
-            
-            for (int i = windowsAccelerometerNoGravityDownstairs.size() - 1; 
-                    i >= 0; i--) {
-                
-                new PlotForDB(windowsAccelerometerNoGravityDownstairs.get(i), dbDataManager, false);
-                if (i%10 == 0) {
-                    System.out.println("waiting");
-                }
-            }
-            
-            for (int i = windowsLinearDownstairs.size() - 1; i>= 0; i--) {
-                new PlotForDB(windowsLinearDownstairs.get(i), dbDataManager, true);
-                if (i%10 == 0) {
-                    System.out.println("waiting");
-                }
-            }
-            
-            for (int i = windowsAccelerometerNoGravityUpstairs.size() - 1; 
-                    i >= 0; i--) {
-                
-                new PlotForDB(windowsAccelerometerNoGravityUpstairs.get(i), dbDataManager, false);
-                if (i%10 == 0) {
-                    System.out.println("waiting");
-                }
-            }
-            
-            for (int i = windowsLinearUpstairs.size() - 1; i>= 0; i--) {
-                new PlotForDB(windowsLinearUpstairs.get(i), dbDataManager, true);
-                if (i%10 == 0) {
-                    System.out.println("waiting");
-                }
-            }
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
-            System.out.println(exc);
-        }
-        
-    }
-    
-    public void insertPAndHVectorsMitzell() {
-        /**
-         * Creates the batch using steps
-         */
-        try {
-            List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction("STAIR_DOWNSTAIRS");
-            List<Batch> baseBatchesUpstairs = db_extractor.extractByTrunkAndAction("STAIR_UPSTAIRS");
-            List<Batch> baseBatchesNoStairs = db_extractor.extractByTrunkAndAction("NON_STAIR");
-            
-            for (Batch batch: baseBatchesDownstairs) {
-                
-                List<SingleCoordinateSet> vectorPMitzell = batch.getPVectorMitzell();
-                List<SingleCoordinateSet> vectorHMitzell = batch.getHVectorMitzell();
-                
-                for (int i = 0; i < vectorPMitzell.get(0).getValues().size(); i++) {
-                    dbDataManager.addPAndHVectorMitzell(vectorPMitzell.get(0).getValues().get(i).getTime(), App.STAIR_DOWNSTAIRS, 
-                            vectorPMitzell.get(0).getValues().get(i).getValue(),  // X component P vector
-                            vectorPMitzell.get(1).getValues().get(i).getValue(),  // Y component P vector
-                            vectorPMitzell.get(2).getValues().get(i).getValue(),  // Z component P vector
-                            vectorHMitzell.get(0).getValues().get(i).getValue(),  // X component H vector
-                            vectorHMitzell.get(1).getValues().get(i).getValue(),  // Y component H vector
-                            vectorHMitzell.get(2).getValues().get(i).getValue()); // Z component H vector
-                }
-                
-            }
-            
-            for (Batch batch: baseBatchesUpstairs) {
-                
-                List<SingleCoordinateSet> vectorPMitzell = batch.getPVectorMitzell();
-                List<SingleCoordinateSet> vectorHMitzell = batch.getHVectorMitzell();
-                
-                for (int i = 0; i < vectorPMitzell.get(0).getValues().size(); i++) {
-                    dbDataManager.addPAndHVectorMitzell(vectorPMitzell.get(0).getValues().get(i).getTime(), App.STAIR_UPSTAIRS, 
-                            vectorPMitzell.get(0).getValues().get(i).getValue(),  // X component P vector
-                            vectorPMitzell.get(1).getValues().get(i).getValue(),  // Y component P vector
-                            vectorPMitzell.get(2).getValues().get(i).getValue(),  // Z component P vector
-                            vectorHMitzell.get(0).getValues().get(i).getValue(),  // X component H vector
-                            vectorHMitzell.get(1).getValues().get(i).getValue(),  // Y component H vector
-                            vectorHMitzell.get(2).getValues().get(i).getValue()); // Z component H vector
-                }
-                
-            }
-            
-            for (Batch batch: baseBatchesNoStairs) {
-                
-                List<SingleCoordinateSet> vectorPMitzell = batch.getPVectorMitzell();
-                List<SingleCoordinateSet> vectorHMitzell = batch.getHVectorMitzell();
-                
-                for (int i = 0; i < vectorPMitzell.get(0).getValues().size(); i++) {
-                    dbDataManager.addPAndHVectorMitzell(vectorPMitzell.get(0).getValues().get(i).getTime(), App.NO_STAIR, 
-                            vectorPMitzell.get(0).getValues().get(i).getValue(),  // X component P vector
-                            vectorPMitzell.get(1).getValues().get(i).getValue(),  // Y component P vector
-                            vectorPMitzell.get(2).getValues().get(i).getValue(),  // Z component P vector
-                            vectorHMitzell.get(0).getValues().get(i).getValue(),  // X component H vector
-                            vectorHMitzell.get(1).getValues().get(i).getValue(),  // Y component H vector
-                            vectorHMitzell.get(2).getValues().get(i).getValue()); // Z component H vector
-                }
-                
-            }
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
-            System.out.println(exc.toString());
-        }
     }
 
     public void extract(String action, String className) throws Exception {
@@ -484,51 +260,6 @@ public class FeatureExtractor {
         }
     }
     
-    public void retrieveSlidingWindows(boolean linear) {
-        if (slidingWindowsDownstairs != null) {
-            slidingWindowsDownstairs.clear(); slidingWindowsUpstairs.clear();
-            slidingWindowsNoStairs.clear();
-        }
-        System.out.println("Starting getting sliding windows");
-        slidingWindowsDownstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, linear);
-        System.out.println("Got all Sliding windows downstairs");
-        slidingWindowsUpstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_UPSTAIRS, linear);
-        System.out.println("Got all sliding windows upstairs");
-        slidingWindowsNoStairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.NO_STAIR, linear);
-        System.out.println("Got all sliding window no stairs");
-        System.out.println("Got all Sliding windows");
-    }
-
-    public void extract(int frequencyData) throws Exception {
-        
-        if (dbDataManager == null ) {
-            throw new Exception("No DBDataManager");
-        }
-        
-        System.out.println("Starting cleaning Windows");
-        List<SlidingWindow> finalWindowsDownstairs = getOnlySuitableSlidingWindows(slidingWindowsDownstairs, frequencyData),
-                finalWindowsUpstairs = getOnlySuitableSlidingWindows(slidingWindowsUpstairs, frequencyData),
-                finalWindowsNoStairs = getOnlySuitableSlidingWindows(slidingWindowsNoStairs, frequencyData);
-        System.out.println("All SlidingWindow cleaned");
-        
-        System.out.println("Starting calculate features");
-        List<FeaturesSlidingWindow> featuresWindowsDownstairs = getFeatures(finalWindowsDownstairs, frequencyData);
-        System.out.println("All features for downstairs");
-        List<FeaturesSlidingWindow> featuresWindowsUpstairs = getFeatures(finalWindowsUpstairs, frequencyData);
-        System.out.println("All features for upstairs");
-        List<FeaturesSlidingWindow> featuresWindowsNoStairs = getFeatures(finalWindowsNoStairs, frequencyData);
-        System.out.println("Got all features");
-        
-        arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
-        arff.addAllFeaturesData(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
-        arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
-        
-        System.out.println("Number of downstairs windows: " + finalWindowsDownstairs.size());
-        System.out.println("Number of upstairs windows: " + finalWindowsUpstairs.size());
-        System.out.println("Number of no stairs windows: " + finalWindowsNoStairs.size());
-        
-    }
-    
     /**
      * Retrieves the list of the sliding windows suitable for a particular frequency 
      * analysis. It check whether the number of points in the sliding window is 
@@ -549,6 +280,15 @@ public class FeatureExtractor {
         }
         
         return finalWindows;
+    }
+    
+    public void populateTextualDatabase() throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
+        
+        List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction(App.STAIR_DOWNSTAIRS),
+                baseBatchesUpstairs = db_extractor.extractByTrunkAndAction(App.STAIR_UPSTAIRS),
+                baseBatchesNoStairs = db_extractor.extractByTrunkAndAction(App.NO_STAIR);
+        
+        
     }
     
     private List<FeaturesSlidingWindow> getFeatures(List<SlidingWindow> slidingWindows, int frequency) {
@@ -573,10 +313,6 @@ public class FeatureExtractor {
 
     public void setMax(int max) {
         this.max = max;
-    }
-    
-    public void setSlidingWindowSize(long size) {
-        this.sizeSlidingWindow = size;
     }
 
     public void plot() {
@@ -767,56 +503,4 @@ public class FeatureExtractor {
         
     }
     
-    private void searchForCopyOfSlidingWindow(List<SlidingWindow> slidingWindows, boolean linear) {
-        
-        for (int i = 0; i < slidingWindows.size(); i++) {
-            
-            for (int j = i+1; j < slidingWindows.size(); ) {
-                if (slidingWindows.get(i).equals(slidingWindows.get(j))) {
-
-                    // System.out.println("Window " + i + " uguale window " + j);
-                    
-                    // Remove sliding window from the db and from the List
-                    dbDataManager.deleteTrunk((int)sizeSlidingWindow/1000000, 
-                            slidingWindows.get(j).getTrunk(), linear, slidingWindows.get(j).getSupposedAction());
-                    slidingWindows.remove(j);
-                }
-                else {
-                    j++;
-                }
-            }
-            if (i%30 == 0) {
-                System.out.println("Completed test " + i + " of " + slidingWindows.size());
-            }
-        }
-        
-    }
-    
-    public void cleanDB() {
-        
-        System.out.println("**********Starting sliding window downstairs**********");
-        List<SlidingWindow> slidingWindowsDownstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, false);
-        System.out.println("Downstairs: " + slidingWindowsDownstairs.size());
-        searchForCopyOfSlidingWindow(slidingWindowsDownstairs, false);
-        System.out.println("New size Downstairs: " + slidingWindowsDownstairs.size());
-        
-        System.out.println("**********Starting sliding window upstairs**********");
-        List<SlidingWindow> slidingWindowsUpstairs = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_UPSTAIRS, false);
-        System.out.println("Upstairs: " + slidingWindowsUpstairs.size());
-        searchForCopyOfSlidingWindow(slidingWindowsUpstairs, false);
-        System.out.println("New size Upstairs: " + slidingWindowsUpstairs.size());
-        
-        System.out.println("**********Starting sliding window downstairs linear**********");
-        List<SlidingWindow> slidingWindowsDownstairsLinear = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_DOWNSTAIRS, true);
-        System.out.println("Downstairs Linear: " + slidingWindowsDownstairsLinear.size());
-        searchForCopyOfSlidingWindow(slidingWindowsDownstairsLinear, true);
-        System.out.println("New size downstairs linear: " + slidingWindowsDownstairsLinear.size());
-        
-        System.out.println("**********Starting sliding window upstairs linear**********");
-        List<SlidingWindow> slidingWindowsUpstairsLinear = dbDataManager.getSlidinwWindows((int)sizeSlidingWindow / 1000000, App.STAIR_UPSTAIRS, true);
-        System.out.println("Upstairs Linear: " + slidingWindowsUpstairsLinear.size());
-        searchForCopyOfSlidingWindow(slidingWindowsUpstairsLinear, true);
-        System.out.println("New size upstairs linear: " + slidingWindowsUpstairsLinear.size());
-        
-    }
 }

@@ -98,7 +98,7 @@ public class DBDataManager {
         try {
             connect();
             
-            String query = "SELECT * FROM databasesInserted WHERE dbName = \"" + name+ "\"";
+            String query = "SELECT * FROM databasesInserted" + slidingWindowSize + " WHERE dbName = \"" + name+ "\"";
             PreparedStatement ps = connection.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) {
@@ -177,7 +177,7 @@ public class DBDataManager {
             connect();
             
             String query = "UPDATE samples" + this.slidingWindowSize + 
-                    "SET mitzellPX=?, mitzellPY=?, mitzellPZ=?, mitzellHX=?,"
+                    " SET mitzellPX=?, mitzellPY=?, mitzellPZ=?, mitzellHX=?,"
                     + " mitzellHY=?, mitzellHZ=? WHERE action=\"" + action + "\" AND "
                     + "timestamp=? and isLinear=0";
             
