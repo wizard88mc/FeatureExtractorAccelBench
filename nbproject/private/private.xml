@@ -3,13 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/Batch.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/SlidingWindow.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/FeatureExtractor.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/App.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/extractor/db/DBTextManager.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/extractor/db/DBDataManager.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/utils/SamplesUtils.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/SingleCoordinateSet.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/extractor/db/DBDataManager.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/SlidingWindow.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/extractor/db/DbExtractor.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/extractor/db/DBTextManager.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/FeatureExtractor.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/Batch.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/utils/SamplesUtils.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/App.java</file>
         </group>
     </open-files>
 </project-private>

@@ -31,12 +31,28 @@ public class SlidingWindow {
         coordinates.add(1, "Y");
         coordinates.add(2, "Z");
         coordinates.add(3, "|V|");
-        coordinates.add(4, "X+Y");
+        coordinates.add(4, "(X+Y)/2");
     }
     
+    private double calculateV(int index) {
+        
+        return Math.sqrt(Math.pow(values.get(0).getValues().get(index).getValue(), 2) + Math.pow(values.get(1).getValues().get(index).getValue(), 2) +
+                Math.pow(values.get(2).getValues().get(index).getValue(), 2));
+        
+    }
     
     public SlidingWindow(List<SingleCoordinateSet> values) {
         this.values = values;
+        values.add(new SingleCoordinateSet(coordinates.get(3)));
+        values.add(new SingleCoordinateSet(coordinates.get(4)));
+        
+        for (int i = 0; i < values.get(0).size(); i++) {
+            
+            values.get(3).addValue(new DataTime(values.get(0).getValues().get(i).getTime(), calculateV(i), -1));
+            values.get(4).addValue(new DataTime(values.get(0).getValues().get(i).getTime(),
+                    (values.get(0).getValues().get(i).getValue() + 
+                    values.get(1).getValues().get(i).getValue()) / 2.0, -1));
+        }
     }
     
     public SlidingWindow(List<SingleCoordinateSet> values, boolean linear, int trunk) {

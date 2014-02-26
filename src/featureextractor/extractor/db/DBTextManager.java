@@ -200,10 +200,14 @@ public class DBTextManager {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(BASE_FOLDER + DB_DATA)));
             
+            String line;
+            
+            while ((line=reader.readLine()).contains("@")) {}
+            
             // devo definire lista List<SingleCoordinateSet> per gli x y e z 
             // che fanno aprte del trunk. Se trunk di quello che leggo e' diverso
             // dal precedente allora devo creare window e schiaffarla dentro
-            String line; int lastTrunkId = -1;
+            int lastTrunkId = -1;
             SlidingWindow window = null;
             List<SingleCoordinateSet> valuesForWindow = new ArrayList<SingleCoordinateSet>(),
                     vectorPMitzell = null,
@@ -223,7 +227,7 @@ public class DBTextManager {
             
             window = new SlidingWindow(elements[10], elements[11], valuesForWindow, 
                     vectorPMitzell, vectorHMitzell, elements[elements.length - 1].equals("1"), 
-                    Integer.valueOf(elements[12]));
+                    Integer.valueOf(elements[elements.length - 2]));
             
             insertNewThreeDataTime(valuesForWindow, elements[0], elements[1], elements[2], elements[3]);
             
@@ -293,15 +297,21 @@ public class DBTextManager {
                         
                         window = new SlidingWindow(elements[10], elements[11], 
                                 valuesForWindow, vectorPMitzell, vectorHMitzell, 
-                                elements[elements.length - 2].equals("1"), 
-                                Integer.valueOf(elements[elements.length - 1]));
+                                elements[elements.length - 1].equals("1"), 
+                                Integer.valueOf(elements[elements.length - 2]));
+                        
+                        lastTrunkId = Integer.valueOf(elements[elements.length - 2]);
                     }
                     /**
                      * Add data to the window, either new or old
                      */
                         
                     insertNewThreeDataTime(valuesForWindow, elements[0], elements[1], elements[2], elements[3]);
-                    if (window.isLinear()) {
+                    if (!window.isLinear() && vectorHMitzell==null) {
+                        System.out.println("errore");
+                    }
+                            
+                    if (!window.isLinear()) {
                         insertNewThreeDataTime(vectorPMitzell, elements[0], elements[4], elements[5], elements[6]);
                         insertNewThreeDataTime(vectorHMitzell, elements[0], elements[7], elements[8], elements[9]);
                     }
