@@ -94,9 +94,10 @@ public class App {
         STEP_AVG_CALCULATOR, // plot each trunk to enable step marking,
         BUILD_DB_SLIDING_WINDOW, // Build the Database with all the sliding window
         CLEAN_DB_SLIDING_WINDOW, // Cleans SlidingWindow DB from possible copies
-        NEW_FEATURES_EXTRACTOR // extract features using sliding windows
+        NEW_FEATURES_EXTRACTOR, // extract features using sliding windows
+        FEATURES_FROM_TEXT_DB // features calculated from the textual DB
     };
-    private static MODE mode = MODE.TRUNK_PLOTTER;
+    private static MODE mode = MODE.FEATURES_FROM_TEXT_DB;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor();
@@ -239,7 +240,7 @@ public class App {
                     for (String db: dbs) {
                         try {
                         if (!featureExtractor.getDBTextDataManager().checkIfDatabaseAlreadyInserted(db)) {
-                            //featureExtractor.getDBTextDataManager().insertNewDatabase(db);
+                            featureExtractor.getDBTextDataManager().insertNewDatabase(db);
                             featureExtractor.setDb("data/completo/" + db);
                             featureExtractor.populateTextualDatabase();
                         }
@@ -280,6 +281,26 @@ public class App {
                     
                     break;
                 }*/
+                
+                case FEATURES_FROM_TEXT_DB:  {
+                    
+                    ARFF.AddClasses(actions);
+                    
+                    featureExtractor.createFinalDB();
+                    featureExtractor.initializeListWindowsForFeatures();
+                    
+                    int[] frequencies = new int[]{10, 15, 20, 25, 30, 50, 100};
+                    
+                    for (int frequency: frequencies) {
+                        featureExtractor.getARFF().resetData();
+                        featureExtractor.extractUsingFrequency(frequency, false);
+                        
+                        featureExtractor.dumpARFF(new File("StairDetectionVSW"+frequency+".arff"));
+                    }
+                        
+                    
+                    break;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

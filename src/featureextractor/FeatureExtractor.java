@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  *
- * @author Matteo
+ * @author Matteo Ciman
  */
 public class FeatureExtractor {
     
@@ -48,6 +48,8 @@ public class FeatureExtractor {
     private long time_range = 488000000; // ms
     List<SlidingWindow> slidingWindowsDownstairs, slidingWindowsUpstairs, slidingWindowsNoStairs;
     private String[] features_types = new String[]{"std", "mean", "variance"};
+    List<SlidingWindow> noGravityUpstairs, noGravityDownstairs, noGravityNoStairs, 
+            linearUpstairs, linearDownstairs, linearNoStairs;
 
     public enum BATCH_CREATION_MODE {
 
@@ -574,7 +576,39 @@ public class FeatureExtractor {
         }
         
         arff = new ARFF(ARFF_RELATION, attributes);
+    }
+    
+    public void initializeListWindowsForFeatures() {
+        noGravityUpstairs = new ArrayList<SlidingWindow>();
+        noGravityDownstairs = new ArrayList<SlidingWindow>();
+        noGravityNoStairs = new ArrayList<SlidingWindow>();
+        linearUpstairs = new ArrayList<SlidingWindow>();
+        linearDownstairs = new ArrayList<SlidingWindow>();
+        linearNoStairs = new ArrayList<SlidingWindow>();
         
+        dbDataTextManager.retrieveAllSlidingWindows(noGravityUpstairs, linearUpstairs, 
+                noGravityDownstairs, linearDownstairs, noGravityNoStairs, linearNoStairs);
+    }
+    
+    public void extractUsingFrequency(int frequency, boolean linear) {
+        
+        List<FeaturesSlidingWindow> featuresWindowsDownstairs, featuresWindowsUpstairs, 
+                featuresWindowsNoStairs;
+        
+        if (!linear) {
+            featuresWindowsDownstairs = getFeatures(noGravityDownstairs, frequency);
+            featuresWindowsUpstairs = getFeatures(noGravityUpstairs, frequency);
+            featuresWindowsNoStairs = getFeatures(noGravityNoStairs, frequency);
+        }
+        else {
+            featuresWindowsDownstairs = getFeatures(linearDownstairs, frequency);
+            featuresWindowsUpstairs = getFeatures(linearUpstairs, frequency);
+            featuresWindowsNoStairs = getFeatures(linearNoStairs, frequency);
+        }
+        
+        arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
+        arff.addAllFeaturesData(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
+        arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
     }
     
 }

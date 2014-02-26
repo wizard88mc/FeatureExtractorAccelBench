@@ -1,5 +1,7 @@
 package featureextractor.extractor.db;
 
+import featureextractor.App;
+import featureextractor.model.DataTime;
 import featureextractor.model.SingleCoordinateSet;
 import featureextractor.model.SlidingWindow;
 import java.io.BufferedReader;
@@ -11,11 +13,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
- * @author Matteo
+ * @author Matteo Ciman
  */
 public class DBTextManager {
     
@@ -24,8 +27,7 @@ public class DBTextManager {
     private static String DB_DATA = "samplesSlidingWindows.dsw";
     private PrintWriter outputDatabase;
     private PrintWriter outputSamples;
-    private static int lastTrunkIdAccelerometer = 0;
-    private static int lastTrunkIdLinear = 0;
+    private static int lastTrunkId = 0;
     
     public DBTextManager() throws IOException {
         
@@ -35,8 +37,7 @@ public class DBTextManager {
             outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, true)));
             outputSamples.println("@FILE_FORMAT");
             outputSamples.println("@timestamp: double");outputSamples.println("@x: double");
-            outputSamples.println("@y: double");outputSamples.println("@timestamp: double");
-            outputSamples.println("@timestamp: double");outputSamples.println("@z: double");
+            outputSamples.println("@y: double");outputSamples.println("@z: double");
             outputSamples.println("@xPMitzell: double");outputSamples.println("@yPMitzell: double");
             outputSamples.println("@zPMitzell: double");outputSamples.println("@xHMitzell: double");
             outputSamples.println("@yHMitzell: double");outputSamples.println("@zHMitzell: double");
@@ -68,14 +69,10 @@ public class DBTextManager {
                     line = line.replace("(", "").replace(")", "");
                     
                     String[] pieces = line.split(";");
-                    boolean linear = pieces[pieces.length - 1].equals("1");
                     int idTrunk = Integer.valueOf(pieces[pieces.length - 2]);
                     
-                    if (linear && idTrunk > lastTrunkIdLinear) {
-                        lastTrunkIdLinear = idTrunk;
-                    }
-                    else if (!linear && idTrunk > lastTrunkIdAccelerometer) {
-                        lastTrunkIdAccelerometer = idTrunk;
+                    if (idTrunk > lastTrunkId) {
+                        lastTrunkId = idTrunk;
                     }
                 }
             }
@@ -173,21 +170,28 @@ public class DBTextManager {
                     + (!linear?zPMitzell.toString():"NULL") + ";" + (!linear?xHMitzell.toString():"NULL") + ";" 
                     + (!linear?yHMitzell.toString():"NULL") + ";" + (!linear?zHMitzell.toString():"NULL") + ";"+ 
                     window.getSupposedAction() + ";" + window.getPlaceAction() + ";" + 
-                    (linear?lastTrunkIdLinear:lastTrunkIdAccelerometer) + ";" + (linear?1:0) + ")";
+                    (lastTrunkId) + ";" + (linear?1:0) + ")";
             
             outputSamples.println(finalString);
         }
         outputSamples.flush();
         
-        if (linear) {
-            lastTrunkIdLinear++;
-        }
-        else {
-            lastTrunkIdAccelerometer++;
-        }
+        lastTrunkId++;
+        
         
     }
     
+    /**
+     * Retrieves all the sliding window from the textual database, dividing 
+     * them depending on the action and if are linear or not
+     * 
+     * @param noGravityUpstairs: list containing upstairs with no gravity movements
+     * @param linearUpstairs: list containing upstairs using linear data
+     * @param noGravityDownstairs: list containing downstairs with no gravity movements
+     * @param LinearDownstairs: list containing downstairs using linear data
+     * @param noGravityNoStairs: list containing no stairs with no gravity movements
+     * @param linearNoStairs: list containing no stairs using linear data
+     */
     public void retrieveAllSlidingWindows(List<SlidingWindow> noGravityUpstairs, 
             List<SlidingWindow> linearUpstairs, List<SlidingWindow> noGravityDownstairs,
             List<SlidingWindow> LinearDownstairs, List<SlidingWindow> noGravityNoStairs,
@@ -196,15 +200,122 @@ public class DBTextManager {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(BASE_FOLDER + DB_DATA)));
             
+            String line;
+            
+            while ((line=reader.readLine()).contains("@")) {}
+            
             // devo definire lista List<SingleCoordinateSet> per gli x y e z 
             // che fanno aprte del trunk. Se trunk di quello che leggo e' diverso
             // dal precedente allora devo creare window e schiaffarla dentro
-            String line; int lastTrunkId = -1;
+            int lastTrunkId = -1;
+            SlidingWindow window = null;
+            List<SingleCoordinateSet> valuesForWindow = new ArrayList<SingleCoordinateSet>(),
+                    vectorPMitzell = null,
+                    vectorHMitzell = null;
+            
+            initializeList(valuesForWindow); 
+            
+            line = reader.readLine();
+            line = line.replace("(", "").replace(")", "");
+            String[] elements = line.split(";");
+            
+            if (elements[elements.length - 1].equals("0")) {
+                vectorPMitzell = new ArrayList<SingleCoordinateSet>();
+                vectorHMitzell = new ArrayList<SingleCoordinateSet>();
+                initializeList(vectorHMitzell); initializeList(vectorPMitzell);
+            }
+            
+            window = new SlidingWindow(elements[10], elements[11], valuesForWindow, 
+                    vectorPMitzell, vectorHMitzell, elements[elements.length - 1].equals("1"), 
+                    Integer.valueOf(elements[elements.length - 2]));
+            
+            insertNewThreeDataTime(valuesForWindow, elements[0], elements[1], elements[2], elements[3]);
+            
+            if (!window.isLinear()) {
+                insertNewThreeDataTime(vectorPMitzell, elements[0], elements[4], elements[5], elements[6]);
+                insertNewThreeDataTime(vectorPMitzell, elements[0], elements[7], elements[8], elements[9]);
+            }
+            
             while ((line = reader.readLine()) != null) {
                 if (!line.contains("@")) {
                     
                     line = line.replace("(", "").replace(")", "");
-                    //String[] elements = 
+                    
+                    elements = line.split(";");
+                    /**
+                     * elements[0]: timestamp
+                     * element[1,2,3]: x,y,z
+                     * element[4,5,6]: xPMitzell, yPMitzell, zPMitzell
+                     * element[7,8,9]: xHMitzell, yHMitzell, zHMitzell
+                     * element[10]: action
+                     * element[11]: mode
+                     * element[12]: trunk
+                     * element[13]: isLinear
+                     */
+                    
+                    /**
+                     * Sliding window completed, I have to create a new one and
+                     * initialize the three lists
+                     */
+                    if (Integer.valueOf(elements[elements.length - 2]) != lastTrunkId) {
+                        if (window.isLinear()) {
+                            if (window.getSupposedAction().equals(App.NO_STAIR)) {
+                                linearNoStairs.add(window);
+                            }
+                            else if (window.getSupposedAction().equals(App.STAIR_DOWNSTAIRS)) {
+                                LinearDownstairs.add(window);
+                            }
+                            else if (window.getSupposedAction().equals(App.STAIR_UPSTAIRS)) {
+                                linearUpstairs.add(window);
+                            }
+                        }
+                        else {
+                            if (window.getSupposedAction().equals(App.NO_STAIR)) {
+                                noGravityNoStairs.add(window);
+                            }
+                            else if (window.getSupposedAction().equals(App.STAIR_DOWNSTAIRS)) {
+                                noGravityDownstairs.add(window);
+                            }
+                            else if (window.getSupposedAction().equals(App.STAIR_UPSTAIRS)) {
+                                noGravityUpstairs.add(window);
+                            }
+                        }
+                        
+                        /**
+                         * Initialize the new window
+                         */
+                        valuesForWindow = new ArrayList<SingleCoordinateSet>();
+                        initializeList(valuesForWindow);
+                        if (elements[elements.length - 1].equals("0")) {
+                            vectorPMitzell = new ArrayList<SingleCoordinateSet>();
+                            vectorHMitzell = new ArrayList<SingleCoordinateSet>();
+                            
+                            initializeList(vectorHMitzell); initializeList(vectorPMitzell);
+                        }
+                        else {
+                            vectorPMitzell = null; vectorHMitzell = null;
+                        }
+                        
+                        window = new SlidingWindow(elements[10], elements[11], 
+                                valuesForWindow, vectorPMitzell, vectorHMitzell, 
+                                elements[elements.length - 1].equals("1"), 
+                                Integer.valueOf(elements[elements.length - 2]));
+                        
+                        lastTrunkId = Integer.valueOf(elements[elements.length - 2]);
+                    }
+                    /**
+                     * Add data to the window, either new or old
+                     */
+                        
+                    insertNewThreeDataTime(valuesForWindow, elements[0], elements[1], elements[2], elements[3]);
+                    if (!window.isLinear() && vectorHMitzell==null) {
+                        System.out.println("errore");
+                    }
+                            
+                    if (!window.isLinear()) {
+                        insertNewThreeDataTime(vectorPMitzell, elements[0], elements[4], elements[5], elements[6]);
+                        insertNewThreeDataTime(vectorHMitzell, elements[0], elements[7], elements[8], elements[9]);
+                    }
                 }
             }
         }
@@ -212,5 +323,16 @@ public class DBTextManager {
             System.out.println("IOException for " + DB_DATA);
             exc.printStackTrace();
         }
+    }
+    
+    private void initializeList(List<SingleCoordinateSet> list) {
+        list.add(new SingleCoordinateSet("X")); list.add(new SingleCoordinateSet("Y"));
+        list.add(new SingleCoordinateSet("Z"));
+    }
+    
+    private void insertNewThreeDataTime(List<SingleCoordinateSet> values, String timestamp, String x, String y, String z) {
+        values.get(0).addValue(new DataTime(Double.valueOf(timestamp), Double.valueOf(x), -1));
+        values.get(1).addValue(new DataTime(Double.valueOf(timestamp), Double.valueOf(y), -1));
+        values.get(2).addValue(new DataTime(Double.valueOf(timestamp), Double.valueOf(z), -1));
     }
 }
