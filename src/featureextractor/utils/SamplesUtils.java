@@ -208,7 +208,7 @@ public class SamplesUtils {
         return finalBatches;
     }
     
-    public List<SlidingWindow> getSlidingWindowsOfFixedDefinition(Batch batch, boolean linear, List<SlidingWindow> toAddInitialData) {
+    public static List<SlidingWindow> getSlidingWindowsOfFixedDefinition(Batch batch, boolean linear, List<SlidingWindow> toAddInitialData) {
         
         List<SlidingWindow> listOfWindows = new ArrayList<SlidingWindow>();
         
@@ -235,7 +235,42 @@ public class SamplesUtils {
             }
         }
         
-        for (int i = startPoint; i < values.get(0).size(); ) {
+        /**
+         * Add a Sliding Window as non stairs made with the initial values
+         * of the batch
+         */
+        List<SingleCoordinateSet> elementsForWindow = new ArrayList<SingleCoordinateSet>(),
+                elementsPMitzellWindow = null,
+                elementsHMitzellWindow = null;
+        for (int index = 0; index < values.size(); index++) {
+            SingleCoordinateSet elements = new SingleCoordinateSet(values.get(index).getValues().subList(0, startPoint));
+            elements.setTitle(values.get(index).getTitle());
+            elementsForWindow.add(elements);
+                    
+            /**
+             * if we are using accelerometer data store even the 
+             * mitzell vectors
+             */
+            if (vectorPMitzell != null) {
+                SingleCoordinateSet elementsP = new SingleCoordinateSet(vectorPMitzell.get(index).getValues().subList(0, startPoint)),
+                        elementsH = new SingleCoordinateSet(vectorHMitzell.get(index).getValues().subList(0, startPoint));
+                        elementsP.setTitle(vectorPMitzell.get(index).getTitle());
+                        elementsH.setTitle(vectorHMitzell.get(index).getTitle());
+                        
+                if (elementsPMitzellWindow == null) {
+                    elementsPMitzellWindow = new ArrayList<SingleCoordinateSet>();
+                    elementsHMitzellWindow = new ArrayList<SingleCoordinateSet>();
+                }
+                elementsPMitzellWindow.add(elementsP);
+                elementsHMitzellWindow.add(elementsH);
+            }
+                
+        }
+                
+        toAddInitialData.add(new SlidingWindow(batch.getAction(), batch.getMode(),
+            elementsForWindow, elementsPMitzellWindow, elementsHMitzellWindow, linear, batch.getTrunk()));
+                
+        for (int i = startPoint; i < values.get(0).size() - 1; ) {
             
             if (values.get(2).getValues().get(i).getValue() < 0 && 
                     values.get(2).getValues().get(i + 1).getValue() >= 0) {
@@ -243,16 +278,16 @@ public class SamplesUtils {
                  * Sliding window is ended
                  * First point is startPoint, endPoint is i
                  */
-                List<SingleCoordinateSet> elementsForWindow = new ArrayList<SingleCoordinateSet>(),
-                        elementsPMitzellWindow = null,
-                        elementsHMitzellWindow = null;
+                elementsForWindow = new ArrayList<SingleCoordinateSet>();
+                elementsPMitzellWindow = null;
+                elementsHMitzellWindow = null;
                 /**
                  * Defining the List<SingleCoordinateSet> that will hold the 
                  * data for the sliding window
                  */
                 for (int index = 0; index < values.size(); index++) {
-                    SingleCoordinateSet elements = new SingleCoordinateSet(values.get(i).getValues().subList(startPoint, i + 1));
-                    elements.setTitle(values.get(i).getTitle());
+                    SingleCoordinateSet elements = new SingleCoordinateSet(values.get(index).getValues().subList(startPoint, i + 1));
+                    elements.setTitle(values.get(index).getTitle());
                     elementsForWindow.add(elements);
                     
                     /**
@@ -260,10 +295,10 @@ public class SamplesUtils {
                      * mitzell vectors
                      */
                     if (vectorPMitzell != null) {
-                        SingleCoordinateSet elementsP = new SingleCoordinateSet(vectorPMitzell.get(i).getValues().subList(startPoint, i + 1)),
-                                elementsH = new SingleCoordinateSet(vectorHMitzell.get(i).getValues().subList(startPoint, i + 1));
-                        elementsP.setTitle(vectorPMitzell.get(i).getTitle());
-                        elementsH.setTitle(vectorHMitzell.get(i).getTitle());
+                        SingleCoordinateSet elementsP = new SingleCoordinateSet(vectorPMitzell.get(index).getValues().subList(startPoint, i + 1)),
+                                elementsH = new SingleCoordinateSet(vectorHMitzell.get(index).getValues().subList(startPoint, i + 1));
+                        elementsP.setTitle(vectorPMitzell.get(index).getTitle());
+                        elementsH.setTitle(vectorHMitzell.get(index).getTitle());
                         
                         if (elementsPMitzellWindow == null) {
                             elementsPMitzellWindow = new ArrayList<SingleCoordinateSet>();
@@ -275,6 +310,9 @@ public class SamplesUtils {
                     
                 }
                 
+                listOfWindows.add(new SlidingWindow(batch.getAction(), batch.getMode(),
+                    elementsForWindow, elementsPMitzellWindow, elementsHMitzellWindow, linear, batch.getTrunk()));
+                
                 startPoint = i+1;
                 i = startPoint + 1;
             }
@@ -283,6 +321,41 @@ public class SamplesUtils {
             }
             
         }
+        
+        /**
+         * Add the final window as a non stair window
+         */
+        elementsForWindow = new ArrayList<SingleCoordinateSet>();
+        elementsPMitzellWindow = null;
+        elementsHMitzellWindow = null;
+        
+        for (int index = 0; index < values.size(); index++) {
+            SingleCoordinateSet elements = new SingleCoordinateSet(values.get(index).getValues().subList(startPoint, values.get(0).size()));
+            elements.setTitle(values.get(index).getTitle());
+            elementsForWindow.add(elements);
+                    
+            /**
+             * if we are using accelerometer data store even the 
+             * mitzell vectors
+             */
+            if (vectorPMitzell != null) {
+                SingleCoordinateSet elementsP = 
+                        new SingleCoordinateSet(vectorPMitzell.get(index).getValues().subList(startPoint, values.get(0).size())),
+                    elementsH = new SingleCoordinateSet(vectorHMitzell.get(index).getValues().subList(startPoint, values.get(0).size()));
+                    elementsP.setTitle(vectorPMitzell.get(index).getTitle());
+                    elementsH.setTitle(vectorHMitzell.get(index).getTitle());
+                        
+                if (elementsPMitzellWindow == null) {
+                    elementsPMitzellWindow = new ArrayList<SingleCoordinateSet>();
+                    elementsHMitzellWindow = new ArrayList<SingleCoordinateSet>();
+                }
+                elementsPMitzellWindow.add(elementsP);
+                elementsHMitzellWindow.add(elementsH);
+            }
+        }
+        
+        toAddInitialData.add(new SlidingWindow(batch.getAction(), batch.getMode(),
+            elementsForWindow, elementsPMitzellWindow, elementsHMitzellWindow, linear, batch.getTrunk()));
         
         return listOfWindows;
     }

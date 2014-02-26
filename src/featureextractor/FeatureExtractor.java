@@ -6,16 +6,13 @@ package featureextractor;
 
 import featureextractor.comparator.MeanComparator;
 import featureextractor.extractor.db.AccelBenchException;
-import featureextractor.extractor.db.DBDataManager;
 import featureextractor.extractor.db.DBTextManager;
 import featureextractor.utils.SamplesUtils;
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Sample;
 import featureextractor.model.Batch;
-import featureextractor.model.DataTime;
 import featureextractor.model.FeatureSet;
 import featureextractor.model.FeaturesSlidingWindow;
-import featureextractor.model.SingleCoordinateSet;
 import featureextractor.model.SlidingWindow;
 import featureextractor.model.TimeFeature;
 import featureextractor.model.TrunkFixSpec;
@@ -288,7 +285,84 @@ public class FeatureExtractor {
                 baseBatchesUpstairs = db_extractor.extractByTrunkAndAction(App.STAIR_UPSTAIRS),
                 baseBatchesNoStairs = db_extractor.extractByTrunkAndAction(App.NO_STAIR);
         
+        List<SlidingWindow> windowsAccelerometerNoGravityUpstairs = new ArrayList<SlidingWindow>(),
+                windowsLinearUpstairs = new ArrayList<SlidingWindow>(),
+                windowsAccelerometerNoGravityDownstairs = new ArrayList<SlidingWindow>(),
+                windowsLinearDownstairs = new ArrayList<SlidingWindow>(),
+                windowsAccelerometerNoGravityNoStairs = new ArrayList<SlidingWindow>(),
+                windowsLinearNoStairs = new ArrayList<SlidingWindow>();
         
+        for (Batch batch: baseBatchesDownstairs) {
+            
+            windowsAccelerometerNoGravityDownstairs.addAll(
+                    SamplesUtils.getSlidingWindowsOfFixedDefinition(batch, false, windowsAccelerometerNoGravityNoStairs));
+            
+            windowsLinearDownstairs.addAll(
+                    SamplesUtils.getSlidingWindowsOfFixedDefinition(batch, true, windowsLinearNoStairs));
+        }
+        
+        for (Batch batch: baseBatchesUpstairs) {
+            
+            windowsAccelerometerNoGravityUpstairs.addAll(
+                SamplesUtils.getSlidingWindowsOfFixedDefinition(batch, false, windowsAccelerometerNoGravityNoStairs));
+            
+            windowsLinearUpstairs.addAll(
+                    SamplesUtils.getSlidingWindowsOfFixedDefinition(batch, true, windowsLinearNoStairs));
+        }
+        
+        for (Batch batch: baseBatchesNoStairs) {
+            
+            windowsAccelerometerNoGravityNoStairs.addAll(
+                SamplesUtils.getSlidingWindowsOfFixedDefinition(batch, false, windowsAccelerometerNoGravityNoStairs));
+            
+            windowsLinearNoStairs.addAll(
+                SamplesUtils.getSlidingWindowsOfFixedDefinition(batch, true, windowsLinearNoStairs));
+        }
+        
+        /**
+         * Now I have all the sliding windows ready
+         * I can directly add the noStairs windows
+         */
+        
+        for (SlidingWindow window: windowsAccelerometerNoGravityNoStairs) {
+            dbDataTextManager.addNewSlidingWindow(window, null, false);
+        }
+        for (SlidingWindow window: windowsLinearNoStairs) {
+            dbDataTextManager.addNewSlidingWindow(window, null, true);
+        }
+        
+        int k = 0;
+        for(SlidingWindow window: windowsAccelerometerNoGravityDownstairs) {
+            new PlotForDB(window, dbDataTextManager, false);
+            if (k%20 == 0) {
+                System.out.println("pausa");
+            }
+            k++;
+        }
+        
+        for (SlidingWindow window: windowsLinearDownstairs) {
+            new PlotForDB(window, dbDataTextManager, true);
+            if (k%20 == 0) {
+                System.out.println("pausa");
+            }
+            k++;
+        }
+        
+        for (SlidingWindow window: windowsAccelerometerNoGravityUpstairs) {
+            new PlotForDB(window, dbDataTextManager, false);
+            if (k%20 == 0) {
+                System.out.println("pausa");
+            }
+            k++;
+        }
+        
+        for (SlidingWindow window: windowsLinearUpstairs) {
+            new PlotForDB(window, dbDataTextManager, true);
+            if (k%20 == 0) {
+                System.out.println("pausa");
+            }
+            k++;
+        }
     }
     
     private List<FeaturesSlidingWindow> getFeatures(List<SlidingWindow> slidingWindows, int frequency) {

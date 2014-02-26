@@ -60,6 +60,14 @@ public class SlidingWindow {
         return this.values;
     }
     
+    public List<SingleCoordinateSet> getPMitzellValues() {
+        return this.valuesPMitzell;
+    }
+    
+    public List<SingleCoordinateSet> getHMitzellValues() {
+        return this.valuesHMitzell;
+    }
+    
     public void setSupposedAction(String action) {
         this.supposedAction = action;
     }

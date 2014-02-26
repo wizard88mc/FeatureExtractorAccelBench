@@ -6,8 +6,7 @@ package featureextractor.plot;
 
 import featureextractor.App;
 import featureextractor.extractor.db.DBDataManager;
-import featureextractor.extractor.db.DbExtractor;
-import featureextractor.model.Batch;
+import featureextractor.extractor.db.DBTextManager;
 import featureextractor.model.DataTime;
 import featureextractor.model.SingleCoordinateSet;
 import featureextractor.model.SlidingWindow;
@@ -24,8 +23,6 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.IntervalMarker;
-import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYDataset;
@@ -40,7 +37,7 @@ public class PlotForDB extends javax.swing.JFrame {
 
     public final static int time_divisor = 10000000;
     private boolean linear;
-    private DBDataManager dbDataManager;
+    private DBTextManager dbTextManager;
     private final SlidingWindow window;
     private XYSeriesCollection dataset;
     private List<XYSeries> series_container = new ArrayList<XYSeries>();
@@ -86,8 +83,8 @@ public class PlotForDB extends javax.swing.JFrame {
      * @param linear
      * @param rotation 
      */
-    public PlotForDB(SlidingWindow window, DBDataManager dbDataManager, boolean linear) {
-        this.dbDataManager = dbDataManager;
+    public PlotForDB(SlidingWindow window, DBTextManager dbTextManager, boolean linear) {
+        this.dbTextManager = dbTextManager;
         this.window = window;
         this.linear = linear;
         initComponents();
@@ -290,10 +287,8 @@ public class PlotForDB extends javax.swing.JFrame {
 
     private void btnSaveStairsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveStairsActionPerformed
         try {
-            //db_extractor.setSteps(batch.getMarkers(), batch.getTrunk(), this.linear);
-                  
-            dbDataManager.addNewSlidingWindow(window, window.getSupposedAction(), linear);
-            //dbDataManager.addNewSlidingWindow(window, window.getSupposedAction(), linear);
+
+            dbTextManager.addNewSlidingWindow(window, null, linear);
             
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -359,7 +354,7 @@ public class PlotForDB extends javax.swing.JFrame {
     private void btnDeleteAllStepsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAllStepsActionPerformed
         try {
             
-            dbDataManager.addNewSlidingWindow(window, App.NO_STAIR, linear);    
+            dbTextManager.addNewSlidingWindow(window, App.NO_STAIR, linear);    
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();

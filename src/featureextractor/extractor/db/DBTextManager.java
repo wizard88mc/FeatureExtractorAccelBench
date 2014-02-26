@@ -1,13 +1,17 @@
 package featureextractor.extractor.db;
 
+import featureextractor.model.SingleCoordinateSet;
+import featureextractor.model.SlidingWindow;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.List;
 
 /**
  *
@@ -15,13 +19,74 @@ import java.io.PrintWriter;
  */
 public class DBTextManager {
     
+    private static String BASE_FOLDER = "textualDB/";
+    private static String DB_FILE = "databasesInserted.txt";
+    private static String DB_DATA = "samplesSlidingWindows.dsw";
     private PrintWriter outputDatabase;
     private PrintWriter outputSamples;
+    private static int lastTrunkIdAccelerometer = 0;
+    private static int lastTrunkIdLinear = 0;
     
     public DBTextManager() throws IOException {
+        
+        File file = new File(BASE_FOLDER + "samplesSlidingWindows.dsw");
+        
+        if (!file.exists()) {
+            outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, true)));
+            outputSamples.println("@FILE_FORMAT");
+            outputSamples.println("@timestamp: double");outputSamples.println("@x: double");
+            outputSamples.println("@y: double");outputSamples.println("@timestamp: double");
+            outputSamples.println("@timestamp: double");outputSamples.println("@z: double");
+            outputSamples.println("@xPMitzell: double");outputSamples.println("@yPMitzell: double");
+            outputSamples.println("@zPMitzell: double");outputSamples.println("@xHMitzell: double");
+            outputSamples.println("@yHMitzell: double");outputSamples.println("@zHMitzell: double");
+            outputSamples.println("@action: string");outputSamples.println("@mode: string");
+            outputSamples.println("@trunk: int"); outputSamples.println("@isLinear: boolean");
+            outputSamples.println("@DATA");
+            outputSamples.flush();
+        }
+        else {
+            outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, true)));
+        }
 
-        outputDatabase = new PrintWriter(new BufferedWriter(new FileWriter("databasesInserted.txt", true)));
-        outputSamples = new PrintWriter(new BufferedWriter(new FileWriter("samplesSlidingWindows.dsw", true)));
+        outputDatabase = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_FILE, true)));
+        outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, true)));
+        
+        getLastTrunkIds();
+    }
+    
+    /**
+     * Is responsible to get the last IDs for the inserted trunks, either for the
+     * linear case or the accelerometer case
+     */
+    private void getLastTrunkIds() {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(BASE_FOLDER + DB_DATA)));
+            String line;
+            while((line = reader.readLine()) != null) {
+                if (!line.contains("@")) {
+                    line = line.replace("(", "").replace(")", "");
+                    
+                    String[] pieces = line.split(";");
+                    boolean linear = pieces[pieces.length - 1].equals("1");
+                    int idTrunk = Integer.valueOf(pieces[pieces.length - 2]);
+                    
+                    if (linear && idTrunk > lastTrunkIdLinear) {
+                        lastTrunkIdLinear = idTrunk;
+                    }
+                    else if (!linear && idTrunk > lastTrunkIdAccelerometer) {
+                        lastTrunkIdAccelerometer = idTrunk;
+                    }
+                }
+            }
+        }
+        catch(FileNotFoundException exc) {
+            System.out.println("File Not Found exception samplesSlidingWindows.dsw");
+            exc.printStackTrace();
+        }
+        catch(IOException exc) {
+            System.out.println("IOException form samplesSlidingWindows.dsw");
+        }
     }
     
     /**
@@ -32,15 +97,19 @@ public class DBTextManager {
     public boolean checkIfDatabaseAlreadyInserted(String databaseName) {
         
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("databasesInserted.txt")));
-            String line = reader.readLine();
-            
-            String[] databases = line.split(",");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(BASE_FOLDER + DB_FILE)));
+            String line;
             
             boolean found = false;
-            for (int i = 0; i < databases.length && !found; i++) {
-                if (databases[i].equals(databaseName)) {
-                    found = true;
+            
+            while (!found && (line = reader.readLine()) != null) {
+                String[] databases = line.split(",");
+
+
+                for (int i = 0; i < databases.length && !found; i++) {
+                    if (databases[i].equals(databaseName)) {
+                        found = true;
+                    }
                 }
             }
             
@@ -64,6 +133,84 @@ public class DBTextManager {
      */
     public void insertNewDatabase(String databaseName) {
         
-        outputDatabase.print("," + databaseName);
+        outputDatabase.println(databaseName);
+        outputDatabase.flush();
+    }
+    
+    /**
+     * Adds a new window to the file. Each sliding window is recognized
+     * by the trunkID field that is the same for the values belonging to the window
+     * @param window: the window to insert
+     * @param linear: if the window represents linear values or not
+     */
+    public void addNewSlidingWindow(SlidingWindow window, String newAction, boolean linear) {
+    
+        if (newAction != null) {
+            window.setSupposedAction(newAction);
+        }
+        
+        List<SingleCoordinateSet> values = window.getValues(),
+                valuesPMitzell = window.getPMitzellValues(),
+                valuesHMitzell = window.getHMitzellValues();
+        
+        int lengthSlidingWindow = values.get(0).getValues().size();
+        
+        for (int i = 0; i < lengthSlidingWindow; i++) {
+            
+            Double timestamp = values.get(0).getValues().get(i).getTime(),
+                    x = values.get(0).getValues().get(i).getValue(),
+                    y = values.get(1).getValues().get(i).getValue(),
+                    z = values.get(1).getValues().get(i).getValue(),
+                    xPMitzell = linear?null:valuesPMitzell.get(0).getValues().get(i).getValue(),
+                    yPMitzell = linear?null:valuesPMitzell.get(1).getValues().get(i).getValue(),
+                    zPMitzell = linear?null:valuesPMitzell.get(2).getValues().get(i).getValue(),
+                    xHMitzell = linear?null:valuesHMitzell.get(0).getValues().get(i).getValue(),
+                    yHMitzell = linear?null:valuesHMitzell.get(1).getValues().get(i).getValue(),
+                    zHMitzell = linear?null:valuesHMitzell.get(2).getValues().get(i).getValue();
+            
+            String finalString = "(" + timestamp + ";" + x + ";" + y + ";" + z + ";" +
+                    (!linear?xPMitzell:"NULL") + ";" + (!linear?yPMitzell.toString():"NULL") + ";"
+                    + (!linear?zPMitzell.toString():"NULL") + ";" + (!linear?xHMitzell.toString():"NULL") + ";" 
+                    + (!linear?yHMitzell.toString():"NULL") + ";" + (!linear?zHMitzell.toString():"NULL") + ";"+ 
+                    window.getSupposedAction() + ";" + window.getPlaceAction() + ";" + 
+                    (linear?lastTrunkIdLinear:lastTrunkIdAccelerometer) + ";" + (linear?1:0) + ")";
+            
+            outputSamples.println(finalString);
+        }
+        outputSamples.flush();
+        
+        if (linear) {
+            lastTrunkIdLinear++;
+        }
+        else {
+            lastTrunkIdAccelerometer++;
+        }
+        
+    }
+    
+    public void retrieveAllSlidingWindows(List<SlidingWindow> noGravityUpstairs, 
+            List<SlidingWindow> linearUpstairs, List<SlidingWindow> noGravityDownstairs,
+            List<SlidingWindow> LinearDownstairs, List<SlidingWindow> noGravityNoStairs,
+            List<SlidingWindow> linearNoStairs) {
+        
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(BASE_FOLDER + DB_DATA)));
+            
+            // devo definire lista List<SingleCoordinateSet> per gli x y e z 
+            // che fanno aprte del trunk. Se trunk di quello che leggo e' diverso
+            // dal precedente allora devo creare window e schiaffarla dentro
+            String line; int lastTrunkId = -1;
+            while ((line = reader.readLine()) != null) {
+                if (!line.contains("@")) {
+                    
+                    line = line.replace("(", "").replace(")", "");
+                    String[] elements = 
+                }
+            }
+        }
+        catch(IOException exc) {
+            System.out.println("IOException for " + DB_DATA);
+            exc.printStackTrace();
+        }
     }
 }
