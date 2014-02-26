@@ -240,7 +240,7 @@ public class App {
                     for (String db: dbs) {
                         try {
                         if (!featureExtractor.getDBTextDataManager().checkIfDatabaseAlreadyInserted(db)) {
-                            //featureExtractor.getDBTextDataManager().insertNewDatabase(db);
+                            featureExtractor.getDBTextDataManager().insertNewDatabase(db);
                             featureExtractor.setDb("data/completo/" + db);
                             featureExtractor.populateTextualDatabase();
                         }

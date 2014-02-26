@@ -88,6 +88,10 @@ public class SlidingWindow {
         return trunk;
     }
     
+    public boolean isLinear() {
+        return this.linear;
+    }
+    
     public boolean equals(Object other) {
         
         if (other == null) {
