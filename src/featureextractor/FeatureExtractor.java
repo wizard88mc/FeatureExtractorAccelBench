@@ -393,11 +393,11 @@ public class FeatureExtractor {
         int max_plot = 200;
         for (Batch batch : batches) {
             if (max_plot > 0) {
-                new Plot(batch, this.db_extractor, true, false, false, false);
-                new Plot(batch, this.db_extractor, true, false, false, true);
-                new Plot(batch, this.db_extractor, false, true, false, false);
+                //new Plot(batch, this.db_extractor, true, false, false, false);
+                //new Plot(batch, this.db_extractor, true, false, false, true);
+                //new Plot(batch, this.db_extractor, false, true, false, false);
                 new Plot(batch, this.db_extractor, false, true, false, true);
-                new Plot(batch, this.db_extractor, false, false, true, false);
+                //new Plot(batch, this.db_extractor, false, false, true, false);
                 new Plot(batch, this.db_extractor, false, false, true, true);
             }
             max_plot--;

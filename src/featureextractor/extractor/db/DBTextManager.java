@@ -204,7 +204,7 @@ public class DBTextManager {
                 if (!line.contains("@")) {
                     
                     line = line.replace("(", "").replace(")", "");
-                    String[] elements = 
+                    //String[] elements = 
                 }
             }
         }
