@@ -97,7 +97,7 @@ public class App {
         NEW_FEATURES_EXTRACTOR, // extract features using sliding windows based not on time
         FEATURES_FROM_TEXT_DB // features calculated from the textual DB
     };
-    private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
+    private static MODE mode = MODE.FEATURES_FROM_TEXT_DB;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor();
