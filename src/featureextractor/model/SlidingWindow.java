@@ -34,25 +34,15 @@ public class SlidingWindow {
         coordinates.add(4, "(X+Y)/2");
     }
     
-    private double calculateV(int index) {
+    private double calculateV(List<SingleCoordinateSet> valuesToUse, int index) {
         
-        return Math.sqrt(Math.pow(values.get(0).getValues().get(index).getValue(), 2) + Math.pow(values.get(1).getValues().get(index).getValue(), 2) +
-                Math.pow(values.get(2).getValues().get(index).getValue(), 2));
-        
+        return Math.sqrt(Math.pow(valuesToUse.get(0).getValues().get(index).getValue(), 2) + 
+                Math.pow(valuesToUse.get(1).getValues().get(index).getValue(), 2) +
+                Math.pow(valuesToUse.get(2).getValues().get(index).getValue(), 2));
     }
     
     public SlidingWindow(List<SingleCoordinateSet> values) {
         this.values = values;
-        values.add(new SingleCoordinateSet(coordinates.get(3)));
-        values.add(new SingleCoordinateSet(coordinates.get(4)));
-        
-        for (int i = 0; i < values.get(0).size(); i++) {
-            
-            values.get(3).addValue(new DataTime(values.get(0).getValues().get(i).getTime(), calculateV(i), -1));
-            values.get(4).addValue(new DataTime(values.get(0).getValues().get(i).getTime(),
-                    (values.get(0).getValues().get(i).getValue() + 
-                    values.get(1).getValues().get(i).getValue()) / 2.0, -1));
-        }
     }
     
     public SlidingWindow(List<SingleCoordinateSet> values, boolean linear, int trunk) {
@@ -70,6 +60,40 @@ public class SlidingWindow {
             boolean linear, int trunk) {
         this(action, placeAction, values, linear, trunk);
         this.valuesPMitzell = vectorPMitzell; this.valuesHMitzell = vectorHMitzell;
+    }
+    
+    public void completeSlidingWindow() {
+        values.add(new SingleCoordinateSet(coordinates.get(3)));
+        values.add(new SingleCoordinateSet(coordinates.get(4)));
+        
+        for (int i = 0; i < values.get(0).size(); i++) {
+            
+            values.get(3).addValue(new DataTime(values.get(0).getValues().get(i).getTime(), calculateV(values, i), -1));
+            values.get(4).addValue(new DataTime(values.get(0).getValues().get(i).getTime(),
+                    (values.get(0).getValues().get(i).getValue() + 
+                    values.get(1).getValues().get(i).getValue()) / 2.0, -1));
+        }
+        
+        if (!linear) {
+            valuesPMitzell.add(new SingleCoordinateSet(coordinates.get(3)));
+            valuesPMitzell.add(new SingleCoordinateSet(coordinates.get(4)));
+            valuesHMitzell.add(new SingleCoordinateSet(coordinates.get(3)));
+            valuesHMitzell.add(new SingleCoordinateSet(coordinates.get(4)));
+
+            for (int i = 0; i < valuesPMitzell.get(0).size(); i++) {
+                valuesPMitzell.get(3).addValue(new DataTime(valuesPMitzell.get(0).getValues().get(i).getTime(), 
+                        calculateV(valuesPMitzell, i), -1));
+                valuesHMitzell.get(3).addValue(new DataTime(valuesHMitzell.get(0).getValues().get(i).getTime(), 
+                        calculateV(valuesHMitzell, i), -1));
+
+                valuesPMitzell.get(4).addValue(new DataTime(valuesPMitzell.get(0).getValues().get(i).getTime(),
+                        (valuesPMitzell.get(0).getValues().get(i).getValue()
+                    + valuesPMitzell.get(1).getValues().get(i).getValue()) / 2.0, -1));
+                valuesHMitzell.get(4).addValue(new DataTime(valuesHMitzell.get(0).getValues().get(i).getTime(),
+                        (valuesHMitzell.get(0).getValues().get(i).getValue()
+                    + valuesHMitzell.get(1).getValues().get(i).getValue()) / 2.0, -1));
+            }
+        }
     }
     
     public List<SingleCoordinateSet> getValues() {
@@ -136,10 +160,8 @@ public class SlidingWindow {
                    this.supposedAction.equals(otherWindow.supposedAction) && 
                    this.linear == otherWindow.linear)) {
                 
-                equal = false;
-                
+                equal = false;   
             }
-            
         }
         
         return equal;

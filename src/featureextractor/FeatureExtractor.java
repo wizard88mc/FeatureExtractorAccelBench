@@ -92,9 +92,9 @@ public class FeatureExtractor {
         db_extractor = new DbExtractor(file);
     }
     
-    public void createFinalDB() throws IOException {
+    public void createFinalDB(boolean openForAppend) throws IOException {
         
-        dbDataTextManager = new DBTextManager();
+        dbDataTextManager = new DBTextManager(openForAppend);
     }
 
     public float getAverageStepDuration() throws Exception {
@@ -590,25 +590,31 @@ public class FeatureExtractor {
                 noGravityDownstairs, linearDownstairs, noGravityNoStairs, linearNoStairs);
     }
     
-    public void extractUsingFrequency(int frequency, boolean linear) {
+    public void extractUsingFrequency(int frequency, boolean linear, boolean normalize) {
         
         List<FeaturesSlidingWindow> featuresWindowsDownstairs, featuresWindowsUpstairs, 
                 featuresWindowsNoStairs;
         
         if (!linear) {
-            featuresWindowsDownstairs = getFeatures(noGravityDownstairs, frequency);
-            featuresWindowsUpstairs = getFeatures(noGravityUpstairs, frequency);
-            featuresWindowsNoStairs = getFeatures(noGravityNoStairs, frequency);
+            featuresWindowsDownstairs = getFeatures(getOnlySuitableSlidingWindows(noGravityDownstairs, frequency), frequency);
+            featuresWindowsUpstairs = getFeatures(getOnlySuitableSlidingWindows(noGravityUpstairs, frequency), frequency);
+            featuresWindowsNoStairs = getFeatures(getOnlySuitableSlidingWindows(noGravityNoStairs, frequency), frequency);
         }
         else {
-            featuresWindowsDownstairs = getFeatures(linearDownstairs, frequency);
-            featuresWindowsUpstairs = getFeatures(linearUpstairs, frequency);
-            featuresWindowsNoStairs = getFeatures(linearNoStairs, frequency);
+            featuresWindowsDownstairs = getFeatures(getOnlySuitableSlidingWindows(linearDownstairs, frequency), frequency);
+            featuresWindowsUpstairs = getFeatures(getOnlySuitableSlidingWindows(linearUpstairs, frequency), frequency);
+            featuresWindowsNoStairs = getFeatures(getOnlySuitableSlidingWindows(linearNoStairs, frequency), frequency);
         }
+        
+        
         
         arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
         arff.addAllFeaturesData(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
         arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
+    }
+    
+    private void normalizeFeatures() {
+        
     }
     
 }

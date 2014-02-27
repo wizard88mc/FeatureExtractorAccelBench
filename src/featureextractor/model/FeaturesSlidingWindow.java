@@ -42,6 +42,7 @@ public class FeaturesSlidingWindow {
         calculateMagnitudeMean();
         calculateSingalMagnitudeArea(window.getValues(), frequency);
         calculateCorrelations(window, frequency);
+        calculateIntelligentRatiosMinsMaxes(mins, maxes);
     }
     
     /**
@@ -49,7 +50,9 @@ public class FeaturesSlidingWindow {
      */
     private void calculateMagnitudeMean() {
         
-        magnitudeMean = Math.sqrt(Math.pow(features.get(0).getMean(), 2) + Math.pow(features.get(1).getMean(), 2) + Math.pow(features.get(2).getMean(), 2));
+        magnitudeMean = Math.sqrt(Math.pow(features.get(0).getMean(), 2) +
+                Math.pow(features.get(1).getMean(), 2) + 
+                Math.pow(features.get(2).getMean(), 2));
     }
     
     public double getMagnitudeMean() {
@@ -220,6 +223,9 @@ public class FeaturesSlidingWindow {
             }
         }
         
+        attributes.add("RATIO:MAX(Z)_MAX(X+Y/2)");
+        attributes.add("RATIO:|MIN(Z)_MIN(X+Y/2)|");
+        
         /**
          * Covariance attributes
          */
@@ -234,5 +240,19 @@ public class FeaturesSlidingWindow {
         attributes.add("SIGNAL_MAGNITUDE_AREA");
         
         return attributes;
+    }
+    
+    private void calculateIntelligentRatiosMinsMaxes(List<Double> mins, List<Double> maxes) {
+        
+        Double ratioMaxes = maxes.get(2) / maxes.get(4),
+                ratioMins = Math.abs(mins.get(2) / mins.get(4));
+        if (Double.isInfinite(ratioMaxes) || Double.isNaN(ratioMaxes)) {
+            ratioMaxes = 0.0;
+        }
+        if (Double.isInfinite(ratioMins) || Double.isNaN(ratioMins)) {
+            ratioMins = 0.0;
+        }
+        ratios.add(ratioMaxes);
+        ratios.add(ratioMins);
     }
 }

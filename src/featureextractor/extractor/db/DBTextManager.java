@@ -29,12 +29,12 @@ public class DBTextManager {
     private PrintWriter outputSamples;
     private static int lastTrunkId = 0;
     
-    public DBTextManager() throws IOException {
+    public DBTextManager(boolean openForAppend) throws IOException {
         
         File file = new File(BASE_FOLDER + "samplesSlidingWindows.dsw");
         
         if (!file.exists()) {
-            outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, true)));
+            outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, openForAppend)));
             outputSamples.println("@FILE_FORMAT");
             outputSamples.println("@timestamp: double");outputSamples.println("@x: double");
             outputSamples.println("@y: double");outputSamples.println("@z: double");
@@ -47,11 +47,11 @@ public class DBTextManager {
             outputSamples.flush();
         }
         else {
-            outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, true)));
+            outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, openForAppend)));
         }
 
-        outputDatabase = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_FILE, true)));
-        outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, true)));
+        outputDatabase = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_FILE, openForAppend)));
+        outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, openForAppend)));
         
         getLastTrunkIds();
     }
@@ -157,7 +157,7 @@ public class DBTextManager {
             Double timestamp = values.get(0).getValues().get(i).getTime(),
                     x = values.get(0).getValues().get(i).getValue(),
                     y = values.get(1).getValues().get(i).getValue(),
-                    z = values.get(1).getValues().get(i).getValue(),
+                    z = values.get(2).getValues().get(i).getValue(),
                     xPMitzell = linear?null:valuesPMitzell.get(0).getValues().get(i).getValue(),
                     yPMitzell = linear?null:valuesPMitzell.get(1).getValues().get(i).getValue(),
                     zPMitzell = linear?null:valuesPMitzell.get(2).getValues().get(i).getValue(),
@@ -233,7 +233,7 @@ public class DBTextManager {
             
             if (!window.isLinear()) {
                 insertNewThreeDataTime(vectorPMitzell, elements[0], elements[4], elements[5], elements[6]);
-                insertNewThreeDataTime(vectorPMitzell, elements[0], elements[7], elements[8], elements[9]);
+                insertNewThreeDataTime(vectorHMitzell, elements[0], elements[7], elements[8], elements[9]);
             }
             
             while ((line = reader.readLine()) != null) {
@@ -244,13 +244,13 @@ public class DBTextManager {
                     elements = line.split(";");
                     /**
                      * elements[0]: timestamp
-                     * element[1,2,3]: x,y,z
-                     * element[4,5,6]: xPMitzell, yPMitzell, zPMitzell
-                     * element[7,8,9]: xHMitzell, yHMitzell, zHMitzell
-                     * element[10]: action
-                     * element[11]: mode
-                     * element[12]: trunk
-                     * element[13]: isLinear
+                     * elements[1,2,3]: x,y,z
+                     * elements[4,5,6]: xPMitzell, yPMitzell, zPMitzell
+                     * elements[7,8,9]: xHMitzell, yHMitzell, zHMitzell
+                     * elements[10]: action
+                     * elements[11]: mode
+                     * elements[12]: trunk
+                     * elements[13]: isLinear
                      */
                     
                     /**
@@ -258,6 +258,8 @@ public class DBTextManager {
                      * initialize the three lists
                      */
                     if (Integer.valueOf(elements[elements.length - 2]) != lastTrunkId) {
+                        
+                        window.completeSlidingWindow();
                         if (window.isLinear()) {
                             if (window.getSupposedAction().equals(App.NO_STAIR)) {
                                 linearNoStairs.add(window);
