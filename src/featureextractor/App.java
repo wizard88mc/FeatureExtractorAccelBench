@@ -97,7 +97,7 @@ public class App {
         NEW_FEATURES_EXTRACTOR, // extract features using sliding windows based not on time
         FEATURES_FROM_TEXT_DB // features calculated from the textual DB
     };
-    private static MODE mode = MODE.FEATURES_FROM_TEXT_DB;
+    private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor(false);
@@ -231,6 +231,7 @@ public class App {
                         "matteo/accelbench_20140127101346.db",
                         "matteo/accelbench_20140127113057.db",
                         "matteo/accelbench_20140127172252.db",
+                        "matteo/accelbench_20140301000700.db",
                         "matteo/accelbench_20140128182904.db",
                         "michele/accelbench_20140127092832.db",
                         "michele/accelbench_20140128090735.db"};
@@ -288,7 +289,7 @@ public class App {
                     
                     ARFF.AddClasses(actions);
                     
-                    /*featureExtractor.createFinalDB(true);
+                    featureExtractor.createFinalDB(true);
                     featureExtractor.initializeListWindowsForFeatures();
                     
                     for (int frequency: frequencies) {
@@ -303,9 +304,9 @@ public class App {
                         featureExtractor.extractUsingFrequency(frequency, true, false);
                         
                         featureExtractor.dumpARFF(new File("StairDetectionVSW"+frequency+"Linear.arff"));
-                    }   */
+                    }   
                     
-                    featureExtractor = new FeatureExtractor(true);
+                    /*featureExtractor = new FeatureExtractor(true);
                     featureExtractor.createFinalDB(true);
                     featureExtractor.initializeListWindowsForFeatures();
                     
@@ -315,7 +316,7 @@ public class App {
                         featureExtractor.extractUsingFrequency(frequency, false, true);
                         
                         featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSWMitzell"+frequency+".arff"));
-                    }
+                    }*/
                     break;
                 }
             }
