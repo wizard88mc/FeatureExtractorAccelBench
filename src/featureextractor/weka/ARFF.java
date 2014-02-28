@@ -115,6 +115,55 @@ public class ARFF {
         }
         
     }
+    
+    /**
+     * Adds all the features related to the Mitzell P and H vector
+     * @param title: classification label
+     * @param features: list of sliding windows features
+     */
+    public void addAllFeaturesDataMitzell(String title, List<FeaturesSlidingWindow> features) {
+        
+        for (int i = 0; i < features.size(); i++) {
+            
+            List<Double> data_row = new ArrayList<Double>();
+            
+            /**
+             * Attaching features related to Mitzell P Vector
+             */
+            List<FeatureSet> baseFeatures = features.get(i).getBaseFeaturesPMitzell();
+            for (int j = 0; j < baseFeatures.size(); j++) {
+                data_row.add(baseFeatures.get(j).getMean());
+                data_row.add(baseFeatures.get(j).getStd());
+                data_row.add(baseFeatures.get(j).getVariance());
+                data_row.add(baseFeatures.get(j).getDifferenceMinMax());
+            }
+            
+            data_row.addAll(features.get(i).getRatiosPMitzell());
+            data_row.addAll(features.get(i).getCorrelationsPMitzell());
+            
+            data_row.add(features.get(i).getMagnitudeMeanPMitzell());
+            data_row.add(features.get(i).getSignalMagnitudeAreaPMitzell());
+            
+            /**
+             * Attaching features related to Mitzell H Vector
+             */
+            baseFeatures = features.get(i).getBaseFeaturesHMitzell();
+            for (int j = 0; j < baseFeatures.size(); j++) {
+                data_row.add(baseFeatures.get(j).getMean());
+                data_row.add(baseFeatures.get(j).getStd());
+                data_row.add(baseFeatures.get(j).getVariance());
+                data_row.add(baseFeatures.get(j).getDifferenceMinMax());
+            }
+            
+            data_row.addAll(features.get(i).getRatiosHMitzell());
+            data_row.addAll(features.get(i).getCorrelationsHMitzell());
+            
+            data_row.add(features.get(i).getMagnitudeMeanHMitzell());
+            data_row.add(features.get(i).getSignalMagnitudeAreaHMitzell());
+            
+            this.addData(new ARFFData(title, data_row));
+        }
+    }
 
     public void addVarianceOnlyData(String title, List<FeatureSet> featureSets) {
         List<Double> data_row = new ArrayList<Double>();

@@ -167,133 +167,122 @@ public class SlidingWindow {
         return equal;
     }
 
-    public List<Double> getMeans(int frequency) {
+    private List<Double> calculateMeansForList(List<SingleCoordinateSet> valuesToUse, int frequency) {
         List<Double> means = new ArrayList<Double>();
-        means.add(values.get(0).getMean(frequency));
-        means.add(values.get(1).getMean(frequency));
-        means.add(values.get(2).getMean(frequency));
-        means.add(values.get(3).getMean(frequency));
-        means.add(values.get(4).getMean(frequency));
+        
+        for (int i = 0; i < valuesToUse.size(); i++) {
+            means.add(valuesToUse.get(i).getMean(frequency));
+        }
         return means;
+    }
+    
+    public List<Double> getMeans(int frequency) {
+        
+        return calculateMeansForList(values, frequency);
     }
     
     public List<Double> getMeansPVector(int frequency) {
-        List<Double> means = new ArrayList<Double>();
-        means.add(valuesPMitzell.get(0).getMean(frequency));
-        means.add(valuesPMitzell.get(1).getMean(frequency));
-        means.add(valuesPMitzell.get(2).getMean(frequency));
-        return means;
+        
+        return calculateMeansForList(valuesPMitzell, frequency);
     }
     
     public List<Double> getMeansHVector(int frequency) {
-        List<Double> means = new ArrayList<Double>();
-        means.add(valuesHMitzell.get(0).getMean(frequency));
-        means.add(valuesHMitzell.get(1).getMean(frequency));
-        means.add(valuesHMitzell.get(2).getMean(frequency));
-        return means;
+        
+        return calculateMeansForList(valuesHMitzell, frequency);
+    }
+    
+    private List<Double> calculateVariancesForList(List<SingleCoordinateSet> valuesToUse, int frequency) {
+        List<Double> variances = new ArrayList<Double>();
+        for (int i = 0; i < valuesToUse.size(); i++) {
+            variances.add(valuesToUse.get(i).getVariance(frequency));
+        }
+        return variances;
     }
     
     public List<Double> getVariances(int frequency) {
-        List<Double> variances = new ArrayList<Double>();
-        variances.add(values.get(0).getVariance(frequency));
-        variances.add(values.get(1).getVariance(frequency));
-        variances.add(values.get(2).getVariance(frequency));
-        variances.add(values.get(3).getVariance(frequency));
-        variances.add(values.get(4).getVariance(frequency));
-        return variances;
+        
+        return calculateVariancesForList(values, frequency);
     }
     
     public List<Double> getVariancesPVector(int frequency) {
-        List<Double> variances = new ArrayList<Double>();
-        variances.add(valuesPMitzell.get(0).getVariance(frequency));
-        variances.add(valuesPMitzell.get(1).getVariance(frequency));
-        variances.add(valuesPMitzell.get(2).getVariance(frequency));
-        return variances;
+
+        return calculateVariancesForList(valuesPMitzell, frequency);
     }
     
     public List<Double> getVariancesHVector(int frequency) {
-        List<Double> variances = new ArrayList<Double>();
-        variances.add(valuesHMitzell.get(0).getVariance(frequency));
-        variances.add(valuesHMitzell.get(1).getVariance(frequency));
-        variances.add(valuesHMitzell.get(2).getVariance(frequency));
-        return variances;
+        
+        return calculateVariancesForList(valuesHMitzell, frequency);
+    }
+    
+    private List<Double> calculateStdsForList(List<SingleCoordinateSet> valuesToUse, int frequency) {
+        List<Double> stds = new ArrayList<Double>();
+        for (int i = 0; i < valuesToUse.size(); i++) {
+            stds.add(valuesToUse.get(i).getStandardDeviation(frequency));
+        }
+        
+        return stds;
     }
     
     public List<Double> getStds(int frequency) {
-        List<Double> stds = new ArrayList<Double>();
-        stds.add(values.get(0).getStandardDeviation(frequency));
-        stds.add(values.get(1).getStandardDeviation(frequency));
-        stds.add(values.get(2).getStandardDeviation(frequency));
-        stds.add(values.get(3).getStandardDeviation(frequency));
-        stds.add(values.get(4).getStandardDeviation(frequency));
-        return stds;
+        
+        return calculateStdsForList(values, frequency);
     }
     
     public List<Double> getStdsPVector(int frequency) {
-        List<Double> stds = new ArrayList<Double>();
-        stds.add(valuesPMitzell.get(0).getStandardDeviation(frequency));
-        stds.add(valuesPMitzell.get(1).getStandardDeviation(frequency));
-        stds.add(valuesPMitzell.get(2).getStandardDeviation(frequency));
-        return stds;
+        
+        return calculateStdsForList(valuesPMitzell, frequency);
     }
     
     public List<Double> getStdsHVector(int frequency) {
-        List<Double> stds = new ArrayList<Double>();
-        stds.add(valuesHMitzell.get(0).getStandardDeviation(frequency));
-        stds.add(valuesHMitzell.get(1).getStandardDeviation(frequency));
-        stds.add(valuesHMitzell.get(2).getStandardDeviation(frequency));
-        return stds;
+        
+        return calculateStdsForList(valuesHMitzell, frequency);
+    }
+    
+    private List<Double> calculateMinsForList(List<SingleCoordinateSet> valuesToUse, int frequency) {
+        List<Double> mins = new ArrayList<Double>();
+        for (int i = 0; i < valuesToUse.size(); i++) {
+            mins.add(valuesToUse.get(i).getMin(frequency));
+        }
+        
+        return mins;
     }
     
     public List<Double> getMins(int frequency) {
-        List<Double> mins = new ArrayList<Double>();
-        mins.add(values.get(0).getMin(frequency));
-        mins.add(values.get(1).getMin(frequency));
-        mins.add(values.get(2).getMin(frequency));
-        mins.add(values.get(3).getMin(frequency));
-        mins.add(values.get(4).getMin(frequency));
-        return mins;
+        
+        return calculateMinsForList(values, frequency);
     }
     
     public List<Double> getMinsPVector(int frequency) {
-        List<Double> mins = new ArrayList<Double>();
-        mins.add(valuesPMitzell.get(0).getMin(frequency));
-        mins.add(valuesPMitzell.get(1).getMin(frequency));
-        mins.add(valuesPMitzell.get(2).getMin(frequency));
-        return mins;
+        
+        return calculateMinsForList(valuesPMitzell, frequency);
     }
     
     public List<Double> getMinsHVector(int frequency) {
-        List<Double> mins = new ArrayList<Double>();
-        mins.add(valuesHMitzell.get(0).getMin(frequency));
-        mins.add(valuesHMitzell.get(1).getMin(frequency));
-        mins.add(valuesHMitzell.get(2).getMin(frequency));
-        return mins;
+        
+        return calculateMinsForList(valuesHMitzell, frequency);
     }
     
-    public List<Double> getMaxs(int frequency) {
-        List<Double> maxs = new ArrayList<Double>();
-        maxs.add(values.get(0).getMax(frequency));
-        maxs.add(values.get(1).getMax(frequency));
-        maxs.add(values.get(2).getMax(frequency));
-        maxs.add(values.get(3).getMax(frequency));
-        maxs.add(values.get(4).getMax(frequency));
-        return maxs;
+    private List<Double> calculateMaxesForList(List<SingleCoordinateSet> valuesToUse, int frequency) {
+        List<Double> maxes = new ArrayList<Double>();
+        for (int i = 0; i < valuesToUse.size(); i++) {
+            maxes.add(valuesToUse.get(i).getMax(frequency));
+        }
+        
+        return maxes;
     }
     
-    public List<Double> getMaxsPVector(int frequency) {
-        List<Double> maxs = new ArrayList<Double>();
-        maxs.add(valuesPMitzell.get(0).getMax(frequency));
-        maxs.add(valuesPMitzell.get(1).getMax(frequency));
-        maxs.add(valuesPMitzell.get(2).getMax(frequency));
-        return maxs;
+    public List<Double> getMaxes(int frequency) {
+        
+        return calculateMaxesForList(values, frequency);
+    }
+    
+    public List<Double> getMaxesPVector(int frequency) {
+        
+        return calculateMaxesForList(valuesPMitzell, frequency);
     }
     
     public List<Double> getMaxsHVector(int frequency) {
-        List<Double> maxs = new ArrayList<Double>();
-        maxs.add(valuesHMitzell.get(0).getMax(frequency));
-        maxs.add(valuesHMitzell.get(1).getMax(frequency));
-        maxs.add(valuesHMitzell.get(2).getMax(frequency));
-        return maxs;
+        
+        return calculateMaxesForList(valuesHMitzell, frequency);
     }
 }

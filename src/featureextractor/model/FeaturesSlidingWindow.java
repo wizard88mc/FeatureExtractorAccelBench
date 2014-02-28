@@ -14,49 +14,106 @@ import java.util.List;
 public class FeaturesSlidingWindow {
     
     private List<FeatureSet> features = new ArrayList<FeatureSet>();
+    private List<FeatureSet> featuresPMitzell = new ArrayList<FeatureSet>();
+    private List<FeatureSet> featuresHMitzell = new ArrayList<FeatureSet>();
     private double magnitudeMean = 0.0;
+    private double magnitudeMeanPMitzell;
+    private double magnitudeMeanHMitzell;
     private double signalMagnitudeArea = 0.0;
+    private double signalMagnitudeAreaPMitzell;
+    private double signalMagnitudeAreaHMitzell;
     private String action;
     private List<Double> correlations = new ArrayList<Double>();
+    private List<Double> correlationsPMitzell = new ArrayList<Double>();
+    private List<Double> correlationsHMitzell = new ArrayList<Double>();
     private List<Double> ratios = new ArrayList<Double>();
+    private List<Double> ratiosPMitzell = new ArrayList<Double>();
+    private List<Double> ratiosHMitzell = new ArrayList<Double>();
+    private List<Double> intelligentRatios = new ArrayList<Double>();
+    private List<Double> intelligentRatiosPMitzell = new ArrayList<Double>();
+    private List<Double> intelligentRatiosHMitzell = new ArrayList<Double>();
     final public static String[] AXIS = new String[] {
-      "X", "Y", "Z", "|V|", "X+Y"  
+      "X", "Y", "Z", "|V|", "(X+Y)/2"  
     };
     
     public FeaturesSlidingWindow(SlidingWindow window, int frequency) {
+        
+        this.action = window.getSupposedAction();
         
         List<Double> means = window.getMeans(frequency),
                 variances = window.getVariances(frequency),
                 stds = window.getStds(frequency),
                 mins = window.getMins(frequency),
-                maxes = window.getMaxs(frequency);
-        features.add(new FeatureSet(means.get(0), variances.get(0), stds.get(0), mins.get(0), maxes.get(0))); // X
-        features.add(new FeatureSet(means.get(1), variances.get(1), stds.get(1), mins.get(1), maxes.get(1))); // Y
-        features.add(new FeatureSet(means.get(2), variances.get(2), stds.get(2), mins.get(2), maxes.get(2))); // Z 
-        features.add(new FeatureSet(means.get(3), variances.get(3), stds.get(3), mins.get(3), maxes.get(3))); // |V|
-        features.add(new FeatureSet(means.get(4), variances.get(4), stds.get(4), mins.get(4), maxes.get(4))); // (X+Y) / 2
+                maxes = window.getMaxes(frequency);
         
-        this.action = window.getSupposedAction();
+        for (int i = 0; i < means.size(); i++) {
+            features.add(new FeatureSet(means.get(i), variances.get(i), stds.get(i), mins.get(i), maxes.get(i)));
+        }
         
-        calculateRatios();
-        calculateMagnitudeMean();
-        calculateSingalMagnitudeArea(window.getValues(), frequency);
-        calculateCorrelations(window, frequency);
-        calculateIntelligentRatiosMinsMaxes(mins, maxes);
+        calculateIntelligentRatiosMinsMaxes(mins, maxes, intelligentRatios);
+        
+        means = window.getMeansPVector(frequency);
+        variances = window.getVariancesPVector(frequency);
+        stds = window.getStdsPVector(frequency);
+        mins = window.getMinsPVector(frequency);
+        maxes = window.getMaxesPVector(frequency);
+        
+        for (int i = 0; i < means.size(); i++) {
+            featuresPMitzell.add(new FeatureSet(means.get(i), variances.get(i), stds.get(i), mins.get(i), maxes.get(i)));
+        }
+        
+        calculateIntelligentRatiosMinsMaxes(mins, maxes, intelligentRatiosPMitzell);
+        
+        means = window.getMeansHVector(frequency);
+        variances = window.getVariancesHVector(frequency);
+        stds = window.getStdsHVector(frequency);
+        mins = window.getMinsHVector(frequency);
+        maxes = window.getMaxsHVector(frequency);
+        
+        for (int i = 0; i < means.size(); i++) {
+            featuresHMitzell.add(new FeatureSet(means.get(i), variances.get(i), stds.get(i), mins.get(i), maxes.get(i)));
+        }
+        
+        calculateIntelligentRatiosMinsMaxes(mins, maxes, intelligentRatiosHMitzell);
+        
+        calculateRatios(features, ratios); ratios.addAll(intelligentRatios);
+        calculateRatios(featuresPMitzell, ratiosPMitzell); ratiosPMitzell.addAll(intelligentRatiosPMitzell);
+        calculateRatios(featuresHMitzell, ratiosHMitzell); ratiosHMitzell.addAll(intelligentRatiosHMitzell);
+        
+        magnitudeMean = calculateMagnitudeMean(features);
+        magnitudeMeanPMitzell = calculateMagnitudeMean(featuresPMitzell);
+        magnitudeMeanHMitzell = calculateMagnitudeMean(featuresHMitzell);
+        
+        signalMagnitudeArea = calculateSingalMagnitudeArea(window.getValues(), frequency);
+        signalMagnitudeAreaPMitzell = calculateSingalMagnitudeArea(window.getPMitzellValues(), frequency);
+        signalMagnitudeAreaHMitzell = calculateSingalMagnitudeArea(window.getHMitzellValues(), frequency);
+        
+        calculateCorrelations(window.getValues(), frequency, correlations);
+        calculateCorrelations(window.getPMitzellValues(), frequency, correlationsPMitzell);
+        calculateCorrelations(window.getHMitzellValues(), frequency, correlationsHMitzell);
+        
     }
     
     /**
      * Calculates the magnitude Area of the set of features
      */
-    private void calculateMagnitudeMean() {
+    private double calculateMagnitudeMean(List<FeatureSet> featuresToUse) {
         
-        magnitudeMean = Math.sqrt(Math.pow(features.get(0).getMean(), 2) +
-                Math.pow(features.get(1).getMean(), 2) + 
-                Math.pow(features.get(2).getMean(), 2));
+        return Math.sqrt(Math.pow(featuresToUse.get(0).getMean(), 2) +
+                Math.pow(featuresToUse.get(1).getMean(), 2) + 
+                Math.pow(featuresToUse.get(2).getMean(), 2));
     }
     
     public double getMagnitudeMean() {
         return magnitudeMean;
+    }
+    
+    public double getMagnitudeMeanPMitzell() {
+        return magnitudeMeanPMitzell;
+    }
+    
+    public double getMagnitudeMeanHMitzell() {
+        return magnitudeMeanHMitzell;
     }
     
     /**
@@ -66,24 +123,26 @@ public class FeaturesSlidingWindow {
      * @param frequency:The frequency at which calculate the correlations and use
      * data     
      */
-    private void calculateSingalMagnitudeArea(List<SingleCoordinateSet> values, int frequency) {
+    private double calculateSingalMagnitudeArea(List<SingleCoordinateSet> valuesToUse, 
+            int frequency) {
         
         double minDelta = (double)1000000000 / frequency;
         double lastTimestamp = 0.0; int numberOfElements = 0;
+        double signalMagArea = 0.0;
         
-        for (int i = 0; i < values.get(0).getValues().size(); i++) {
-            if (values.get(0).getValues().get(i).getTime() - lastTimestamp > minDelta) {
+        for (int i = 0; i < valuesToUse.get(0).getValues().size(); i++) {
+            if (valuesToUse.get(0).getValues().get(i).getTime() - lastTimestamp > minDelta) {
                 
-                signalMagnitudeArea += Math.abs(values.get(0).getValues().get(i).getValue()) + 
-                        Math.abs(values.get(1).getValues().get(i).getValue()) + 
-                        Math.abs(values.get(2).getValues().get(i).getValue());
+                signalMagArea += Math.abs(valuesToUse.get(0).getValues().get(i).getValue()) + 
+                        Math.abs(valuesToUse.get(1).getValues().get(i).getValue()) + 
+                        Math.abs(valuesToUse.get(2).getValues().get(i).getValue());
                 
                 numberOfElements++; 
-                lastTimestamp = values.get(0).getValues().get(i).getTime();
+                lastTimestamp = valuesToUse.get(0).getValues().get(i).getTime();
             }
         }
         
-        signalMagnitudeArea /= numberOfElements;
+        return signalMagArea / (double)numberOfElements;
     }
     
     /**
@@ -93,13 +152,14 @@ public class FeaturesSlidingWindow {
      * @param frequency: The frequency at which calculate the correlations and use
      * data
      */
-    private void calculateCorrelations(SlidingWindow window, int frequency) {
+    private void calculateCorrelations(List<SingleCoordinateSet> values, int frequency,
+        List<Double> correlationsResult) {
         
-        for (int i = 0; i < window.getValues().size() - 1; i++) {
-            for (int j = i+1; j <window.getValues().size(); j++) {
+        for (int i = 0; i < values.size() - 1; i++) {
+            for (int j = i+1; j < values.size(); j++) {
                 
-                Double covariance = calculateCovariance(window.getValues().get(i).getValues(), 
-                        window.getValues().get(j).getValues(), frequency);
+                Double covariance = calculateCovariance(values.get(i).getValues(), 
+                        values.get(j).getValues(), frequency);
                 
                 Double correlation = covariance / 
                         (features.get(i).getStd() * features.get(j).getStd());
@@ -108,9 +168,8 @@ public class FeaturesSlidingWindow {
                     correlation = 0.0;
                 }
                 
-                correlations.add(correlation);
+                correlationsResult.add(correlation);
             }
-            
         }
     }
     
@@ -150,15 +209,15 @@ public class FeaturesSlidingWindow {
      * Calculates ratios between mean, std, variance and difference min/max values
      * between all the axis
      */
-    private void calculateRatios() {
+    private void calculateRatios(List<FeatureSet> featuresToUse, List<Double> ratiosWhereAdd) {
         
-        for (int i = 0; i < features.size() -1 ; i++) {
-            for (int j = i+1; j < features.size(); j++) {
+        for (int i = 0; i < featuresToUse.size() -1 ; i++) {
+            for (int j = i+1; j < featuresToUse.size(); j++) {
                 
-                Double ratioMean = features.get(i).getMean() / features.get(j).getMean(),
-                        ratioStd = features.get(i).getStd() / features.get(j).getStd(),
-                        ratioVariance = features.get(i).getVariance() / features.get(j).getVariance(),
-                        ratioMinMax = features.get(i).getDifferenceMinMax() / features.get(j).getDifferenceMinMax();
+                Double ratioMean = featuresToUse.get(i).getMean() / featuresToUse.get(j).getMean(),
+                        ratioStd = featuresToUse.get(i).getStd() / featuresToUse.get(j).getStd(),
+                        ratioVariance = featuresToUse.get(i).getVariance() / featuresToUse.get(j).getVariance(),
+                        ratioMinMax = featuresToUse.get(i).getDifferenceMinMax() / featuresToUse.get(j).getDifferenceMinMax();
                 if (Double.isNaN(ratioMean) || Double.isInfinite(ratioMean)) {
                     ratioMean = 0.0;
                 }
@@ -171,10 +230,10 @@ public class FeaturesSlidingWindow {
                 if (Double.isNaN(ratioMinMax) || Double.isInfinite(ratioMinMax)) {
                     ratioMinMax = 0.0;
                 }
-                ratios.add(ratioMean);
-                ratios.add(ratioStd);
-                ratios.add(ratioVariance);
-                ratios.add(ratioMinMax);
+                ratiosWhereAdd.add(ratioMean);
+                ratiosWhereAdd.add(ratioStd);
+                ratiosWhereAdd.add(ratioVariance);
+                ratiosWhereAdd.add(ratioMinMax);
             }
         }
     }
@@ -183,8 +242,24 @@ public class FeaturesSlidingWindow {
         return features;
     }
     
+    public List<FeatureSet> getBaseFeaturesPMitzell() {
+        return featuresPMitzell;
+    }
+    
+    public List<FeatureSet> getBaseFeaturesHMitzell() {
+        return featuresHMitzell;
+    }
+    
     public double getSignalMagnitudeArea() {
         return signalMagnitudeArea;
+    }
+    
+    public double getSignalMagnitudeAreaPMitzell() {
+        return signalMagnitudeAreaPMitzell;
+    }
+    
+    public double getSignalMagnitudeAreaHMitzell() {
+        return signalMagnitudeAreaHMitzell;
     }
     
     public String getAction() {
@@ -195,8 +270,24 @@ public class FeaturesSlidingWindow {
         return ratios;
     }
     
+    public List<Double> getRatiosPMitzell() {
+        return ratiosPMitzell;
+    }
+    
+    public List<Double> getRatiosHMitzell() {
+        return ratiosHMitzell;
+    }
+    
     public List<Double> getCorrelations() {
         return correlations;
+    }
+    
+    public List<Double> getCorrelationsPMitzell() {
+        return correlationsPMitzell;
+    }
+    
+    public List<Double> getCorrelationsHMitzell() {
+        return correlationsPMitzell;
     }
     
     public static List<String> getAllAttributesName() {
@@ -242,7 +333,21 @@ public class FeaturesSlidingWindow {
         return attributes;
     }
     
-    private void calculateIntelligentRatiosMinsMaxes(List<Double> mins, List<Double> maxes) {
+    public static List<String> getAllAttributesNameMitzell() {
+        
+        List<String> attributes = FeaturesSlidingWindow.getAllAttributesName();
+        List<String> attributesH = FeaturesSlidingWindow.getAllAttributesName();
+        
+        for(int i = 0; i < attributes.size(); i++) {
+            attributes.set(i, "P".concat(attributes.get(i)));
+            attributesH.set(i, "H".concat(attributesH.get(i)));
+        }
+        
+        attributes.addAll(attributesH);
+        return attributes;
+    }
+    
+    private void calculateIntelligentRatiosMinsMaxes(List<Double> mins, List<Double> maxes, List<Double> list) {
         
         Double ratioMaxes = maxes.get(2) / maxes.get(4),
                 ratioMins = Math.abs(mins.get(2) / mins.get(4));
@@ -252,7 +357,7 @@ public class FeaturesSlidingWindow {
         if (Double.isInfinite(ratioMins) || Double.isNaN(ratioMins)) {
             ratioMins = 0.0;
         }
-        ratios.add(ratioMaxes);
-        ratios.add(ratioMins);
+        list.add(ratioMaxes);
+        list.add(ratioMins);
     }
 }

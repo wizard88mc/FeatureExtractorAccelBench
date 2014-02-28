@@ -68,11 +68,11 @@ public class FeatureExtractor {
     private BATCH_CREATION_MODE mode = BATCH_CREATION_MODE.NON_INTERLAPPING_FIXED_SIZE; // default
     private int axis_to_be_considered = 3; // (4 == |V|)
 
-    public FeatureExtractor() {
+    public FeatureExtractor(boolean mitzell) {
 //        this.initialize_ARFF();
         //this.initialize_std_ARFF(axis_to_be_considered, true, true, true, true, 
          //       true, true, true, true, true);
-        this.initializeARFF();
+        this.initializeARFF(mitzell);
         
     }
     
@@ -566,9 +566,15 @@ public class FeatureExtractor {
         return this.arff;
     }
     
-    public void initializeARFF() {
+    public void initializeARFF(boolean mitzell) {
         
-        List<String> attributesString = FeaturesSlidingWindow.getAllAttributesName();
+        List<String> attributesString;
+        if (!mitzell) {
+            attributesString = FeaturesSlidingWindow.getAllAttributesName();
+        }
+        else {
+            attributesString = FeaturesSlidingWindow.getAllAttributesNameMitzell();
+        }
         List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
         
         for (int i = 0; i < attributesString.size(); i++) {
@@ -590,7 +596,7 @@ public class FeatureExtractor {
                 noGravityDownstairs, linearDownstairs, noGravityNoStairs, linearNoStairs);
     }
     
-    public void extractUsingFrequency(int frequency, boolean linear, boolean normalize) {
+    public void extractUsingFrequency(int frequency, boolean linear, boolean mitzell) {
         
         List<FeaturesSlidingWindow> featuresWindowsDownstairs, featuresWindowsUpstairs, 
                 featuresWindowsNoStairs;
@@ -607,10 +613,16 @@ public class FeatureExtractor {
         }
         
         
-        
-        arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
-        arff.addAllFeaturesData(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
-        arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
+        if (!mitzell) {
+            arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
+            arff.addAllFeaturesData(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
+            arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
+        }
+        else {
+            arff.addAllFeaturesDataMitzell(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
+            arff.addAllFeaturesDataMitzell(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
+            arff.addAllFeaturesDataMitzell(App.NO_STAIR, featuresWindowsNoStairs);
+        }
     }
     
     private void normalizeFeatures() {

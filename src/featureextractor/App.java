@@ -100,7 +100,7 @@ public class App {
     private static MODE mode = MODE.FEATURES_FROM_TEXT_DB;
 
     private static long getAverageStepForAllDb() throws Exception {
-        FeatureExtractor featureExtractor = new FeatureExtractor();
+        FeatureExtractor featureExtractor = new FeatureExtractor(false);
         float sum = 0;
         int stair_db = 0;
         long second=1000000000;
@@ -121,7 +121,7 @@ public class App {
 
     public static void main(String[] args) {
         try {
-            FeatureExtractor featureExtractor = new FeatureExtractor();
+            FeatureExtractor featureExtractor = new FeatureExtractor(false);
             String className = null;
             switch (mode) {
 //                case VALIDATOR:
@@ -284,12 +284,12 @@ public class App {
                 
                 case FEATURES_FROM_TEXT_DB:  {
                     
+                    int[] frequencies = new int[]{10, 15, 20, 25, 30, 50, 100};
+                    
                     ARFF.AddClasses(actions);
                     
-                    featureExtractor.createFinalDB(true);
+                    /*featureExtractor.createFinalDB(true);
                     featureExtractor.initializeListWindowsForFeatures();
-                    
-                    int[] frequencies = new int[]{10, 15, 20, 25, 30, 50, 100};
                     
                     for (int frequency: frequencies) {
                         featureExtractor.getARFF().resetData();
@@ -303,9 +303,19 @@ public class App {
                         featureExtractor.extractUsingFrequency(frequency, true, false);
                         
                         featureExtractor.dumpARFF(new File("StairDetectionVSW"+frequency+"Linear.arff"));
-                    }
-                        
+                    }   */
                     
+                    featureExtractor = new FeatureExtractor(true);
+                    featureExtractor.createFinalDB(true);
+                    featureExtractor.initializeListWindowsForFeatures();
+                    
+                    for (int frequency: frequencies) {
+                        
+                        featureExtractor.getARFF().resetData();
+                        featureExtractor.extractUsingFrequency(frequency, false, true);
+                        
+                        featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSWMitzell"+frequency+".arff"));
+                    }
                     break;
                 }
             }
