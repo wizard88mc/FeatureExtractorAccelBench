@@ -19,6 +19,10 @@ public class DataTime {
         this.time = time;
         this.value = value;
         this.step = step;
+        
+        if (Double.isInfinite(this.value) || Double.isNaN(this.value)) {
+            this.value = 0.0;
+        }
     }
 
     public double getTime() {

@@ -29,7 +29,6 @@ public class MovementsAnalyzer {
             db = new DBForLocation(new File("locationDBS/"+dbMovements));
             
             movements.addAll(db.getListAllMovements());
-            
         }
         
     }

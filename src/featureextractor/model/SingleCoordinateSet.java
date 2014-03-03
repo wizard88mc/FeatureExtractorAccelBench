@@ -156,4 +156,7 @@ public class SingleCoordinateSet {
         return this.values.size();
     }
     
+    public List<DataTime> getSubsetData(int startIndex, int endIndex) {
+        return this.values.subList(startIndex, endIndex + 1);
+    }
 }
