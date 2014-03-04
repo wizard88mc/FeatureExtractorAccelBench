@@ -2,6 +2,7 @@ package featureextractor.position_analysis;
 
 import featureextractor.model.DataTime;
 import featureextractor.model.FeatureSet;
+import static featureextractor.model.FeaturesSlidingWindow.AXIS;
 import featureextractor.model.SingleCoordinateSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,20 +13,25 @@ import java.util.List;
  */
 public class FeaturesMovement {
     
-    private class FeaturesSet {
+    public class FeaturesSet {
         
-        private List<SingleCoordinateSet> values;
-        private List<Double> means = new ArrayList<Double>();
-        private List<Double> stds = new ArrayList<Double>();
-        private List<Double> variances = new ArrayList<Double>();
-        private List<Double> correlations = new ArrayList<Double>();
-        private List<Double> mins = new ArrayList<Double>();
-        private List<Double> maxes = new ArrayList<Double>();
-        private List<Double> differenceMinMax = new ArrayList<Double>();
-        private List<Double> ratios = new ArrayList<Double>();
-        private List<Double> intelligentRatios = new ArrayList<Double>();
-        private Double signalMagnitudeArea = 0.0;
-        private Double magnitudeMean = 0.0;
+        public List<SingleCoordinateSet> values;
+        public List<Double> means = new ArrayList<Double>();
+        public List<Double> stds = new ArrayList<Double>();
+        public List<Double> variances = new ArrayList<Double>();
+        public List<Double> correlations = new ArrayList<Double>();
+        public List<Double> mins = new ArrayList<Double>();
+        public List<Double> maxes = new ArrayList<Double>();
+        public List<Double> differenceMinMax = new ArrayList<Double>();
+        public List<Double> ratios = new ArrayList<Double>();
+        public List<Double> intelligentRatios = new ArrayList<Double>();
+        public Double signalMagnitudeArea = 0.0;
+        public Double magnitudeMean = 0.0;
+        
+        final private String[] AXIS = new String[] 
+            {"X", "Y", "Z", "|V|", "(X+Y)/2"};
+        final private String[] VALUES = new String[]
+            {"mean", "std", "variance", "diffMinMax"};
         
         public FeaturesSet(List<SingleCoordinateSet> values, int frequency) {
             
@@ -215,27 +221,77 @@ public class FeaturesMovement {
                }
            }
        }
-    }
        
+       public List<String> getAllAttributesName() {
+        
+            List<String> attributes = new ArrayList<String>();
+
+            /**
+             * Base features attributes
+             */
+            for (int i = 0; i < AXIS.length; i++) {
+                for (int j = 0; j < means.size(); j++) {
+                    attributes.add(AXIS[i] + "_" + VALUES[j]);
+                }  
+            }
+
+            /**
+             * Ratios attributes
+             */
+            for (int i = 0; i < AXIS.length; i++) {
+                for (int k = i+1; k < AXIS.length; k++) {
+                    for (int j = 0; j < VALUES.length; j++) {
+                        attributes.add("RATIO:"+AXIS[i] + VALUES[j] + "_" + AXIS[k] + VALUES[j]);
+                    }  
+                }
+            }
+
+            attributes.add("RATIO:MAX(Z)_MAX(X+Y/2)");        
+            attributes.add("RATIO:|MIN(Z)_MIN(X+Y/2)|");
+
+            /**
+             * Covariance attributes
+             */
+            for (int i = 0; i < AXIS.length; i++) {
+                for (int k = i+1; k < AXIS.length; k++) {
+
+                    attributes.add("CORRELATION:"+AXIS[i] + "_" + AXIS[k] );  
+                }
+            }
+
+            attributes.add("MAGNITUDE_AREA");
+            attributes.add("SIGNAL_MAGNITUDE_AREA");
+
+            return attributes;
+         }
+    }
     
     private String startPosition;
     private String endPosition;
     private List<SingleCoordinateSet> valuesToUseAccelerometer = new ArrayList<SingleCoordinateSet>();
     private List<SingleCoordinateSet> valuesToUseLinear = new ArrayList<SingleCoordinateSet>();
-    private FeaturesSet featuresAccelerometer;
+    public FeaturesSet featuresAccelerometer;
+    public FeaturesSet featuresLinear;
     
-    private Double[] bufferDuration = new Double[]{500000000.0, 10000000000.0, 1500000000.0, 2000000000.0};
-    
-    public FeaturesMovement(Movement movement) {
+    public FeaturesMovement(Movement movement, int frequency, Double bufferDuration) throws Exception {
         
         this.startPosition = movement.getStartPosition();
         this.endPosition = movement.getEndPosition();
         
-        searchForSuitableData(movement);
+        searchForSuitableData(movement, bufferDuration);
         
+        featuresAccelerometer = new FeaturesSet(valuesToUseAccelerometer, frequency);
+        featuresLinear = new FeaturesSet(valuesToUseLinear, frequency);
     }
     
-    private void searchForSuitableData(Movement movement) {
+    /**
+     * Retrieves all the data that starts from the beginning to the event
+     * when the proximity sensor changes state from a value > 0 to a value = 0
+     * and eliminates all the values = null at the beginning of the movement
+     * 
+     * @param movement: the analyzed movement
+     */
+    private void searchForSuitableData(Movement movement, Double bufferDuration) throws Exception {
         
         SingleCoordinateSet valuesProximity = movement.getProximityValues();
         boolean endSearch = false; int indexLastValueForBuffer = -1;
@@ -264,7 +320,28 @@ public class FeaturesMovement {
                 valuesToUseLinear.get(i).getValues().remove(0);
             }
         }
+        
+        if (valuesToUseAccelerometer.get(0).getValues().get(valuesToUseAccelerometer.get(0).size() - 1).getTime() -
+                valuesToUseAccelerometer.get(0).getValues().get(0).getTime() < bufferDuration) {
+            
+            throw new Exception("Not sufficient data for this movement");
+        }
     }
     
+    public List<String> getAttributesNames() {
+        return featuresAccelerometer.getAllAttributesName();
+    }
     
+    public List<Double> getMeans(boolean linear) {
+        if (!linear) {
+            return featuresAccelerometer.means;
+        }
+        else {
+            return featuresLinear.means;
+        }
+    }
+    
+    public String getEndPosition() {
+        return this.endPosition;
+    }
 }

@@ -4,6 +4,7 @@
  */
 package featureextractor;
 
+import featureextractor.position_analysis.MovementsAnalyzer;
 import featureextractor.weka.ARFF;
 import featureextractor.weka.Weka;
 import java.io.File;
@@ -84,6 +85,7 @@ public class App {
     final public static String STAIR_DOWNSTAIRS = "STAIR_DOWNSTAIRS";
     final public static String STAIR_UPSTAIRS = "STAIR_UPSTAIRS";
     final private static String[] actions = new String[]{NO_STAIR, STAIR_DOWNSTAIRS, STAIR_UPSTAIRS};
+    final private static int[] frequencies = new int[]{10, 15, 20, 25, 30, 50, 100};
     
 
     private enum MODE {
@@ -95,7 +97,8 @@ public class App {
         BUILD_DB_SLIDING_WINDOW, // Build the Database with all the sliding window
         CLEAN_DB_SLIDING_WINDOW, // Cleans SlidingWindow DB from possible copies
         NEW_FEATURES_EXTRACTOR, // extract features using sliding windows based not on time
-        FEATURES_FROM_TEXT_DB // features calculated from the textual DB
+        FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
+        MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
     private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
 
@@ -124,25 +127,6 @@ public class App {
             FeatureExtractor featureExtractor = new FeatureExtractor(false);
             String className = null;
             switch (mode) {
-//                case VALIDATOR:
-//                    for (String db_path : validation_dbs) {
-//                        db_path = "data" + File.separator + "db" + File.separator + db_path;
-//                        featureExtractor.setDb(db_path);
-//                        featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.INTERLAPPING_SIZE_BY_STEP_AVG);
-//                        featureExtractor.setArffEnabled(true);
-//                        featureExtractor.setGravity_remove(false);
-//                        featureExtractor.setFeatureEnabled(true);
-//                        for (String action : actions) {
-//                            if (action.equals(actions[0])) {
-//                                className = "NONSTAIR";
-//                            } else {
-//                                className = "STAIRS";
-//                            }
-//                            featureExtractor.extract(action, className);
-//                        }
-//                        featureExtractor.dumpARFF(new File("validation.arff"));
-//                    }
-//                    break;
                 case CLASSIFIER:
                     long avg_step_duration=getAverageStepForAllDb();
                     int total_samples_count=0,total_stair_samples_count=0,total_nonstair_samples_count=0;
@@ -285,8 +269,6 @@ public class App {
                 
                 case FEATURES_FROM_TEXT_DB:  {
                     
-                    int[] frequencies = new int[]{10, 15, 20, 25, 30, 50, 100};
-                    
                     ARFF.AddClasses(actions);
                     
                     featureExtractor.createFinalDB(true);
@@ -318,6 +300,28 @@ public class App {
                         featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSWMitzell"+frequency+".arff"));
                     }*/
                     break;
+                }
+                
+                case MOVEMENTS_ANALYZER: {
+                    
+                    ARFF.AddClasses(new String[]{"TASCA", "NO_TASCA"});
+                    Double[] bufferDurationForMovements = new Double[]
+                        {500000000.0, 10000000000.0, 1500000000.0, 2000000000.0}; // 1/2 secondo, 1 secondo, 1secondo e 1/2, 2 secondi
+                    
+                    for (int frequency: frequencies) {
+                        
+                        MovementsAnalyzer analyzer  = new MovementsAnalyzer(frequency);
+
+                        for (Double duration: bufferDurationForMovements) {
+                            featureExtractor.getARFF().resetData();
+                            
+                            analyzer.analyzeMovements(duration);
+                            analyzer.dumpARFF(featureExtractor.getARFF(), false);
+                            
+                            featureExtractor.getARFF().writeToFile(new File("movementsFeatures/MovementDU"+duration / 1000000
+                                + "FREQ"+frequency+".arff"));
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
