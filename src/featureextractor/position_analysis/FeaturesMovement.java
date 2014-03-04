@@ -324,7 +324,7 @@ public class FeaturesMovement {
         if (valuesToUseAccelerometer.get(0).getValues().get(valuesToUseAccelerometer.get(0).size() - 1).getTime() -
                 valuesToUseAccelerometer.get(0).getValues().get(0).getTime() < bufferDuration) {
             
-            throw new Exception("Not sufficient data for this movement");
+            throw new Exception("Not sufficient data for this movement => Buffer Duration: " + bufferDuration / 1000000.0);
         }
     }
     
@@ -342,6 +342,11 @@ public class FeaturesMovement {
     }
     
     public String getEndPosition() {
-        return this.endPosition;
+        if (this.endPosition.equals("TASCA_PANTALONI")) {
+            return "TASCA";
+        }
+        else {
+            return "NO_TASCA";
+        }
     }
 }

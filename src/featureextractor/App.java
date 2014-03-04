@@ -100,7 +100,7 @@ public class App {
         FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
         MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
-    private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
+    private static MODE mode = MODE.MOVEMENTS_ANALYZER;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor(false);
@@ -306,7 +306,7 @@ public class App {
                     
                     ARFF.AddClasses(new String[]{"TASCA", "NO_TASCA"});
                     Double[] bufferDurationForMovements = new Double[]
-                        {500000000.0, 10000000000.0, 1500000000.0, 2000000000.0}; // 1/2 secondo, 1 secondo, 1secondo e 1/2, 2 secondi
+                        {500000000.0, 1000000000.0, 1500000000.0, 2000000000.0}; // 1/2 secondo, 1 secondo, 1secondo e 1/2, 2 secondi
                     
                     for (int frequency: frequencies) {
                         
@@ -318,7 +318,7 @@ public class App {
                             analyzer.analyzeMovements(duration);
                             analyzer.dumpARFF(featureExtractor.getARFF(), false);
                             
-                            featureExtractor.getARFF().writeToFile(new File("movementsFeatures/MovementDU"+duration / 1000000
+                            featureExtractor.getARFF().writeToFile(new File("featuresMovements/MovementDU"+duration / 1000000
                                 + "FREQ"+frequency+".arff"));
                         }
                     }

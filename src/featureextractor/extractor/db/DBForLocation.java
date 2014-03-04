@@ -59,11 +59,16 @@ public class DBForLocation {
             ClassNotFoundException, SQLException {
         
         this.connect();
-        String query = "SELECT COUNT(*) FROM " + getRightDB(false) + " WHERE trunk=" + trunkID;
+        String query = "SELECT * FROM " + getRightDB(false) + " WHERE trunk=" + trunkID;
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         
-        return rs.first();
+        if (!rs.next()) {
+            return false;
+        }
+        else {
+            return true;
+        }
         
     }
     
@@ -75,46 +80,41 @@ public class DBForLocation {
         String propertiesToReturn = null;
         
         this.connect();
-        
-        String query = "SELECT trunk, MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + getRightDB(linear) + " WHERE trunk="+trunk;
-        PreparedStatement ps = connection.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
-        int trunk_id = 0, min = 0, max = 0;
-        while (rs.next()) {
-            trunk_id = rs.getInt("trunk");
-            min = rs.getInt("minid");
-            max = rs.getInt("maxid");
-            query = "SELECT * FROM " + getRightDB(linear) + " WHERE ROWID>=? AND ROWID<=?";
-            PreparedStatement get_stmt = connection.prepareStatement(query);
-            get_stmt.setInt(1, min);
-            get_stmt.setInt(2, max);
-            ResultSet rs2 = get_stmt.executeQuery();
-            while (rs2.next()) {
-                
-                values.get(0).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("x"), -1));
-                values.get(1).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("y"), -1));
-                values.get(2).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("z"), -1));
-                
-                rotation.get(0).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationX"), -1));
-                rotation.get(1).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationY"), -1));
-                rotation.get(2).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationZ"), -1));
-                
-                if (!linear) {
-                    luminosity.addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("luminosity"), -1));
-                    proximity.addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("proximity"), -1));
-                    
-                    if (propertiesToReturn == null) {
-                        propertiesToReturn = rs2.getString("start_position")
-                                .concat(",").concat(rs2.getString("end_position"))
-                                .concat(",").concat(rs2.getString("current_task"));
-                    }
-                    
-                }
-            }
             
+        String query = "SELECT * FROM " + getRightDB(linear) + " WHERE trunk>=?";
+        PreparedStatement get_stmt = connection.prepareStatement(query);
+        get_stmt.setInt(1, trunk);
+        ResultSet rs2 = get_stmt.executeQuery();
+        while (rs2.next()) {
+
+            values.get(0).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("x"), -1));
+            values.get(1).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("y"), -1));
+            values.get(2).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("z"), -1));
+
+            rotation.get(0).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationX"), -1));
+            rotation.get(1).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationY"), -1));
+            rotation.get(2).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationZ"), -1));
+
+            if (!linear) {
+                luminosity.addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("luminosity"), -1));
+                proximity.addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("proximity"), -1));
+
+                if (propertiesToReturn == null) {
+                    propertiesToReturn = rs2.getString("start_position")
+                            .concat(",").concat(rs2.getString("end_position"))
+                            .concat(",").concat(rs2.getString("current_task"));
+                }       
+            }
         }
         
         return propertiesToReturn;
+    }
+    
+    public void instantiateList(List<SingleCoordinateSet> values) {
+        
+        for (String axis: Movement.coordinates) {
+            values.add(new SingleCoordinateSet(axis));
+        }
     }
     
     public List<Movement> getListAllMovements() {
@@ -130,6 +130,9 @@ public class DBForLocation {
                         valuesRotationAccelerometer = new ArrayList<SingleCoordinateSet>(),
                         valuesRotationLinear = new ArrayList<SingleCoordinateSet>();
                 
+                instantiateList(valuesAccelerometer); instantiateList(valuesLinear);
+                instantiateList(valuesRotationAccelerometer); instantiateList(valuesRotationLinear);
+                
                 SingleCoordinateSet luminosity = new SingleCoordinateSet("luminosity"),
                         proximity = new SingleCoordinateSet("proximity");
                 
@@ -141,6 +144,8 @@ public class DBForLocation {
                 movements.add(new Movement(infos[0], infos[1], infos[2], valuesAccelerometer,
                     valuesLinear, valuesRotationAccelerometer, valuesRotationLinear, 
                     luminosity, proximity));
+                
+                trunkID++;
             }
         }
         catch(Exception exc) {

@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package featureextractor.position_analysis;
 
 import featureextractor.extractor.db.DBForLocation;
@@ -20,7 +14,7 @@ import java.util.List;
 public class MovementsAnalyzer {
     
     private DBForLocation db;
-    private String[] dbs = {};
+    private String[] dbs = {"accelbenchWhereIs20140227192800.db"};
     private List<Movement> movements = new ArrayList<Movement>();
     private List<FeaturesMovement> features;
     private int frequency;
@@ -38,6 +32,7 @@ public class MovementsAnalyzer {
     
     public void analyzeMovements(Double bufferDuration) {
         
+        features = new ArrayList<FeaturesMovement>();
         for (Movement movement: movements) {
             try {
                 features.add(new FeaturesMovement(movement, frequency, bufferDuration));
@@ -50,9 +45,9 @@ public class MovementsAnalyzer {
     
     public void dumpARFF(ARFF arff, boolean linear) {
         
-        List<Double> data_row = new ArrayList<Double>();
-        
         for (FeaturesMovement feature: features) {
+            
+            List<Double> data_row = new ArrayList<Double>();
             
             for (int i = 0; i < feature.featuresAccelerometer.means.size(); i++) {
                 if (!linear) {
@@ -85,6 +80,7 @@ public class MovementsAnalyzer {
             }
           
             arff.addData(new ARFFData(feature.getEndPosition(), data_row));
+            
         }
     }
     

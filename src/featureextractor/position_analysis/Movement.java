@@ -22,7 +22,7 @@ public class Movement {
     private String startPosition;
     private String endPosition;
     private String statusRecord;
-    private static List<String> coordinates = new ArrayList<String>();
+    public static List<String> coordinates = new ArrayList<String>();
     
     static {
         coordinates.add("x");
@@ -51,6 +51,12 @@ public class Movement {
         calculateVAndXPlusYValues(valuesWithoutGravity);
     }
     
+    /**
+     * Rotates the values of the accelerometer or the linear acceleration
+     * using the rotation values
+     * @param values: the values to rotate
+     * @param rotationValues: the values of the rotation vector
+     */
     private void rotateValues(List<SingleCoordinateSet> values, List<SingleCoordinateSet> rotationValues) {
         
         for (int i = 0; i < values.get(0).size(); i++) {
