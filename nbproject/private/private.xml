@@ -3,12 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/position_analysis/MovementsAnalyzer.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/FeatureExtractor.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/model/FeaturesSlidingWindow.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/App.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/weka/ARFF.java</file>
-            <file>file:/Users/matteo/Documents/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/position_analysis/FeaturesMovement.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/extractor/db/DBForLocation.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/position_analysis/FeaturesMovement.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/position_analysis/Movement.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/weka/ARFF.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/position_analysis/MovementsAnalyzer.java</file>
+            <file>file:/C:/Users/Matteo/NetBeansProjects/FeatureExtractorAccelBench/src/featureextractor/App.java</file>
         </group>
     </open-files>
 </project-private>

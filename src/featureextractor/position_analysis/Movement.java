@@ -17,7 +17,6 @@ public class Movement {
    private List<SingleCoordinateSet> valuesLinear = new ArrayList<SingleCoordinateSet>();
     private List<SingleCoordinateSet> valuesRotationAccelerometer = new ArrayList<SingleCoordinateSet>();
     private List<SingleCoordinateSet> valuesRotationLinear = new ArrayList<SingleCoordinateSet>();
-    private SingleCoordinateSet luminosity;
     private SingleCoordinateSet proximity;
     private String startPosition;
     private String endPosition;
@@ -33,12 +32,12 @@ public class Movement {
     public Movement(String startPosition, String endPosition, String statusRecord,
             List<SingleCoordinateSet> accelerometer, List<SingleCoordinateSet> linear, 
             List<SingleCoordinateSet> rotationAccelerometer, List<SingleCoordinateSet> rotationLinear, 
-            SingleCoordinateSet luminosity, SingleCoordinateSet proximity) {
+            SingleCoordinateSet proximity) {
         
         this.startPosition = startPosition; this.endPosition = endPosition;
         this.statusRecord = statusRecord; this.valuesAccelerometer = accelerometer;
         this.valuesLinear = linear; this.valuesRotationAccelerometer = rotationAccelerometer;
-        this.valuesRotationLinear = rotationLinear; this.luminosity = luminosity;
+        this.valuesRotationLinear = rotationLinear;
         this.proximity = proximity;
         
         removeGravity();

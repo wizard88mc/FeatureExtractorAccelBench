@@ -14,7 +14,7 @@ import java.util.List;
 public class MovementsAnalyzer {
     
     private DBForLocation db;
-    private String[] dbs = {"accelbenchWhereIs20140227192800.db"};
+    private String[] dbs = {"accelbenchWhereIs20140227192800.db", "accelbenchWhereIs20140305095700.db"};
     private List<Movement> movements = new ArrayList<Movement>();
     private List<FeaturesMovement> features;
     private int frequency;

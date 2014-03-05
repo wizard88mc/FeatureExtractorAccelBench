@@ -73,7 +73,7 @@ public class DBForLocation {
     }
     
     public String extractMovementsData(boolean linear, List<SingleCoordinateSet> values,
-            List<SingleCoordinateSet> rotation, SingleCoordinateSet luminosity,
+            List<SingleCoordinateSet> rotation,
             SingleCoordinateSet proximity, int trunk) throws FileNotFoundException, 
             ClassNotFoundException, SQLException {
         
@@ -96,7 +96,6 @@ public class DBForLocation {
             rotation.get(2).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationZ"), -1));
 
             if (!linear) {
-                luminosity.addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("luminosity"), -1));
                 proximity.addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("proximity"), -1));
 
                 if (propertiesToReturn == null) {
@@ -133,17 +132,15 @@ public class DBForLocation {
                 instantiateList(valuesAccelerometer); instantiateList(valuesLinear);
                 instantiateList(valuesRotationAccelerometer); instantiateList(valuesRotationLinear);
                 
-                SingleCoordinateSet luminosity = new SingleCoordinateSet("luminosity"),
-                        proximity = new SingleCoordinateSet("proximity");
+                SingleCoordinateSet proximity = new SingleCoordinateSet("proximity");
                 
                 String additionalInfos = extractMovementsData(false, valuesAccelerometer, 
-                        valuesRotationAccelerometer, luminosity, proximity, trunkID);
-                extractMovementsData(true, valuesLinear, valuesRotationLinear, null, null, trunkID);
+                        valuesRotationAccelerometer, proximity, trunkID);
+                extractMovementsData(true, valuesLinear, valuesRotationLinear, null, trunkID);
                 
                 String[] infos = additionalInfos.split(",");
                 movements.add(new Movement(infos[0], infos[1], infos[2], valuesAccelerometer,
-                    valuesLinear, valuesRotationAccelerometer, valuesRotationLinear, 
-                    luminosity, proximity));
+                    valuesLinear, valuesRotationAccelerometer, valuesRotationLinear, proximity));
                 
                 trunkID++;
             }
