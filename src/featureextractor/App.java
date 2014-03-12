@@ -100,7 +100,7 @@ public class App {
         FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
         MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
-    private static MODE mode = MODE.MOVEMENTS_ANALYZER;
+    private static MODE mode = MODE.TRUNK_PLOTTER;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor(false);
@@ -179,9 +179,10 @@ public class App {
 //                    for (String db : dbs) {
                     String db2 = "matteo/accelbench_20140127113057.db";
                     //db2 = "michele/accelbench_20140128090735.db";
-                    featureExtractor.setDb("data/completo/" + db2);
-                    System.out.println("data/completo/" + db2);
+                    //featureExtractor.setDb("data/completo/" + db2);
+                    //System.out.println("data/completo/" + db2);
                     //                  featureExtractor.setTrunkIDs();
+                    featureExtractor.setDb("data/db/matteo/accelbench_esempi_NEXUS4.db");
                     featureExtractor.setArffEnabled(false); // disable ARFF creation
                     featureExtractor.setFeatureEnabled(false); // disable feature calculation
                     featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
