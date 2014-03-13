@@ -162,7 +162,7 @@ public class FeatureExtractor {
             throw new Exception("No source DB set");
         }
         try {
-            System.out.println("Detected sampling rate: " + db_extractor.getSamplingRate(true) + "Hz");
+            //System.out.println("Detected sampling rate: " + db_extractor.getSamplingRate(true) + "Hz");
             // create samples from db rows            
             ArrayList<Sample> samplesAccelerometer = db_extractor.extract(action, false);
               

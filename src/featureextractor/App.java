@@ -100,7 +100,7 @@ public class App {
         FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
         MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
-    private static MODE mode = MODE.TRUNK_PLOTTER;
+    private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor(false);
@@ -177,12 +177,12 @@ public class App {
                 case TRUNK_PLOTTER:
 //                    String[] still_dbs=new String[]{"flat/accelbench_20131121002432_NEXUS.db", "flat/accelbench_20131121002259_GALAXY.db"};
 //                    for (String db : dbs) {
-                    String db2 = "matteo/accelbench_20140127113057.db";
+                    String db2 = "data/completo/matteo/accelbench_20140312103900.db";
                     //db2 = "michele/accelbench_20140128090735.db";
                     //featureExtractor.setDb("data/completo/" + db2);
                     //System.out.println("data/completo/" + db2);
                     //                  featureExtractor.setTrunkIDs();
-                    featureExtractor.setDb("data/db/matteo/accelbench_esempi_NEXUS4.db");
+                    featureExtractor.setDb(db2);
                     featureExtractor.setArffEnabled(false); // disable ARFF creation
                     featureExtractor.setFeatureEnabled(false); // disable feature calculation
                     featureExtractor.setBatchCreationMode(FeatureExtractor.BATCH_CREATION_MODE.BY_TRUNK);
@@ -218,6 +218,8 @@ public class App {
                         "matteo/accelbench_20140127172252.db",
                         "matteo/accelbench_20140301000700.db",
                         "matteo/accelbench_20140128182904.db",
+                        "matteo/accelbench_20140307151200.db",
+                        "matteo/accelbench_20140312103900.db",
                         "michele/accelbench_20140127092832.db",
                         "michele/accelbench_20140128090735.db"};
                     
