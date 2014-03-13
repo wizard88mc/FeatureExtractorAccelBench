@@ -100,7 +100,7 @@ public class App {
         FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
         MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
-    private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
+    private static MODE mode = MODE.FEATURES_FROM_TEXT_DB;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor(false);
@@ -274,24 +274,30 @@ public class App {
                     
                     ARFF.AddClasses(actions);
                     
-                    featureExtractor.createFinalDB(true);
+                    /*featureExtractor.createFinalDB(true);
                     featureExtractor.initializeListWindowsForFeatures();
                     
                     for (int frequency: frequencies) {
-                        featureExtractor.getARFF().resetData();
-                        featureExtractor.extractUsingFrequency(frequency, false, false);
+                        try {
+                            featureExtractor.getARFF().resetData();
+                            featureExtractor.extractUsingFrequency(frequency, false, false);
                         
-                        featureExtractor.dumpARFF(new File("StairDetectionVSW"+frequency+".arff"));
+                            featureExtractor.dumpARFF(new File("StairDetectionVSW"+frequency+".arff"));
+                        }
+                        catch(Exception exc) {}
                     }
                     
                     for (int frequency: frequencies) {
+                        try {
                         featureExtractor.getARFF().resetData();
                         featureExtractor.extractUsingFrequency(frequency, true, false);
                         
                         featureExtractor.dumpARFF(new File("StairDetectionVSW"+frequency+"Linear.arff"));
-                    }   
+                        }
+                        catch(Exception exc) {exc.printStackTrace();}
+                    }   */
                     
-                    /*featureExtractor = new FeatureExtractor(true);
+                    featureExtractor = new FeatureExtractor(true);
                     featureExtractor.createFinalDB(true);
                     featureExtractor.initializeListWindowsForFeatures();
                     
@@ -301,7 +307,7 @@ public class App {
                         featureExtractor.extractUsingFrequency(frequency, false, true);
                         
                         featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSWMitzell"+frequency+".arff"));
-                    }*/
+                    }
                     break;
                 }
                 
