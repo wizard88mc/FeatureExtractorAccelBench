@@ -14,10 +14,19 @@ public class Sample {
     private boolean hasNoGravityValues = false;
     final private double valueX;
     private double noGravityX;
+    private double valueXRotated;
+    private double valueXRotatedNoGravity;
+    private double valueXRotatedNoGravityNoBuffer;
     final private double valueY;
     private double noGravityY;
+    private double valueYRotated;
+    private double valueYRotatedNoGravity;
+    private double valueYRotatedNoGravityNoBuffer;
     final private double valueZ;
     private double noGravityZ;
+    private double valueZRotated;
+    private double valueZRotatedNoGravity;
+    private double valueZRotatedNoGravityNoBuffer;
     final private double rotationX;
     final private double rotationY;
     final private double rotationZ;
@@ -37,14 +46,32 @@ public class Sample {
         this.mode = mode;
     }
     
+    private void setRotatedXValues() {
+        
+    }
+    
+    private void setRotatedYValues() {
+        
+    }
+    
+    private void setRotatedZValues() {
+        
+    }
+    
     public void setNoGravityX(double x) {
         this.noGravityX = x;
+        /**
+         * Calculates the rotated values
+         */
+        setRotatedXValues(); 
     }
     public void setNoGravityY(double y) {
         this.noGravityY = y;
+        setRotatedYValues();
     }
     public void setNoGravityZ(double z) {
         this.noGravityZ = z;
+        setRotatedZValues();
     }
     
     public void hasNoGravityValues() {

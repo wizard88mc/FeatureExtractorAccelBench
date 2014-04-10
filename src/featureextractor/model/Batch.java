@@ -21,6 +21,7 @@ public class Batch {
     private final List<SingleCoordinateSet> valuesLinearRotated = new ArrayList<SingleCoordinateSet>();
     private final List<SingleCoordinateSet> valuesPMitzell = new ArrayList<SingleCoordinateSet>();
     private final List<SingleCoordinateSet> valuesHMitzell = new ArrayList<SingleCoordinateSet>();
+    private final List<SingleCoordinateSet> valuesNoGravityRotatedWithoutBuffer = new ArrayList<SingleCoordinateSet>();
     private static HashMap<Integer, String> coordinates_mapping = new HashMap<Integer, String>();
     private List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
     private String title;
@@ -136,6 +137,9 @@ public class Batch {
             
             valuesLinearRotated.add(new SingleCoordinateSet());
             valuesLinearRotated.get(i).setTitle(coordinates_mapping.get(i));
+            
+            valuesNoGravityRotatedWithoutBuffer.add(new SingleCoordinateSet());
+            valuesNoGravityRotatedWithoutBuffer.get(i).setTitle(coordinates_mapping.get(i));
         }
         
         for (int i = 0; i < 3; i++) {
@@ -253,7 +257,7 @@ public class Batch {
             }
         }
     }
-
+    
     public void printFeatures() {
         List<FeatureSet> features = this.getFeatures();
         System.out.println(StringUtils.join(features, ""));
@@ -282,5 +286,26 @@ public class Batch {
         }
         
         return axesValues;
+    }
+    
+    /**
+     * Retrieves the index in the values list of the value with the required
+     * timestamp value
+     * @param time: the searched timestamp
+     * @return the index in the values list with the right timestamp
+     */
+    public int getRealIndexForTimestamp(double time) {
+        
+        int index = -1;
+        boolean found = false;
+        
+        for (int i = 0; i < values.get(0).getValues().size() && !found; i++) {
+            if (values.get(0).getValues().get(i).getTime() == time) {
+                index = i;
+                found = true;
+            }
+        }
+        
+        return index;
     }
 }

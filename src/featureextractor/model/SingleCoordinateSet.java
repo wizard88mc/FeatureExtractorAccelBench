@@ -159,4 +159,5 @@ public class SingleCoordinateSet {
     public List<DataTime> getSubsetData(int startIndex, int endIndex) {
         return this.values.subList(startIndex, endIndex + 1);
     }
+    
 }
