@@ -14,7 +14,7 @@ import org.jfree.chart.plot.IntervalMarker;
 public class Batch {
 
     private final List<SingleCoordinateSet> values = new ArrayList<SingleCoordinateSet>();
-    private final List<SingleCoordinateSet> valuesWithoutGravity = new ArrayList<SingleCoordinateSet>();
+    //private final List<SingleCoordinateSet> valuesWithoutGravity = new ArrayList<SingleCoordinateSet>();
     private final List<SingleCoordinateSet> valuesRotated = new ArrayList<SingleCoordinateSet>();
     private final List<SingleCoordinateSet> valuesWithoutGravityRotated = new ArrayList<SingleCoordinateSet>();
     private final List<SingleCoordinateSet> valuesLinear = new ArrayList<SingleCoordinateSet>();
@@ -87,10 +87,6 @@ public class Batch {
         return values;
     }
     
-    public List<SingleCoordinateSet> getValuesWithoutGravity() {
-        return valuesWithoutGravity;
-    }
-    
     public List<SingleCoordinateSet> getLinearValues() {
         return valuesLinear;
     }
@@ -123,9 +119,6 @@ public class Batch {
             values.add(new SingleCoordinateSet());
             values.get(i).setTitle(coordinates_mapping.get(i));
             
-            valuesWithoutGravity.add(new SingleCoordinateSet());
-            valuesWithoutGravity.get(i).setTitle(coordinates_mapping.get(i));
-            
             valuesRotated.add(new SingleCoordinateSet());
             valuesRotated.get(i).setTitle(coordinates_mapping.get(i));
             
@@ -154,12 +147,6 @@ public class Batch {
             values.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
             values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
             values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
-            
-            if (sample.getHasNoGravityValues()) {
-                valuesWithoutGravity.get(0).addValue(new DataTime(sample.getTime(), sample.getNoGravityX(), sample.getStep()));
-                valuesWithoutGravity.get(1).addValue(new DataTime(sample.getTime(), sample.getNoGravityY(), sample.getStep()));
-                valuesWithoutGravity.get(2).addValue(new DataTime(sample.getTime(), sample.getNoGravityZ(), sample.getStep()));
-            }
             
             valuesRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX(), sample.getStep()));
             valuesRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY(), sample.getStep()));
@@ -229,6 +216,9 @@ public class Batch {
                 sample.setNoGravityY(sample.getValueY() - meanValueY);
                 sample.setNoGravityZ(sample.getValueZ() - meanValueZ);
                 
+                /**
+                 * Calculating Mizell vectors
+                 */
                 double normMeanValues = (double)Math.sqrt(Math.pow(meanValueX, 2) + Math.pow(meanValueY, 2) + 
                         Math.pow(meanValueY, 2));
                 
@@ -289,8 +279,9 @@ public class Batch {
     }
     
     /**
-     * Retrieves the index in the values list of the value with the required
+     * Retrieves the index of the value List<values> with the required
      * timestamp value
+     * 
      * @param time: the searched timestamp
      * @return the index in the values list with the right timestamp
      */

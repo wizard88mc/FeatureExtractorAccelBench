@@ -173,9 +173,6 @@ public class Plot extends javax.swing.JFrame {
         if (accelerometer && rotation) {
             axes = batch.getValuesRotated();
         }
-        else if (accelerometerNoGravity && !rotation) {
-            axes = batch.getValuesWithoutGravity();
-        }
         else if (accelerometerNoGravity && rotation) {
             axes = batch.getValuesWithoutGravityRotated();
         }
