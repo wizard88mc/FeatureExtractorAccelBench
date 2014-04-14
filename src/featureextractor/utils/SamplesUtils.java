@@ -338,6 +338,8 @@ public class SamplesUtils {
                 
                 int step = valuesWithoutGravityMizell.get(0).getValues().get(i).getStep();
                 
+                
+                
             }
         }
     }
