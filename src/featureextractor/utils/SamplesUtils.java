@@ -214,21 +214,16 @@ public class SamplesUtils {
      * current window and not from the previous buffer of data
      * 
      * @param batch
-     * @param vectorPMizell
-     * @param vectorHMizell
-     * @param startPoint
-     * @param endPoint
-     * @param elementsForWindow
-     * @param elementsPMizell
-     * @param elementsHMizell
-     * @param elementsNoBuffer 
+     * @param startPoint: start point of the considered window
+     * @param endPoint: end point of the considered window
+     * @param elementsForWindow: final elements rotated using our method
+     * @param elementsPMizell: vector P calculated using the Mizell method
+     * @param elementsHMizell: vector H calculated using the Mizell method
      */
     private static void createWindowOfData(Batch batch, 
-            List<SingleCoordinateSet> vectorPMizell, List<SingleCoordinateSet> vectorHMizell,
-            int startPoint, int endPoint, 
+            int startPoint, int endPoint, boolean linear,
             List<SingleCoordinateSet> elementsForWindow, 
-            List<SingleCoordinateSet> elementsPMizell, List<SingleCoordinateSet> elementsHMizell,
-            List<SingleCoordinateSet> elementsNoBuffer) {
+            List<SingleCoordinateSet> elementsPMizell, List<SingleCoordinateSet> elementsHMizell) {
         
         /**
          * This two values are the start and end point of a window in the List<SingleCoordinateSet>
@@ -237,109 +232,115 @@ public class SamplesUtils {
         int startIndexForBaseValues = batch.getRealIndexForTimestamp(batch.getValuesWithoutGravityRotated().get(0).getValues().get(startPoint).getTime());
         int endIndexForBaseValues = batch.getRealIndexForTimestamp(batch.getValuesWithoutGravityRotated().get(0).getValues().get(endPoint).getTime());
         
+        /**
+         * Getting all the elements for the data rotated withoud gravity
+         * using our method
+         */
         for (int index = 0; index < batch.getValues().size(); index++) {
             SingleCoordinateSet elements = new SingleCoordinateSet(
                     batch.getValuesWithoutGravityRotated().get(index).getValues().subList(startPoint, endPoint));
             
             elements.setTitle(batch.getValuesWithoutGravityRotated().get(index).getTitle());
             elementsForWindow.add(elements);
-                    
-            /**
-             * if we are using accelerometer data store even the 
-             * mizell vectors
-             */
-            if (vectorPMizell != null) {
-                SingleCoordinateSet elementsP = new SingleCoordinateSet(vectorPMizell.get(index).getValues().subList(startPoint, endPoint)),
-                        elementsH = new SingleCoordinateSet(vectorHMizell.get(index).getValues().subList(startPoint, endPoint));
-                        elementsP.setTitle(vectorPMizell.get(index).getTitle());
-                        elementsH.setTitle(vectorHMizell.get(index).getTitle());
-                        
-                if (elementsPMizell == null) {
-                    elementsPMizell = new ArrayList<SingleCoordinateSet>();
-                    elementsHMizell = new ArrayList<SingleCoordinateSet>();
-                }
-                elementsPMizell.add(elementsP);
-                elementsHMizell.add(elementsH);
-            }
+            
         }
         
         /**
          * Creating the SingleCoordinateSet elements for the Mizell records
          */
-        if (vectorPMizell != null) {
+        if (!linear) {
             
             /**
              * Retrieves all the values inside of the window that will be used to 
              * calculate the p and h vector
+             * 
+             * valuesForMizell used to store the data that will be used for the 
+             * Mizell method
              */
-            List<SingleCoordinateSet> elementsForMizell = new ArrayList<SingleCoordinateSet>();
-            elementsForMizell.add(new SingleCoordinateSet(batch.getValues().get(0).getValues().subList(startIndexForBaseValues, endIndexForBaseValues)));
-            elementsForMizell.add(new SingleCoordinateSet(batch.getValues().get(1).getValues().subList(startIndexForBaseValues, endIndexForBaseValues)));
-            elementsForMizell.add(new SingleCoordinateSet(batch.getValues().get(2).getValues().subList(startIndexForBaseValues, endIndexForBaseValues)));
+            List<SingleCoordinateSet> valuesForMizell = new ArrayList<SingleCoordinateSet>();
+            valuesForMizell.add(new SingleCoordinateSet(batch.getValues().get(0).getValues().subList(startIndexForBaseValues, endIndexForBaseValues)));
+            valuesForMizell.add(new SingleCoordinateSet(batch.getValues().get(1).getValues().subList(startIndexForBaseValues, endIndexForBaseValues)));
+            valuesForMizell.add(new SingleCoordinateSet(batch.getValues().get(2).getValues().subList(startIndexForBaseValues, endIndexForBaseValues)));
             
-            elementsForMizell.get(0).setTitle(batch.getValues().get(0).getTitle());
-            elementsForMizell.get(1).setTitle(batch.getValues().get(1).getTitle());
-            elementsForMizell.get(2).setTitle(batch.getValues().get(2).getTitle());
+            valuesForMizell.get(0).setTitle(batch.getValues().get(0).getTitle());
+            valuesForMizell.get(1).setTitle(batch.getValues().get(1).getTitle());
+            valuesForMizell.get(2).setTitle(batch.getValues().get(2).getTitle());
             
             double meanValueX = 0.0, meanValueY = 0.0, meanValueZ = 0.0;
             
-            for (int i = 0; i < elementsForMizell.get(0).getValues().size(); i++) {
+            for (int i = 0; i < valuesForMizell.get(0).getValues().size(); i++) {
                 
-                meanValueX += elementsForMizell.get(0).getValues().get(i).getValue();
-                meanValueY += elementsForMizell.get(1).getValues().get(i).getValue();
-                meanValueZ += elementsForMizell.get(2).getValues().get(i).getValue();
+                meanValueX += valuesForMizell.get(0).getValues().get(i).getValue();
+                meanValueY += valuesForMizell.get(1).getValues().get(i).getValue();
+                meanValueZ += valuesForMizell.get(2).getValues().get(i).getValue();
             }
             
-            meanValueX /= elementsForMizell.get(0).getValues().size();
-            meanValueY /= elementsForMizell.get(1).getValues().size();
-            meanValueZ /= elementsForMizell.get(2).getValues().size();
+            meanValueX /= valuesForMizell.get(0).getValues().size();
+            meanValueY /= valuesForMizell.get(1).getValues().size();
+            meanValueZ /= valuesForMizell.get(2).getValues().size();
             
             /**
              * Creating a new List<SingleCoordinateSet> with the correct values 
              * as starting point for the Mizell method
              */
-            
-            List<SingleCoordinateSet> valuesWithoutGravityMizell = new ArrayList<SingleCoordinateSet>();
-            valuesWithoutGravityMizell.add(new SingleCoordinateSet(elementsForMizell.get(0).getTitle()));
-            valuesWithoutGravityMizell.add(new SingleCoordinateSet(elementsForMizell.get(1).getTitle()));
-            valuesWithoutGravityMizell.add(new SingleCoordinateSet(elementsForMizell.get(2).getTitle()));
-            
-            for (int i = 0; i < elementsForMizell.get(0).getValues().size(); i++) {
-                
-                double time = elementsForMizell.get(0).getValues().get(i).getTime();
-                
-                int step = elementsForMizell.get(0).getValues().get(i).getStep();
-                double value = elementsForMizell.get(0).getValues().get(i).getValue();
-                valuesWithoutGravityMizell.get(0).addValue(new DataTime(time, value - meanValueX, step));
-                
-                value = elementsForMizell.get(1).getValues().get(i).getValue();
-                valuesWithoutGravityMizell.get(0).addValue(new DataTime(time, value - meanValueY, step));
-                
-                value = elementsForMizell.get(2).getValues().get(i).getValue();
-                valuesWithoutGravityMizell.get(2).addValue(new DataTime(time, value - meanValueZ, step));
-                
-            }
             /**
              * ValuesWithoutGravityMizell is the d vector of the Mizell solution
              */
+            List<SingleCoordinateSet> valuesWithoutGravityMizell = new ArrayList<SingleCoordinateSet>();
+            valuesWithoutGravityMizell.add(new SingleCoordinateSet(valuesForMizell.get(0).getTitle()));
+            valuesWithoutGravityMizell.add(new SingleCoordinateSet(valuesForMizell.get(1).getTitle()));
+            valuesWithoutGravityMizell.add(new SingleCoordinateSet(valuesForMizell.get(2).getTitle()));
+            
+            for (int i = 0; i < valuesForMizell.get(0).getValues().size(); i++) {
+                
+                double time = valuesForMizell.get(0).getValues().get(i).getTime();
+                
+                int step = valuesForMizell.get(0).getValues().get(i).getStep();
+                double value = valuesForMizell.get(0).getValues().get(i).getValue();
+                valuesWithoutGravityMizell.get(0).addValue(new DataTime(time, value - meanValueX, step));
+                
+                value = valuesForMizell.get(1).getValues().get(i).getValue();
+                valuesWithoutGravityMizell.get(0).addValue(new DataTime(time, value - meanValueY, step));
+                
+                value = valuesForMizell.get(2).getValues().get(i).getValue();
+                valuesWithoutGravityMizell.get(2).addValue(new DataTime(time, value - meanValueZ, step));
+                
+            }
+            
             if (elementsPMizell == null) {
                 elementsPMizell = new ArrayList<SingleCoordinateSet>();
                 elementsHMizell = new ArrayList<SingleCoordinateSet>();
             }
             
-            double normMean = (double)Math.sqrt(Math.pow(meanValueX, 2) + Math.pow(meanValueY, 2) + Math.pow(meanValueZ, 2));
+            elementsPMizell.add(new SingleCoordinateSet(valuesForMizell.get(0).getTitle()));
+            elementsPMizell.add(new SingleCoordinateSet(valuesForMizell.get(1).getTitle()));
+            elementsPMizell.add(new SingleCoordinateSet(valuesForMizell.get(2).getTitle()));
+            
+            elementsHMizell.add(new SingleCoordinateSet(valuesForMizell.get(0).getTitle()));
+            elementsHMizell.add(new SingleCoordinateSet(valuesForMizell.get(1).getTitle()));
+            elementsHMizell.add(new SingleCoordinateSet(valuesForMizell.get(2).getTitle()));
+            
+            double normMeanValues = (double)Math.sqrt(Math.pow(meanValueX, 2) + Math.pow(meanValueY, 2) + Math.pow(meanValueZ, 2));
             
             for (int i = 0; i < valuesWithoutGravityMizell.get(0).getValues().size(); i++) {
                 
                 double valueX = valuesWithoutGravityMizell.get(0).getValues().get(i).getValue(),
                         valueY = valuesWithoutGravityMizell.get(1).getValues().get(i).getValue(),
                         valueZ = valuesWithoutGravityMizell.get(2).getValues().get(i).getValue(),
-                        time = valuesWithoutGravityMizell.get(0).getValues().get(i).getValue();
+                        time = valuesWithoutGravityMizell.get(0).getValues().get(i).getTime();
                 
                 int step = valuesWithoutGravityMizell.get(0).getValues().get(i).getStep();
                 
+                double vectorProduct = (valueX * meanValueX + valueY * meanValueY
+                         + valueZ * meanValueZ) / Math.pow(normMeanValues, 2);
                 
+                elementsPMizell.get(0).addValue(new DataTime(time, vectorProduct * meanValueX, step));
+                elementsPMizell.get(1).addValue(new DataTime(time, vectorProduct * meanValueY, step));
+                elementsPMizell.get(2).addValue(new DataTime(time, vectorProduct * meanValueZ, step));
                 
+                elementsHMizell.get(0).addValue(new DataTime(time, valueX - elementsPMizell.get(0).getValues().get(i).getValue(), step));
+                elementsHMizell.get(1).addValue(new DataTime(time, valueY - elementsPMizell.get(1).getValues().get(i).getValue(), step));
+                elementsHMizell.get(2).addValue(new DataTime(time, valueZ - elementsPMizell.get(2).getValues().get(i).getValue(), step));
             }
         }
     }
@@ -386,11 +387,9 @@ public class SamplesUtils {
          */
         List<SingleCoordinateSet> elementsForWindow = new ArrayList<SingleCoordinateSet>(),
                 elementsPMizellWindow = null,
-                elementsHMizellWindow = null,
-                elementsNoBuffer = new ArrayList<SingleCoordinateSet>();
+                elementsHMizellWindow = null;
         
-        createWindowOfData(batch, vectorPMizell, vectorHMizell, 0, startPoint, 
-                elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, elementsNoBuffer);
+        createWindowOfData(batch, 0, startPoint, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
                 
         toAddInitialData.add(new SlidingWindow(batch.getAction(), batch.getMode(),
             elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
@@ -407,34 +406,7 @@ public class SamplesUtils {
                 elementsPMizellWindow = null;
                 elementsHMizellWindow = null;
                 
-                /**
-                 * Defining the List<SingleCoordinateSet> that will hold the 
-                 * data for the sliding window
-                 */
-                for (int index = 0; index < values.size(); index++) {
-                    SingleCoordinateSet elements = new SingleCoordinateSet(values.get(index).getValues().subList(startPoint, i + 1));
-                    elements.setTitle(values.get(index).getTitle());
-                    elementsForWindow.add(elements);
-                    
-                    /**
-                     * if we are using accelerometer data store even the 
-                     * mizell vectors
-                     */
-                    if (vectorPMizell != null) {
-                        SingleCoordinateSet elementsP = new SingleCoordinateSet(vectorPMizell.get(index).getValues().subList(startPoint, i + 1)),
-                                elementsH = new SingleCoordinateSet(vectorHMizell.get(index).getValues().subList(startPoint, i + 1));
-                        elementsP.setTitle(vectorPMizell.get(index).getTitle());
-                        elementsH.setTitle(vectorHMizell.get(index).getTitle());
-                        
-                        if (elementsPMizellWindow == null) {
-                            elementsPMizellWindow = new ArrayList<SingleCoordinateSet>();
-                            elementsHMizellWindow = new ArrayList<SingleCoordinateSet>();
-                        }
-                        elementsPMizellWindow.add(elementsP);
-                        elementsHMizellWindow.add(elementsH);
-                    }
-                    
-                }
+                createWindowOfData(batch, startPoint, i, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
                 
                 listOfWindows.add(new SlidingWindow(batch.getAction(), batch.getMode(),
                     elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
@@ -445,7 +417,6 @@ public class SamplesUtils {
             else {
                 i++;
             }
-            
         }
         
         /**
@@ -455,30 +426,7 @@ public class SamplesUtils {
         elementsPMizellWindow = null;
         elementsHMizellWindow = null;
         
-        for (int index = 0; index < values.size(); index++) {
-            SingleCoordinateSet elements = new SingleCoordinateSet(values.get(index).getValues().subList(startPoint, values.get(0).size()));
-            elements.setTitle(values.get(index).getTitle());
-            elementsForWindow.add(elements);
-                    
-            /**
-             * if we are using accelerometer data store even the 
-             * mitzell vectors
-             */
-            if (vectorPMizell != null) {
-                SingleCoordinateSet elementsP = 
-                        new SingleCoordinateSet(vectorPMizell.get(index).getValues().subList(startPoint, values.get(0).size())),
-                    elementsH = new SingleCoordinateSet(vectorHMizell.get(index).getValues().subList(startPoint, values.get(0).size()));
-                    elementsP.setTitle(vectorPMizell.get(index).getTitle());
-                    elementsH.setTitle(vectorHMizell.get(index).getTitle());
-                        
-                if (elementsPMizellWindow == null) {
-                    elementsPMizellWindow = new ArrayList<SingleCoordinateSet>();
-                    elementsHMizellWindow = new ArrayList<SingleCoordinateSet>();
-                }
-                elementsPMizellWindow.add(elementsP);
-                elementsHMizellWindow.add(elementsH);
-            }
-        }
+        createWindowOfData(batch, startPoint, values.get(0).size(), linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
         
         toAddInitialData.add(new SlidingWindow(batch.getAction(), batch.getMode(),
             elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));

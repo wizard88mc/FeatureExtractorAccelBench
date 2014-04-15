@@ -259,7 +259,7 @@ public class DBTextManager {
                      */
                     if (Integer.valueOf(elements[elements.length - 2]) != lastTrunkId) {
                         
-                        window.completeSlidingWindow();
+                        //window.completeSlidingWindow();
                         if (window.isLinear()) {
                             if (window.getSupposedAction().equals(App.NO_STAIR)) {
                                 linearNoStairs.add(window);

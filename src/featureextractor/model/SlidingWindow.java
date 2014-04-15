@@ -60,6 +60,8 @@ public class SlidingWindow {
             boolean linear, int trunk) {
         this(action, placeAction, values, linear, trunk);
         this.valuesPMitzell = vectorPMitzell; this.valuesHMitzell = vectorHMitzell;
+        
+        completeSlidingWindow();
     }
     
     public void completeSlidingWindow() {

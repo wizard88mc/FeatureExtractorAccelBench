@@ -14,14 +14,11 @@ import org.jfree.chart.plot.IntervalMarker;
 public class Batch {
 
     private final List<SingleCoordinateSet> values = new ArrayList<SingleCoordinateSet>();
-    //private final List<SingleCoordinateSet> valuesWithoutGravity = new ArrayList<SingleCoordinateSet>();
-    private final List<SingleCoordinateSet> valuesRotated = new ArrayList<SingleCoordinateSet>();
     private final List<SingleCoordinateSet> valuesWithoutGravityRotated = new ArrayList<SingleCoordinateSet>();
     private final List<SingleCoordinateSet> valuesLinear = new ArrayList<SingleCoordinateSet>();
     private final List<SingleCoordinateSet> valuesLinearRotated = new ArrayList<SingleCoordinateSet>();
     private final List<SingleCoordinateSet> valuesPMitzell = new ArrayList<SingleCoordinateSet>();
     private final List<SingleCoordinateSet> valuesHMitzell = new ArrayList<SingleCoordinateSet>();
-    private final List<SingleCoordinateSet> valuesNoGravityRotatedWithoutBuffer = new ArrayList<SingleCoordinateSet>();
     private static HashMap<Integer, String> coordinates_mapping = new HashMap<Integer, String>();
     private List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
     private String title;
@@ -91,10 +88,6 @@ public class Batch {
         return valuesLinear;
     }
     
-    public List<SingleCoordinateSet> getValuesRotated() {
-        return valuesRotated;
-    }
-    
     public List<SingleCoordinateSet> getValuesWithoutGravityRotated() {
         return valuesWithoutGravityRotated;
     }
@@ -119,9 +112,6 @@ public class Batch {
             values.add(new SingleCoordinateSet());
             values.get(i).setTitle(coordinates_mapping.get(i));
             
-            valuesRotated.add(new SingleCoordinateSet());
-            valuesRotated.get(i).setTitle(coordinates_mapping.get(i));
-            
             valuesWithoutGravityRotated.add(new SingleCoordinateSet());
             valuesWithoutGravityRotated.get(i).setTitle(coordinates_mapping.get(i));
             
@@ -130,9 +120,6 @@ public class Batch {
             
             valuesLinearRotated.add(new SingleCoordinateSet());
             valuesLinearRotated.get(i).setTitle(coordinates_mapping.get(i));
-            
-            valuesNoGravityRotatedWithoutBuffer.add(new SingleCoordinateSet());
-            valuesNoGravityRotatedWithoutBuffer.get(i).setTitle(coordinates_mapping.get(i));
         }
         
         for (int i = 0; i < 3; i++) {
@@ -147,10 +134,6 @@ public class Batch {
             values.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
             values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
             values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
-            
-            valuesRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX(), sample.getStep()));
-            valuesRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY(), sample.getStep()));
-            valuesRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedZ(), sample.getStep()));
             
             if (sample.getHasNoGravityValues()) {
                 valuesWithoutGravityRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityX(), sample.getStep()));
@@ -219,7 +202,7 @@ public class Batch {
                 /**
                  * Calculating Mizell vectors
                  */
-                double normMeanValues = (double)Math.sqrt(Math.pow(meanValueX, 2) + Math.pow(meanValueY, 2) + 
+                /*double normMeanValues = (double)Math.sqrt(Math.pow(meanValueX, 2) + Math.pow(meanValueY, 2) + 
                         Math.pow(meanValueY, 2));
                 
                 double vectorProduct = ((sample.getValueX() - meanValueX) * meanValueX
@@ -240,7 +223,7 @@ public class Batch {
                 
                 valuesHMitzell.get(0).getValues().add(new DataTime(sample.getTime(), vectorHComponentX, sample.getStep()));
                 valuesHMitzell.get(1).getValues().add(new DataTime(sample.getTime(), vectorHComponentY, sample.getStep()));
-                valuesHMitzell.get(2).getValues().add(new DataTime(sample.getTime(), vectorHComponentZ, sample.getStep()));
+                valuesHMitzell.get(2).getValues().add(new DataTime(sample.getTime(), vectorHComponentZ, sample.getStep()));*/
                 
                 buffer.remove(0);
                 buffer.add(sample);

@@ -170,10 +170,7 @@ public class Plot extends javax.swing.JFrame {
     private XYDataset createDataset(Batch batch, boolean accelerometer, boolean accelerometerNoGravity,
         boolean linear, boolean rotation) {
         java.util.List<SingleCoordinateSet> axes = batch.getValues();
-        if (accelerometer && rotation) {
-            axes = batch.getValuesRotated();
-        }
-        else if (accelerometerNoGravity && rotation) {
+        if (accelerometerNoGravity && rotation) {
             axes = batch.getValuesWithoutGravityRotated();
         }
         else if (linear && !rotation) {
