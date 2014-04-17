@@ -177,8 +177,6 @@ public class DBTextManager {
         outputSamples.flush();
         
         lastTrunkId++;
-        
-        
     }
     
     /**

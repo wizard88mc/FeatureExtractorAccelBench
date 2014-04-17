@@ -16,71 +16,18 @@ import weka.classifiers.trees.J48;
  * @author Nicola Beghin
  */
 public class App {
+    
+    final private static String[] dbs = {"matteo/accelbench_20140130182200.db",
+                        "matteo/accelbench_20140127101346.db",
+                        "matteo/accelbench_20140127113057.db",
+                        "matteo/accelbench_20140127172252.db",
+                        "matteo/accelbench_20140301000700.db",
+                        "matteo/accelbench_20140128182904.db",
+                        "matteo/accelbench_20140307151200.db",
+                        "matteo/accelbench_20140312103900.db",
+                        "michele/accelbench_20140127092832.db",
+                        "michele/accelbench_20140128090735.db"};
 
-    final private static String[] dbs = new String[]{
-        "accelbench_20130825164535.db", 
-        "accelbench_20130825213441.db", 
-        "accelbench_20130826181943.db", 
-        "accelbench_20131107001720.db", 
-        "accelbench_20131110162117.db", 
-        "accelbench_20131113225612_NOSTAIRS.db", 
-        "accelbench_20131113231049_STAIR.db", 
-        "accelbench_20131113231246_NOSTAIRS.db", 
-        "accelbench_20131113233157_NOSTAIRS.db", 
-        "accelbench_20131115152325_SCALE.db", 
-        "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
-        "accelbench_20131118205809_NOSTAIRS.db", 
-        "matteo/accelbench_20131119220216.db", 
-        "matteo/accelbench_20131119004850.db", 
-        "matteo/accelbench_20131123002545_GALAXY_NEXUS.db", 
-        "matteo/accelbench_20131125090116_NEXUS4.db", 
-        "matteo/accelbench_20131125204755_NEXUS4_NONSTAIR.db",
-        "matteo/accelbench_20131129094849_NEXUS4_NOSTAIRS.db",
-        "torre/accelbench_20131127121019_STAIR.db", 
-        "torre/accelbench_20131127121623_NON_STAIR.db", 
-        "nonstair/accelbench_20131127210819.db", 
-        "nonstair/accelbench_20131127210009.db",
-        "nonstair/accelbench_20131127210108.db",
-        "nonstair/accelbench_20131127210355.db",
-        "nonstair/accelbench_20131127210819.db",
-         // from now on duplicated samples
-        "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
-        "accelbench_20131118205809_NOSTAIRS.db", 
-        "accelbench_20131113231246_NOSTAIRS.db", 
-        "accelbench_20131113233157_NOSTAIRS.db", 
-        "nonstair/accelbench_20131127210819.db", 
-        "nonstair/accelbench_20131127210009.db",
-        "nonstair/accelbench_20131127210108.db",
-        "nonstair/accelbench_20131127210355.db",
-        "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
-        "accelbench_20131118205809_NOSTAIRS.db", 
-        "accelbench_20131113231246_NOSTAIRS.db", 
-        "accelbench_20131113233157_NOSTAIRS.db", 
-        "nonstair/accelbench_20131127210819.db", 
-        "nonstair/accelbench_20131127210009.db",
-        "nonstair/accelbench_20131127210108.db",
-        "nonstair/accelbench_20131127210355.db",
-        "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
-        "accelbench_20131118205809_NOSTAIRS.db", 
-        "accelbench_20131113231246_NOSTAIRS.db", 
-        "accelbench_20131113233157_NOSTAIRS.db", 
-        "nonstair/accelbench_20131127210819.db", 
-        "nonstair/accelbench_20131127210009.db",
-        "nonstair/accelbench_20131127210108.db",
-        "nonstair/accelbench_20131127210355.db",
-        "accelbench_20131115152238_NONSTAIR_VELOCE.db", 
-        "accelbench_20131118205809_NOSTAIRS.db", 
-        "accelbench_20131113231246_NOSTAIRS.db", 
-        "accelbench_20131113233157_NOSTAIRS.db", 
-        "nonstair/accelbench_20131127210819.db", 
-        "nonstair/accelbench_20131127210009.db",
-        "nonstair/accelbench_20131127210108.db",
-        "nonstair/accelbench_20131127210355.db",
- 
-        
-
-    }; // "accelbench_matteo.db", "accelbench_prof.db", 
-    final private static String[] validation_dbs = dbs; // "accelbench_20131110161959_NONSTAIRS.db", 
     final public static String NO_STAIR = "NON_STAIR";
     final public static String STAIR_DOWNSTAIRS = "STAIR_DOWNSTAIRS";
     final public static String STAIR_UPSTAIRS = "STAIR_UPSTAIRS";
@@ -100,7 +47,7 @@ public class App {
         FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
         MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
-    private static MODE mode = MODE.FEATURES_FROM_TEXT_DB;
+    private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor(false);
@@ -192,36 +139,8 @@ public class App {
                     featureExtractor.plot();
 //                    }
                     break;
-
-                case STEP_AVG_CALCULATOR:
-                    getAverageStepForAllDb();
-//                    float sum = 0;
-//                    int stair_db = 0;
-//                    for (String db : dbs) {
-//                        System.out.println("data/db/" + db);
-//                        featureExtractor.setDb("data/db/" + db);
-//                        try {
-//                            sum += featureExtractor.getAverageStepDuration();
-//                            stair_db++;
-//                        } catch (Exception ex) {
-//                            System.out.println("No step for this db");
-//                        }
-//                    }
-//                    float average_step_duration = (float) sum / (float) stair_db;
-//                    System.out.println("AVG STEP DURATION: " + average_step_duration + ": " + 60 * average_step_duration + " ms");
-                    break;
                     
                 case BUILD_DB_SLIDING_WINDOW: {
-                    String[] dbs = {"matteo/accelbench_20140130182200.db",
-                        "matteo/accelbench_20140127101346.db",
-                        "matteo/accelbench_20140127113057.db",
-                        "matteo/accelbench_20140127172252.db",
-                        "matteo/accelbench_20140301000700.db",
-                        "matteo/accelbench_20140128182904.db",
-                        "matteo/accelbench_20140307151200.db",
-                        "matteo/accelbench_20140312103900.db",
-                        "michele/accelbench_20140127092832.db",
-                        "michele/accelbench_20140128090735.db"};
                     
                     featureExtractor.createFinalDB(true);
                     
@@ -232,8 +151,9 @@ public class App {
                             featureExtractor.setDb("data/completo/" + db);
                             featureExtractor.populateTextualDatabase();
                         }
-                        }catch(Exception exc) {}
-                        
+                        }catch(Exception exc) {
+                            exc.printStackTrace();
+                        }
                     }
                     break;
                 }
@@ -274,7 +194,7 @@ public class App {
                     
                     ARFF.AddClasses(actions);
                     
-                    /*featureExtractor.createFinalDB(true);
+                    featureExtractor.createFinalDB(true);
                     featureExtractor.initializeListWindowsForFeatures();
                     
                     for (int frequency: frequencies) {
@@ -282,7 +202,7 @@ public class App {
                             featureExtractor.getARFF().resetData();
                             featureExtractor.extractUsingFrequency(frequency, false, false);
                         
-                            featureExtractor.dumpARFF(new File("StairDetectionVSW"+frequency+".arff"));
+                            featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSW"+frequency+".arff"));
                         }
                         catch(Exception exc) {}
                     }
@@ -292,12 +212,12 @@ public class App {
                         featureExtractor.getARFF().resetData();
                         featureExtractor.extractUsingFrequency(frequency, true, false);
                         
-                        featureExtractor.dumpARFF(new File("StairDetectionVSW"+frequency+"Linear.arff"));
+                        featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSW"+frequency+"Linear.arff"));
                         }
                         catch(Exception exc) {exc.printStackTrace();}
-                    }   */
+                    }
                     
-                    featureExtractor = new FeatureExtractor(true);
+                    /*featureExtractor = new FeatureExtractor(true);
                     featureExtractor.createFinalDB(true);
                     featureExtractor.initializeListWindowsForFeatures();
                     
@@ -307,7 +227,7 @@ public class App {
                         featureExtractor.extractUsingFrequency(frequency, false, true);
                         
                         featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSWMitzell"+frequency+".arff"));
-                    }
+                    }*/
                     break;
                 }
                 

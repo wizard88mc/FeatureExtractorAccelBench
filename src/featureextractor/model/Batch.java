@@ -199,32 +199,6 @@ public class Batch {
                 sample.setNoGravityY(sample.getValueY() - meanValueY);
                 sample.setNoGravityZ(sample.getValueZ() - meanValueZ);
                 
-                /**
-                 * Calculating Mizell vectors
-                 */
-                /*double normMeanValues = (double)Math.sqrt(Math.pow(meanValueX, 2) + Math.pow(meanValueY, 2) + 
-                        Math.pow(meanValueY, 2));
-                
-                double vectorProduct = ((sample.getValueX() - meanValueX) * meanValueX
-                        + (sample.getValueY() - meanValueY) * meanValueY +
-                        (sample.getValueZ() - meanValueZ) * meanValueZ) / Math.pow(normMeanValues, 2);
-                
-                double vectorPComponentX = meanValueX * vectorProduct,
-                        vectorPComponentY = meanValueY * vectorProduct,
-                        vectorPComponentZ = meanValueZ * vectorProduct;
-                
-                double vectorHComponentX = sample.getNoGravityX() * vectorPComponentX,
-                        vectorHComponentY = sample.getNoGravityY() * vectorPComponentY,
-                        vectorHComponentZ = sample.getNoGravityZ() * vectorPComponentZ;
-                
-                valuesPMitzell.get(0).getValues().add(new DataTime(sample.getTime(), vectorPComponentX, sample.getStep()));
-                valuesPMitzell.get(1).getValues().add(new DataTime(sample.getTime(), vectorPComponentY, sample.getStep()));
-                valuesPMitzell.get(2).getValues().add(new DataTime(sample.getTime(), vectorPComponentZ, sample.getStep()));
-                
-                valuesHMitzell.get(0).getValues().add(new DataTime(sample.getTime(), vectorHComponentX, sample.getStep()));
-                valuesHMitzell.get(1).getValues().add(new DataTime(sample.getTime(), vectorHComponentY, sample.getStep()));
-                valuesHMitzell.get(2).getValues().add(new DataTime(sample.getTime(), vectorHComponentZ, sample.getStep()));*/
-                
                 buffer.remove(0);
                 buffer.add(sample);
             }

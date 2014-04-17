@@ -64,7 +64,7 @@ public class SlidingWindow {
         completeSlidingWindow();
     }
     
-    public void completeSlidingWindow() {
+    private void completeSlidingWindow() {
         values.add(new SingleCoordinateSet(coordinates.get(3)));
         values.add(new SingleCoordinateSet(coordinates.get(4)));
         
