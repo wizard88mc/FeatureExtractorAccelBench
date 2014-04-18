@@ -4,6 +4,7 @@
  */
 package featureextractor.utils;
 
+import featureextractor.App;
 import featureextractor.comparator.SampleTimeComparator;
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Sample;
@@ -21,8 +22,6 @@ import java.util.List;
  * @author Nicola Beghin
  */
 public class SamplesUtils {
-
-    private static int samples_for_sampling_rate_calculation = 300;
 
     public static List<Batch> getAll(ArrayList<Sample> values) throws Exception {
         if (values.isEmpty()) {
@@ -217,7 +216,7 @@ public class SamplesUtils {
      * @param batch
      * @param startPoint: start point of the considered window
      * @param endPoint: end point of the considered window
-     * @param elementsForWindow: final elements rotated using our method
+     * @param elementsDataWithoutGravity: final elements rotated using our method
      * @param elementsPMizell: vector P calculated using the Mizell method
      * @param elementsHMizell: vector H calculated using the Mizell method
      */
@@ -226,22 +225,24 @@ public class SamplesUtils {
             List<SingleCoordinateSet> elementsDataWithoutGravity, 
             List<SingleCoordinateSet> elementsPMizell, List<SingleCoordinateSet> elementsHMizell) {
         
-        /**
-         * This two values are the start and end point of a window in the List<SingleCoordinateSet>
-         * as the values are retrieved from the accelerometer
-         */
-        int startIndexForBaseValues = batch.getRealIndexForTimestamp(batch.getValuesWithoutGravityRotated().get(0).getValues().get(startPoint).getTime());
-        int endIndexForBaseValues = batch.getRealIndexForTimestamp(batch.getValuesWithoutGravityRotated().get(0).getValues().get(endPoint).getTime());
         
+        List<SingleCoordinateSet> valuesToUse = null;
+        
+        if (!linear) {
+            valuesToUse = batch.getValuesWithoutGravityRotated();
+        }
+        else {
+            valuesToUse = batch.getLinearValuesRotated();
+        }
         /**
          * Getting all the elements for the data rotated without gravity
          * using our method
          */
         for (int index = 0; index < batch.getValues().size(); index++) {
             SingleCoordinateSet elements = new SingleCoordinateSet(
-                    batch.getValuesWithoutGravityRotated().get(index).getValues().subList(startPoint, endPoint));
+                    valuesToUse.get(index).getValues().subList(startPoint, endPoint));
             
-            elements.setTitle(batch.getValuesWithoutGravityRotated().get(index).getTitle());
+            elements.setTitle(valuesToUse.get(index).getTitle());
             elementsDataWithoutGravity.add(elements);    
         }
         
@@ -249,6 +250,13 @@ public class SamplesUtils {
          * Creating the SingleCoordinateSet elements for the Mizell records
          */
         if (!linear) {
+            
+            /**
+            * This two values are the start and end point of a window in the List<SingleCoordinateSet>
+            * as the values are retrieved from the accelerometer
+            */
+           int startIndexForBaseValues = batch.getRealIndexForTimestamp(batch.getValuesWithoutGravityRotated().get(0).getValues().get(startPoint).getTime());
+           int endIndexForBaseValues = batch.getRealIndexForTimestamp(batch.getValuesWithoutGravityRotated().get(0).getValues().get(endPoint).getTime());
             
             /**
              * Retrieves all the values inside of the window that will be used to 
@@ -360,9 +368,9 @@ public class SamplesUtils {
         
         List<SlidingWindow> listOfWindows = new ArrayList<SlidingWindow>();
         
-        List<SingleCoordinateSet> values = batch.getValuesWithoutGravityRotated();
+        List<SingleCoordinateSet> valuesForSearch = batch.getValuesWithoutGravityRotated();
         if (linear) {
-            values = batch.getLinearValuesRotated();
+            valuesForSearch = batch.getLinearValuesRotated();
         }
         
         /**
@@ -370,10 +378,10 @@ public class SamplesUtils {
          * to a positive one
          */
         int startPoint = -1; 
-        for (int i = 0; i < values.get(2).size() - 1 && startPoint == -1 ; i++) {
+        for (int i = 0; i < valuesForSearch.get(2).size() - 1 && startPoint == -1 ; i++) {
             
-            if (values.get(2).getValues().get(i).getValue() < 0 && 
-                    values.get(2).getValues().get(i+1).getValue() >= 0) {
+            if (valuesForSearch.get(2).getValues().get(i).getValue() < 0 && 
+                    valuesForSearch.get(2).getValues().get(i+1).getValue() >= 0) {
                 
                 startPoint = i + 1;
             }
@@ -394,17 +402,17 @@ public class SamplesUtils {
         
         createWindowOfData(batch, 0, startPoint, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
                 
-        toAddInitialData.add(new SlidingWindow(batch.getAction(), batch.getMode(),
+        toAddInitialData.add(new SlidingWindow(App.NO_STAIR, batch.getMode(),
             elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
                 
         
-        for (int i = startPoint; i < values.get(0).size() - 1; ) {
+        for (int i = startPoint; i < valuesForSearch.get(0).size() - 1; ) {
             try {
             /**
              * Analyzing values of the Z axis
              */
-            if (values.get(2).getValues().get(i).getValue() < 0 && 
-                    values.get(2).getValues().get(i + 1).getValue() >= 0) {
+            if (valuesForSearch.get(2).getValues().get(i).getValue() < 0 && 
+                    valuesForSearch.get(2).getValues().get(i + 1).getValue() >= 0) {
                 /**
                  * Sliding window is ended
                  * First point is startPoint, endPoint is i
@@ -451,9 +459,9 @@ public class SamplesUtils {
             elementsHMizellWindow = null;
         }
         
-        createWindowOfData(batch, startPoint, values.get(0).size() - 1, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
+        createWindowOfData(batch, startPoint, valuesForSearch.get(0).size() - 1, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
         
-        toAddInitialData.add(new SlidingWindow(batch.getAction(), batch.getMode(),
+        toAddInitialData.add(new SlidingWindow(App.NO_STAIR, batch.getMode(),
             elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
         
         return listOfWindows;
