@@ -27,7 +27,6 @@ public class DbExtractor {
 
     private File db_path;
     private Connection connection = null;
-    private double min_diff_for_next_batch = 1000000000;
     private String dbAccelerometer = "samples_accelerometer";
     //private String dbAccelerometer = "samples";
     private String dbLinear = "samples_linear";
@@ -125,20 +124,6 @@ public class DbExtractor {
 
     public void setTrunkAsInMano(int trunk_id, boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {
         setTrunkMode(trunk_id, "MANO", linear);
-    }
-
-    public List<IntervalMarker> getMarkersForTrunk(int trunk_id,  boolean linear) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT trunk,MIN(timestamp) as mintimestamp,MAX(timestamp) as maxtimestamp FROM " + getRightDB(linear) + " WHERE trunk=? AND step!=0 AND step IS NOT NULL GROUP BY step");
-        statement.setInt(1, trunk_id);
-        ResultSet rs = statement.executeQuery();
-        List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
-        if (!rs.isBeforeFirst()) {
-            throw new Exception("No step for this trunk");
-        }
-        while (rs.next()) {
-            markers.add(new IntervalMarker(rs.getLong("mintimestamp") / Plot.time_divisor, rs.getLong("maxtimestamp") / Plot.time_divisor));
-        }
-        return markers;
     }
 
     public void applyTrunkFixes(List<TrunkFixSpec> fixes, boolean linear) throws SQLException, FileNotFoundException, ClassNotFoundException {

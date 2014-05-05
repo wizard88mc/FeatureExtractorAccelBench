@@ -53,7 +53,6 @@ public class FeatureExtractor {
 
     public enum BATCH_CREATION_MODE {
 
-        ALL, // all samples
         NON_INTERLAPPING_FIXED_SIZE, // non interlapping sliding window
         INTERLAPPING_FIXED_SIZE, // interlapping sliding window
         RANGE_FROM_START, // range from beginning 
@@ -92,9 +91,9 @@ public class FeatureExtractor {
         db_extractor = new DbExtractor(file);
     }
     
-    public void createFinalDB(boolean openForAppend) throws IOException {
+    public void createFinalDB(boolean testDB, boolean openForAppend) throws IOException {
         
-        dbDataTextManager = new DBTextManager(openForAppend);
+        dbDataTextManager = new DBTextManager(testDB, openForAppend);
     }
 
     public float getAverageStepDuration() throws Exception {
@@ -214,10 +213,6 @@ public class FeatureExtractor {
                     System.out.println("Selected batches by step");
                     batches = SamplesUtils.getBatchesByStep(samplesAccelerometer);
                     break;
-                case ALL:
-                    System.out.println("Selected a single batch with all samples");
-                    //batches = SamplesUtils.getAll(samples);
-                    break;
                 default:
                     throw new Exception("Unknown batch creation mode");
             }
@@ -296,18 +291,28 @@ public class FeatureExtractor {
         
         for (Batch batch: baseBatchesDownstairs) {
             
+            /**
+             * Printing the plot with the accelerometer values
+             */
+            new Plot(batch, db_extractor, false, true, false, true);
             windowsAccelerometerNoGravityDownstairs.addAll(
                     SamplesUtils.getSlidingWindowsOfFixedDefinition(batch, false, windowsAccelerometerNoGravityNoStairs));
             
+            /**
+             * Printing the plot with the linear values
+             */
+            new Plot(batch, db_extractor, false, false, true, true);
             windowsLinearDownstairs.addAll(
                     SamplesUtils.getSlidingWindowsOfFixedDefinition(batch, true, windowsLinearNoStairs));
         }
         
         for (Batch batch: baseBatchesUpstairs) {
             
+            new Plot(batch, db_extractor, false, true, false, true);
             windowsAccelerometerNoGravityUpstairs.addAll(
                 SamplesUtils.getSlidingWindowsOfFixedDefinition(batch, false, windowsAccelerometerNoGravityNoStairs));
             
+            new Plot(batch, db_extractor, false, true, false, true);
             windowsLinearUpstairs.addAll(
                     SamplesUtils.getSlidingWindowsOfFixedDefinition(batch, true, windowsLinearNoStairs));
         }
@@ -367,6 +372,41 @@ public class FeatureExtractor {
         }
     }
     
+    private void populateTestDB() throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
+        
+        List<Batch> batchesNotLinear = db_extractor.extractByTrunk(false),
+                batchesLinear = db_extractor.extractByTrunk(true);
+        
+        List<SlidingWindow> windowsWithoutGravity = new ArrayList<SlidingWindow>(),
+                windowsLinear = new ArrayList<SlidingWindow>();
+        
+        for (Batch batch: batchesNotLinear) {
+            new Plot(batch, db_extractor, false, true, false, true);
+            windowsWithoutGravity.addAll(SamplesUtils.getBaseWindows(batch, false));
+        }
+        for (Batch batch: batchesLinear) {
+            new Plot(batch, db_extractor, false, false, true, true);
+            windowsLinear.addAll(SamplesUtils.getBaseWindows(batch, true));
+        }
+        
+        int k = 0;
+        for (SlidingWindow window: windowsWithoutGravity) {
+            new PlotForDB(window, dbDataTextManager, false);
+            if (k%20 == 0) {
+                System.out.println("pausa");
+            }
+            k++;
+        }
+        
+        for (SlidingWindow window: windowsLinear) {
+            new PlotForDB(window, dbDataTextManager, true);
+            if (k%20 == 0) {
+                System.out.println("pausa");
+            }
+            k++;
+        }
+    }
+    
     private List<FeaturesSlidingWindow> getFeatures(List<SlidingWindow> slidingWindows, int frequency) {
         
         List<FeaturesSlidingWindow> listFeaturesSet = new ArrayList<FeaturesSlidingWindow>();
@@ -391,56 +431,30 @@ public class FeatureExtractor {
         this.max = max;
     }
 
-    public void plot() {
-        int max_plot = 200;
+    public void plot(boolean gravity, boolean linear, boolean onlyStairs) {
         for (Batch batch : batches) {
-            if (max_plot > 0) {
+            if (onlyStairs && batch.isSomeStairs()) {
                 //new Plot(batch, this.db_extractor, true, false, false, false);
                 //new Plot(batch, this.db_extractor, true, false, false, true);
                 //new Plot(batch, this.db_extractor, false, true, false, false);
-                new Plot(batch, this.db_extractor, false, true, false, true);
+                if (gravity) {
+                    new Plot(batch, this.db_extractor, false, true, false, true);
+                }
                 //new Plot(batch, this.db_extractor, false, false, true, false);
-                new Plot(batch, this.db_extractor, false, false, true, true);
+                if (linear) {
+                    new Plot(batch, this.db_extractor, false, false, true, true);
+                }
             }
-            max_plot--;
+            else {
+                if (gravity) {
+                    new Plot(batch, this.db_extractor, false, true, false, true);
+                }
+                if (linear) {
+                    new Plot(batch, this.db_extractor, false, false, true, true);
+                }
+            }
 //            GralPlot plot2 = new GralPlot(batch);
 //            plot2.setVisible(true);
-        }
-    }
-
-    public void plot(int start) throws Exception {
-        if (start > batches.size()) {
-            throw new Exception(start + " > detected batches (" + batches.size() + ")");
-        }
-        int i = 0;
-        for (Batch batch : batches) {
-            if (i >= start) {
-                new Plot(batch, this.db_extractor, true, false, false, false);
-                new Plot(batch, this.db_extractor, true, false, false, true);
-                new Plot(batch, this.db_extractor, false, true, false, false);
-                new Plot(batch, this.db_extractor, false, true, false, true);
-                new Plot(batch, this.db_extractor, false, false, true, false);
-                new Plot(batch, this.db_extractor, false, false, true, true);
-            }
-            i++;
-        }
-    }
-
-    public void plot(int start, int end) throws Exception {
-        if (start > batches.size()) {
-            throw new Exception(start + " > detected batches (" + batches.size() + ")");
-        }
-        int i = 0;
-        for (Batch batch : batches) {
-            if (i >= start && i <= end) {
-                new Plot(batch, this.db_extractor, true, false, false, false);
-                new Plot(batch, this.db_extractor, true, false, false, true);
-                new Plot(batch, this.db_extractor, false, true, false, false);
-                new Plot(batch, this.db_extractor, false, true, false, true);
-                new Plot(batch, this.db_extractor, false, false, true, false);
-                new Plot(batch, this.db_extractor, false, false, true, true);
-            }
-            i++;
         }
     }
     
@@ -624,9 +638,4 @@ public class FeatureExtractor {
             arff.addAllFeaturesDataMitzell(App.NO_STAIR, featuresWindowsNoStairs);
         }
     }
-    
-    private void normalizeFeatures() {
-        
-    }
-    
 }

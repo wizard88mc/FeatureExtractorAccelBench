@@ -1,5 +1,6 @@
 package featureextractor.model;
 
+import featureextractor.App;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -255,5 +256,9 @@ public class Batch {
         }
         
         return index;
+    }
+    
+    public boolean isSomeStairs() {
+        return (this.action.equals(App.STAIR_DOWNSTAIRS) || this.action.equals(App.STAIR_UPSTAIRS));
     }
 }

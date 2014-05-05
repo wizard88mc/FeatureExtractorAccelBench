@@ -43,7 +43,7 @@ public class App {
         STEP_AVG_CALCULATOR, // plot each trunk to enable step marking,
         BUILD_DB_SLIDING_WINDOW, // Build the Database with all the sliding window
         CLEAN_DB_SLIDING_WINDOW, // Cleans SlidingWindow DB from possible copies
-        NEW_FEATURES_EXTRACTOR, // extract features using sliding windows based not on time
+        POPULATE_TEST_DB, // populates the DB that contains windows as test set
         FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
         MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
@@ -136,13 +136,13 @@ public class App {
                     //featureExtractor.createFinalDB();
                     //featureExtractor.populateDatabase();
                     featureExtractor.extract();
-                    featureExtractor.plot();
+                    featureExtractor.plot(true, true, false);
 //                    }
                     break;
                     
                 case BUILD_DB_SLIDING_WINDOW: {
                     
-                    featureExtractor.createFinalDB(true);
+                    featureExtractor.createFinalDB(false, true);
                     
                     for (String db: dbs) {
                         try {
@@ -158,43 +158,30 @@ public class App {
                     break;
                 }
                 
-                /*case NEW_FEATURES_EXTRACTOR: {
+                case POPULATE_TEST_DB: {
                     
-                    featureExtractor.createFinalDB();
-                    
-                    ARFF.AddClasses(new String[]{App.NO_STAIR, App.STAIR_DOWNSTAIRS, App.STAIR_UPSTAIRS});
-                    
-                    featureExtractor.retrieveSlidingWindows(false);
-                    
-                    int[] frequencies = new int[]{10, 15, 20, 25, 30, 50, 100};
-                    
-                    for (int frequency: frequencies) {
-                        featureExtractor.getARFF().resetData();
-                        System.out.println("Frequency: " + frequency);
-                        featureExtractor.extract(frequency);
-
-                        featureExtractor.dumpARFF(new File("StairDetectionNew"+frequency+".arff"));
-                        System.out.println("Completed frequency: " + frequency);
+                    featureExtractor.createFinalDB(true, true);
+                    for (String db: dbs) {
+                        try {
+                            if (!featureExtractor.getDBTextDataManager().checkIfDatabaseAlreadyInserted(db)) {
+                                featureExtractor.getDBTextDataManager().insertNewDatabase(db);
+                                featureExtractor.setDb("data/completo/" + db);
+                                featureExtractor.populateTextualDatabase();
+                            }
+                        }
+                        catch(Exception exc) {
+                            exc.printStackTrace();
+                        
+                        }
+                        break;
                     }
-                    
-                    featureExtractor.retrieveSlidingWindows(true);
-                    for (int frequency: frequencies) {
-                        featureExtractor.getARFF().resetData();
-                        System.out.println("Frequency linear: " + frequency);
-                        featureExtractor.extract(frequency);
-
-                        featureExtractor.dumpARFF(new File("StairDetectionNew"+frequency+"Linear.arff"));
-                        System.out.println("Frequency linear completed: " + frequency);
-                    }
-                    
-                    break;
-                }*/
+                }
                 
                 case FEATURES_FROM_TEXT_DB:  {
                     
                     ARFF.AddClasses(actions);
                     
-                    featureExtractor.createFinalDB(true);
+                    featureExtractor.createFinalDB(false, true);
                     featureExtractor.initializeListWindowsForFeatures();
                     
                     for (int frequency: frequencies) {

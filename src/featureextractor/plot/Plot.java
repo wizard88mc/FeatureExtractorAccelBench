@@ -40,7 +40,6 @@ public class Plot extends javax.swing.JFrame {
     public final static int time_divisor = 10000000;
     private boolean linear;
     private long[] marker = new long[2];
-    private List<IntervalMarker> preexisting_markers = new ArrayList<IntervalMarker>();
     private int marker_idx = 0;
     private final DbExtractor db_extractor;
     private final Batch batch;
@@ -48,7 +47,6 @@ public class Plot extends javax.swing.JFrame {
     private List<XYSeries> series_container = new ArrayList<XYSeries>();
     private JFreeChart chart;
     private long last_marker = 0;
-    private boolean alreadyPrintedGravity = false;
 
     private void addPlot(boolean accelerometer, boolean accelerometerNoGravity, 
             boolean linear, boolean rotation) {
@@ -137,12 +135,12 @@ public class Plot extends javax.swing.JFrame {
 
     /**
      * 
-     * @param batch
+     * @param batch: the batch to print
      * @param db_extractor
-     * @param accelerometer
-     * @param accelerometerNoGravity
-     * @param linear
-     * @param rotation 
+     * @param accelerometer: requested accelerometer values
+     * @param accelerometerNoGravity: requested accelerometer data without gravity
+     * @param linear: requested linear values
+     * @param rotation: requesting accelerometer or linear values with the rotation
      */
     public Plot(Batch batch, DbExtractor db_extractor, boolean accelerometer, 
             boolean accelerometerNoGravity, boolean linear, boolean rotation) {
@@ -150,11 +148,6 @@ public class Plot extends javax.swing.JFrame {
         this.batch = batch;
         this.linear = linear;
         batch.getMarkers().clear();
-        try {
-            batch.getMarkers().addAll(db_extractor.getMarkersForTrunk(batch.getTrunk(), linear));
-        } catch(Exception ex) {
-            System.out.println(ex.getMessage());
-        }
         initComponents();
         addPlot(accelerometer, accelerometerNoGravity, linear, rotation);
     }

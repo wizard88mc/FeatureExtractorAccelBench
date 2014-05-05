@@ -445,7 +445,6 @@ public class SamplesUtils {
         }
         }
         
-        
         /**
          * Add the final window as a non stair window
          */
@@ -463,6 +462,88 @@ public class SamplesUtils {
         
         toAddInitialData.add(new SlidingWindow(App.NO_STAIR, batch.getMode(),
             elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
+        
+        return listOfWindows;
+    }
+    
+    public static List<SlidingWindow> getBaseWindows(Batch batch, boolean linear) {
+        
+        List<SlidingWindow> listOfWindows = new ArrayList<SlidingWindow>();
+        /**
+         * Add a Sliding Window as non stairs made with the initial values
+         * of the batch
+         */
+        List<SingleCoordinateSet> elementsForWindow = new ArrayList<SingleCoordinateSet>(),
+                elementsPMizellWindow = null,
+                elementsHMizellWindow = null;
+        
+        if (!linear) {
+            elementsPMizellWindow = new ArrayList<SingleCoordinateSet>();
+            elementsHMizellWindow = new ArrayList<SingleCoordinateSet>();
+        }
+        
+        List<SingleCoordinateSet> valuesForSearch = batch.getValuesWithoutGravityRotated();
+        if (linear) {
+            valuesForSearch = batch.getLinearValuesRotated();
+        }
+        
+        int startPoint = 0; 
+        for (int i = startPoint; i < valuesForSearch.size() - 1; i++) {
+            try {
+                /**
+                 * Analyzing values of the Z axis
+                 */
+                if (valuesForSearch.get(2).getValues().get(i).getValue() < 0 && 
+                        valuesForSearch.get(2).getValues().get(i + 1).getValue() >= 0) {
+                    /**
+                     * Sliding window is ended
+                     * First point is startPoint, endPoint is i
+                     */
+                    elementsForWindow = new ArrayList<SingleCoordinateSet>();
+                    if (!linear) {
+                        elementsPMizellWindow = new ArrayList<SingleCoordinateSet>();
+                        elementsHMizellWindow = new ArrayList<SingleCoordinateSet>();
+                    }
+                    else {
+                        elementsPMizellWindow = null;
+                        elementsHMizellWindow = null;
+                    }
+
+                    createWindowOfData(batch, startPoint, i, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
+
+                    listOfWindows.add(new SlidingWindow("", batch.getMode(),
+                        elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
+
+                    startPoint = i+1;
+                    i = startPoint + 1;
+                }
+                else {
+                    i++;
+                }
+            }
+            catch(Exception exc) {
+                exc.printStackTrace();
+                System.out.println("************");
+            }
+        }
+        
+        if (startPoint < valuesForSearch.size() - 1) {
+            elementsForWindow = new ArrayList<SingleCoordinateSet>();
+            if (!linear) {
+                elementsPMizellWindow = new ArrayList<SingleCoordinateSet>();
+                elementsHMizellWindow = new ArrayList<SingleCoordinateSet>();
+            }
+            else {
+                elementsPMizellWindow = null;
+                elementsHMizellWindow = null;
+            }
+
+            createWindowOfData(batch, startPoint, valuesForSearch.size() - 1, 
+                    linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
+            
+            listOfWindows.add(new SlidingWindow("", batch.getMode(), 
+                elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
+        }
         
         return listOfWindows;
     }

@@ -22,16 +22,32 @@ import java.util.List;
  */
 public class DBTextManager {
     
-    private static String BASE_FOLDER = "textualDB/";
+    private static String BASE_FOLDER;
+    private static String BASE_FOLDER_INPUT = "textualDB/";
+    private static String BASE_FOLDER_TEST_DB = "testDB/";
     private static String DB_FILE = "databasesInserted.txt";
-    private static String DB_DATA = "samplesSlidingWindows.dsw";
+    private static String DB_DATA;
+    private static String DB_DATA_INPUT = "samplesSlidingWindows.dsw";
+    private static String DB_DATA_TEST = "testSamplesSlidingWindows.dsw";
+    
     private PrintWriter outputDatabase;
     private PrintWriter outputSamples;
     private static int lastTrunkId = 0;
     
-    public DBTextManager(boolean openForAppend) throws IOException {
+    public DBTextManager(boolean testDB, boolean openForAppend) throws IOException {
         
-        File file = new File(BASE_FOLDER + "samplesSlidingWindows.dsw");
+        if (testDB) {
+            DB_DATA = DB_DATA_TEST;
+            BASE_FOLDER = BASE_FOLDER_TEST_DB;
+        }
+        else {
+            DB_DATA = DB_DATA_INPUT;
+            BASE_FOLDER = BASE_FOLDER_INPUT;
+        }
+        
+        File file = new File(BASE_FOLDER + DB_DATA);
+        
+    
         
         if (!file.exists()) {
             outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, openForAppend)));
@@ -45,9 +61,6 @@ public class DBTextManager {
             outputSamples.println("@trunk: int"); outputSamples.println("@isLinear: boolean");
             outputSamples.println("@DATA");
             outputSamples.flush();
-        }
-        else {
-            outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, openForAppend)));
         }
 
         outputDatabase = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_FILE, openForAppend)));
