@@ -47,8 +47,6 @@ public class DBTextManager {
         
         File file = new File(BASE_FOLDER + DB_DATA);
         
-    
-        
         if (!file.exists()) {
             outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, openForAppend)));
             outputSamples.println("@FILE_FORMAT");
@@ -226,7 +224,6 @@ public class DBTextManager {
             
             initializeList(valuesForWindow); 
             
-            line = reader.readLine();
             line = line.replace("(", "").replace(")", "");
             String[] elements = line.split(";");
             

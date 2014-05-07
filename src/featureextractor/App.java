@@ -28,6 +28,12 @@ public class App {
                         "michele/accelbench_20140127092832.db",
                         "michele/accelbench_20140128090735.db"};
 
+    
+    final private static String[] testDBs = {
+        "accelbench_20140127113057.db", "accelbench_20140307151200.db", 
+        "accelbench_20140310155938.db"
+        };
+    
     final public static String NO_STAIR = "NON_STAIR";
     final public static String STAIR_DOWNSTAIRS = "STAIR_DOWNSTAIRS";
     final public static String STAIR_UPSTAIRS = "STAIR_UPSTAIRS";
@@ -47,7 +53,7 @@ public class App {
         FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
         MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
-    private static MODE mode = MODE.BUILD_DB_SLIDING_WINDOW;
+    private static MODE mode = MODE.POPULATE_TEST_DB;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor(false);
@@ -161,11 +167,11 @@ public class App {
                 case POPULATE_TEST_DB: {
                     
                     featureExtractor.createFinalDB(true, true);
-                    for (String db: dbs) {
+                    for (String db: testDBs) {
                         try {
                             if (!featureExtractor.getDBTextDataManager().checkIfDatabaseAlreadyInserted(db)) {
                                 featureExtractor.getDBTextDataManager().insertNewDatabase(db);
-                                featureExtractor.setDb("data/completo/" + db);
+                                featureExtractor.setDb("data/completo/test/" + db);
                                 featureExtractor.populateTextualDatabase();
                             }
                         }
@@ -173,8 +179,8 @@ public class App {
                             exc.printStackTrace();
                         
                         }
-                        break;
                     }
+                    break;
                 }
                 
                 case FEATURES_FROM_TEXT_DB:  {
