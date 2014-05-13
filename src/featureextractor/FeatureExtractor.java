@@ -46,10 +46,14 @@ public class FeatureExtractor {
     private boolean arff_enabled = true;
     private boolean feature_enabled = true;
     private long time_range = 488000000; // ms
+    
     List<SlidingWindow> slidingWindowsDownstairs, slidingWindowsUpstairs, slidingWindowsNoStairs;
     private String[] features_types = new String[]{"std", "mean", "variance"};
     List<SlidingWindow> noGravityUpstairs, noGravityDownstairs, noGravityNoStairs, 
             linearUpstairs, linearDownstairs, linearNoStairs;
+    
+    List<FeaturesSlidingWindow> featuresWindowsDownstairs, featuresWindowsUpstairs, 
+                featuresWindowsNoStairs;
 
     public enum BATCH_CREATION_MODE {
 
@@ -68,11 +72,8 @@ public class FeatureExtractor {
     private int axis_to_be_considered = 3; // (4 == |V|)
 
     public FeatureExtractor(boolean mitzell) {
-//        this.initialize_ARFF();
-        //this.initialize_std_ARFF(axis_to_be_considered, true, true, true, true, 
-         //       true, true, true, true, true);
+
         this.initializeARFF(mitzell);
-        
     }
     
     public void setLinearOrNot(boolean linear) {
@@ -221,7 +222,7 @@ public class FeatureExtractor {
             int i = 1;
             arff.addClass(className);
             for (Batch batch : batches) {
-//                System.out.println("\n*** Batch " + i + " *** (" + batch.size() + " samples)");
+//              System.out.println("\n*** Batch " + i + " *** (" + batch.size() + " samples)");
                 
                 List<FeatureSet> features = null;
                 if (feature_enabled) {
@@ -610,10 +611,7 @@ public class FeatureExtractor {
                 noGravityDownstairs, linearDownstairs, noGravityNoStairs, linearNoStairs);
     }
     
-    public void extractUsingFrequency(int frequency, boolean linear, boolean mitzell) {
-        
-        List<FeaturesSlidingWindow> featuresWindowsDownstairs, featuresWindowsUpstairs, 
-                featuresWindowsNoStairs;
+    public void extractUsingFrequency(int frequency, boolean linear) {
         
         if (!linear) {
             featuresWindowsDownstairs = getFeatures(getOnlySuitableSlidingWindows(noGravityDownstairs, frequency), frequency);
@@ -625,17 +623,34 @@ public class FeatureExtractor {
             featuresWindowsUpstairs = getFeatures(getOnlySuitableSlidingWindows(linearUpstairs, frequency), frequency);
             featuresWindowsNoStairs = getFeatures(getOnlySuitableSlidingWindows(linearNoStairs, frequency), frequency);
         }
+    }
+    
+    public void createARFFDataFromExtractedFeatures(boolean mizell, 
+            boolean easyClassification) {
         
-        
-        if (!mitzell) {
-            arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
-            arff.addAllFeaturesData(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
-            arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
+        if (!mizell) {
+            if (!easyClassification) {
+                arff.addAllFeaturesData(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
+                arff.addAllFeaturesData(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
+                arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
+            }
+            else {
+                arff.addAllFeaturesData(App.STAIR, featuresWindowsDownstairs);
+                arff.addAllFeaturesData(App.STAIR, featuresWindowsUpstairs);
+                arff.addAllFeaturesData(App.NO_STAIR, featuresWindowsNoStairs);
+            }
         }
         else {
-            arff.addAllFeaturesDataMitzell(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
-            arff.addAllFeaturesDataMitzell(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
-            arff.addAllFeaturesDataMitzell(App.NO_STAIR, featuresWindowsNoStairs);
+            if (!easyClassification) {
+                arff.addAllFeaturesDataMizell(App.STAIR_DOWNSTAIRS, featuresWindowsDownstairs);
+                arff.addAllFeaturesDataMizell(App.STAIR_UPSTAIRS, featuresWindowsUpstairs);
+                arff.addAllFeaturesDataMizell(App.NO_STAIR, featuresWindowsNoStairs);
+            }
+            else {
+                arff.addAllFeaturesDataMizell(App.STAIR, featuresWindowsDownstairs);
+                arff.addAllFeaturesDataMizell(App.STAIR, featuresWindowsUpstairs);
+                arff.addAllFeaturesDataMizell(App.NO_STAIR, featuresWindowsNoStairs);
+            }
         }
     }
 }

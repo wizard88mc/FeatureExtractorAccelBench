@@ -117,18 +117,18 @@ public class ARFF {
     }
     
     /**
-     * Adds all the features related to the Mitzell P and H vector
+     * Adds all the features related to the Mizell P and H vector
      * @param title: classification label
      * @param features: list of sliding windows features
      */
-    public void addAllFeaturesDataMitzell(String title, List<FeaturesSlidingWindow> features) {
+    public void addAllFeaturesDataMizell(String title, List<FeaturesSlidingWindow> features) {
         
         for (int i = 0; i < features.size(); i++) {
             
             List<Double> data_row = new ArrayList<Double>();
             
             /**
-             * Attaching features related to Mitzell P Vector
+             * Attaching features related to Mizell P Vector
              */
             List<FeatureSet> baseFeatures = features.get(i).getBaseFeaturesPMitzell();
             for (int j = 0; j < baseFeatures.size(); j++) {
@@ -145,7 +145,7 @@ public class ARFF {
             data_row.add(features.get(i).getSignalMagnitudeAreaPMitzell());
             
             /**
-             * Attaching features related to Mitzell H Vector
+             * Attaching features related to Mizell H Vector
              */
             baseFeatures = features.get(i).getBaseFeaturesHMitzell();
             for (int j = 0; j < baseFeatures.size(); j++) {
