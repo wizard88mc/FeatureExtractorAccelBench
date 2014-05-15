@@ -19,8 +19,11 @@ public class SlidingWindow {
     private List<SingleCoordinateSet> valuesPMitzell = new ArrayList<SingleCoordinateSet>();
     private List<SingleCoordinateSet> valuesHMitzell = new ArrayList<SingleCoordinateSet>();
     private static List<String> coordinates = new ArrayList();
+    private String sex;
+    private String height;
+    private String shoes;
+    private String mode; 
     private String supposedAction;
-    private String placeAction;
     private int trunk = -1;
     private boolean linear = false;
     public static long lastTimestampEndDownstair = 0;
@@ -50,15 +53,19 @@ public class SlidingWindow {
         this.trunk = trunk;
     }
     
-    public SlidingWindow(String action, String placeAction, List<SingleCoordinateSet> values, boolean linear, int trunk) {
-        this(values); this.linear = linear;
-        this.trunk = trunk; this.supposedAction = action; this.placeAction = placeAction;
+    public SlidingWindow(String sex, String height, String shoes, String mode,  
+            String action, List<SingleCoordinateSet> values, boolean linear, int trunk) {
+        this(values); 
+        this.sex = sex; this.height = height; this.shoes = shoes;
+        this.mode = mode; this.supposedAction = action;
+        this.linear = linear; this.trunk = trunk;  
     }
     
-    public SlidingWindow(String action, String placeAction, List<SingleCoordinateSet> values, 
+    public SlidingWindow(String sex, String height, String shoes, String mode, 
+            String action, List<SingleCoordinateSet> values, 
             List<SingleCoordinateSet> vectorPMitzell, List<SingleCoordinateSet> vectorHMitzell, 
             boolean linear, int trunk) {
-        this(action, placeAction, values, linear, trunk);
+        this(sex, height, shoes, mode, action, values, linear, trunk);
         this.valuesPMitzell = vectorPMitzell; this.valuesHMitzell = vectorHMitzell;
         
         completeSlidingWindow();
@@ -114,16 +121,16 @@ public class SlidingWindow {
         this.supposedAction = action;
     }
     
-    public void setPlaceAction(String place) {
-        this.placeAction = place;
+    public void setMode(String mode) {
+        this.mode = mode;
     }
     
     public String getSupposedAction() {
         return this.supposedAction;
     }
     
-    public String getPlaceAction() {
-        return this.placeAction;
+    public String getMode() {
+        return this.mode;
     }
     
     public int getTrunk() {
@@ -286,5 +293,17 @@ public class SlidingWindow {
     public List<Double> getMaxsHVector(int frequency) {
         
         return calculateMaxesForList(valuesHMitzell, frequency);
+    }
+    
+    public String getSex() {
+        return this.sex;
+    }
+    
+    public String getHeight() {
+        return this.height;
+    }
+    
+    public String getShoes() {
+        return this.shoes;
     }
 }

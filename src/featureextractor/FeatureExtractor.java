@@ -277,11 +277,11 @@ public class FeatureExtractor {
         return finalWindows;
     }
     
-    public void populateTextualDatabase() throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
+    public void populateTextualDatabase(boolean test) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
         
-        List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction(App.STAIR_DOWNSTAIRS),
-                baseBatchesUpstairs = db_extractor.extractByTrunkAndAction(App.STAIR_UPSTAIRS),
-                baseBatchesNoStairs = db_extractor.extractByTrunkAndAction(App.NO_STAIR);
+        List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction(App.STAIR_DOWNSTAIRS, test),
+                baseBatchesUpstairs = db_extractor.extractByTrunkAndAction(App.STAIR_UPSTAIRS, test),
+                baseBatchesNoStairs = db_extractor.extractByTrunkAndAction(App.NO_STAIR, test);
         
         List<SlidingWindow> windowsAccelerometerNoGravityUpstairs = new ArrayList<SlidingWindow>(),
                 windowsLinearUpstairs = new ArrayList<SlidingWindow>(),

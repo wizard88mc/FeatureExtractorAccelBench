@@ -23,6 +23,9 @@ public class Batch {
     private static HashMap<Integer, String> coordinates_mapping = new HashMap<Integer, String>();
     private List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
     private String title;
+    private String sex;
+    private String height;
+    private String shoes; 
     private String mode;
     private String action;
     private int trunk = 0;
@@ -105,7 +108,9 @@ public class Batch {
         return valuesHMitzell;
     }
 
-    public Batch(List<Sample> samplesAccelerometer, List<Sample> samplesLinear) throws Exception {
+    public Batch(String sex, String height, String shoes, 
+            List<Sample> samplesAccelerometer, List<Sample> samplesLinear) throws Exception {
+        
         if (samplesAccelerometer.isEmpty()) {
             throw new Exception("No element given for this batch");
         }
@@ -159,8 +164,8 @@ public class Batch {
         else { throw new Exception("No linear values provided"); }
     }
     
-    public Batch(List<Sample> samples) throws Exception {
-        this(samples, null);
+    public Batch(String sex, String height, String shoes, List<Sample> samples) throws Exception {
+        this(sex, height, shoes, samples, null);
     }
     
     public void removeGravity(List<Sample> samplesAccelerometer) {

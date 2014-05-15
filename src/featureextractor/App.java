@@ -102,7 +102,7 @@ public class App {
                         if (!featureExtractor.getDBTextDataManager().checkIfDatabaseAlreadyInserted(db)) {
                             featureExtractor.getDBTextDataManager().insertNewDatabase(db);
                             featureExtractor.setDb("data/completo/" + db);
-                            featureExtractor.populateTextualDatabase();
+                            featureExtractor.populateTextualDatabase(false);
                         }
                         }catch(Exception exc) {
                             exc.printStackTrace();
@@ -119,7 +119,7 @@ public class App {
                             if (!featureExtractor.getDBTextDataManager().checkIfDatabaseAlreadyInserted(db)) {
                                 featureExtractor.getDBTextDataManager().insertNewDatabase(db);
                                 featureExtractor.setDb("data/completo/test/" + db);
-                                featureExtractor.populateTextualDatabase();
+                                featureExtractor.populateTextualDatabase(true);
                             }
                         }
                         catch(Exception exc) {

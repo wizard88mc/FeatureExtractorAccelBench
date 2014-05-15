@@ -149,6 +149,7 @@ public class DBTextManager {
      * Adds a new window to the file. Each sliding window is recognized
      * by the trunkID field that is the same for the values belonging to the window
      * @param window: the window to insert
+     * @param newAction: the new action assigned to the SlidingWindow
      * @param linear: if the window represents linear values or not
      */
     public void addNewSlidingWindow(SlidingWindow window, String newAction, boolean linear) {
@@ -179,8 +180,10 @@ public class DBTextManager {
             String finalString = "(" + timestamp + ";" + x + ";" + y + ";" + z + ";" +
                     (!linear?xPMitzell:"NULL") + ";" + (!linear?yPMitzell.toString():"NULL") + ";"
                     + (!linear?zPMitzell.toString():"NULL") + ";" + (!linear?xHMitzell.toString():"NULL") + ";" 
-                    + (!linear?yHMitzell.toString():"NULL") + ";" + (!linear?zHMitzell.toString():"NULL") + ";"+ 
-                    window.getSupposedAction() + ";" + window.getPlaceAction() + ";" + 
+                    + (!linear?yHMitzell.toString():"NULL") + ";" + (!linear?zHMitzell.toString():"NULL") + ";" 
+                    + window.getSex() + ";" + window.getHeight() + ";" 
+                    + window.getShoes() + ";" + window.getMode() + ";"
+                    + window.getSupposedAction() + ";" + 
                     (lastTrunkId) + ";" + (linear?1:0) + ")";
             
             outputSamples.println(finalString);
@@ -233,8 +236,10 @@ public class DBTextManager {
                 initializeList(vectorHMitzell); initializeList(vectorPMitzell);
             }
             
-            window = new SlidingWindow(elements[10], elements[11], valuesForWindow, 
-                    vectorPMitzell, vectorHMitzell, elements[elements.length - 1].equals("1"), 
+            window = new SlidingWindow(elements[10], elements[11], elements[12],
+                    elements[13], elements[14], valuesForWindow, 
+                    vectorPMitzell, vectorHMitzell, 
+                    elements[elements.length - 1].equals("1"), 
                     Integer.valueOf(elements[elements.length - 2]));
             
             insertNewThreeDataTime(valuesForWindow, elements[0], elements[1], elements[2], elements[3]);
@@ -255,10 +260,13 @@ public class DBTextManager {
                      * elements[1,2,3]: x,y,z
                      * elements[4,5,6]: xPMitzell, yPMitzell, zPMitzell
                      * elements[7,8,9]: xHMitzell, yHMitzell, zHMitzell
-                     * elements[10]: action
-                     * elements[11]: mode
-                     * elements[12]: trunk
-                     * elements[13]: isLinear
+                     * elements[10]]: sex
+                     * elements[11]: height
+                     * elements[12]: shoes
+                     * elements[13]: mode
+                     * elements[14]: action
+                     * elements[15]: trunk
+                     * elements[16]: isLinear
                      */
                     
                     /**
@@ -307,6 +315,7 @@ public class DBTextManager {
                         }
                         
                         window = new SlidingWindow(elements[10], elements[11], 
+                                elements[12], elements[13], elements[14],
                                 valuesForWindow, vectorPMitzell, vectorHMitzell, 
                                 elements[elements.length - 1].equals("1"), 
                                 Integer.valueOf(elements[elements.length - 2]));

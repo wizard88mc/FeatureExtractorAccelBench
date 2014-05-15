@@ -187,7 +187,7 @@ public class SamplesUtils {
                 }
                 SlidingWindow window = new SlidingWindow(elementsForSlidingWindow);
                 window.setSupposedAction(batch.getAction());
-                window.setPlaceAction(batch.getMode());
+                window.setMode(batch.getMode());
                 finalBatches.add(window);
                 
                 long increaseTime = duration / numberOverlappingWindows;

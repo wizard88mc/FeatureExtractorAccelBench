@@ -5,7 +5,6 @@
 package featureextractor.plot;
 
 import featureextractor.App;
-import featureextractor.extractor.db.DBDataManager;
 import featureextractor.extractor.db.DBTextManager;
 import featureextractor.model.DataTime;
 import featureextractor.model.SingleCoordinateSet;
@@ -363,7 +362,7 @@ public class PlotForDB extends javax.swing.JFrame {
 
     private void btnSetInTascaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetInTascaActionPerformed
         try {
-            window.setPlaceAction("TASCA");
+            window.setMode("TASCA");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
@@ -372,7 +371,7 @@ public class PlotForDB extends javax.swing.JFrame {
 
     private void btnSetInManoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetInManoActionPerformed
         try {
-            window.setPlaceAction("MANO");
+            window.setMode("MANO");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
