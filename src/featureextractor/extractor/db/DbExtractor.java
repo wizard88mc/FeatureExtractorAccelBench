@@ -308,7 +308,9 @@ public class DbExtractor {
         return batches;
     }
     
-    public List<Batch> extractByTrunkAndAction(String action, boolean test) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
+    public List<Batch> extractByTrunkAndAction(String action) 
+            throws FileNotFoundException, ClassNotFoundException, SQLException, 
+            AccelBenchException, Exception {
         
         this.connect();
         List<Sample> values = new ArrayList<Sample>();
@@ -318,7 +320,7 @@ public class DbExtractor {
         String dbAccelerometer = getRightDB(false);
 
         String query = "SELECT trunk, MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + dbAccelerometer + 
-                " WHERE action = \"" + action + "\" AND testData=" + (test?1:0) + " GROUP BY trunk";
+                " WHERE action = \"" + action + "\" AND testData=" + 0 + " GROUP BY trunk";
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         int trunk_id = 0, min = 0, max = 0;
@@ -337,8 +339,14 @@ public class DbExtractor {
                         rs2.getDouble("rotationX"), rs2.getDouble("rotationY"), rs2.getDouble("rotationZ"), 
                         rs2.getInt("trunk"), rs2.getString("action"), rs2.getInt("step"), rs2.getString("mode")));
                 
-                sex = rs2.getString("sex"); height = rs2.getString("height");
-                shoes = rs2.getString("shoes");
+                /**
+                 * If details about trunk is null, getting this data 
+                 * from the first record
+                 */
+                if (sex == null) {
+                    sex = rs2.getString("sex"); height = rs2.getString("height");
+                    shoes = rs2.getString("shoes");
+                }
             }
             
             String linearDB = getRightDB(true);
@@ -354,11 +362,12 @@ public class DbExtractor {
                 get_stmtLinear.setInt(1, minLinear);
                 get_stmtLinear.setInt(2, maxLinear);
                 ResultSet rs2Linear = get_stmtLinear.executeQuery();
+                
                 while (rs2Linear.next()) {
+                    
                     valuesLinear.add(new Sample(rs2Linear.getLong("timestamp"), rs2Linear.getDouble("x"), rs2Linear.getDouble("y"), rs2Linear.getDouble("z"), 
                             rs2Linear.getDouble("rotationX"), rs2Linear.getDouble("rotationY"), rs2Linear.getDouble("rotationZ"), 
                             rs2Linear.getInt("trunk"), rs2Linear.getString("action"), rs2Linear.getInt("step"), rs2Linear.getString("mode")));
-                    
                 }
             }
             
@@ -368,9 +377,14 @@ public class DbExtractor {
             batch.setAction(values.get(0).getAction());
             batch.setTitle("Trunk " + trunk_id + ": " + values.get(0).getAction());
             batches.add(batch);
+            
+            /**
+             * Clearing the List of data
+             */
             values.clear();
             valuesLinear.clear();
         }
+        
         return batches;
     }
     
@@ -389,7 +403,24 @@ public class DbExtractor {
                 " WHERE action = \"" + action + "\" AND testData=1 ORDER BY ROWID";
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
-        while
+        
+        
+        /**
+         * Devo costruire batch basandomi su ID della riga
+         */
+        int lastRowID = -1;
+        while (rs.next()) {
+            
+            int rowID = rs.getInt("ROWID");
+            
+            if (rowID == lastRowID + 1) {
+                /**
+                 * Same batch, only to add the new values
+                 */
+            }
+            long timestamp = rs.getLong("timestamp");
+            
+        }
         
         
         return batches;

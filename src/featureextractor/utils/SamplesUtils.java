@@ -23,15 +23,6 @@ import java.util.List;
  */
 public class SamplesUtils {
 
-    public static List<Batch> getAll(ArrayList<Sample> values) throws Exception {
-        if (values.isEmpty()) {
-            throw new Exception("No sample provided");
-        }
-        ArrayList<Batch> batches = new ArrayList<Batch>();
-        batches.add(new Batch(values));
-        return batches;
-    }
-
     public static List<Batch> getSingleFixedSizeBatch(ArrayList<Sample> values, int num_samples) throws Exception {
         return SamplesUtils.getRangeBatch(values, 0, num_samples);
     }

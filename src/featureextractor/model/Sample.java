@@ -13,20 +13,17 @@ public class Sample {
     final private long time;
     private boolean hasNoGravityValues = false;
     final private double valueX;
-    private double noGravityX;
-    private double valueXRotated;
-    private double valueXRotatedNoGravity;
-    private double valueXRotatedNoGravityNoBuffer;
     final private double valueY;
-    private double noGravityY;
-    private double valueYRotated;
-    private double valueYRotatedNoGravity;
-    private double valueYRotatedNoGravityNoBuffer;
     final private double valueZ;
-    private double noGravityZ;
-    private double valueZRotated;
-    private double valueZRotatedNoGravity;
-    private double valueZRotatedNoGravityNoBuffer;
+    private double rotatedValueX;
+    private double rotatedValueY;
+    private double rotatedValueZ;
+    private double valueXNoGravity;
+    private double valueYNoGravity;
+    private double valueZNoGravity;
+    private double rotatedValueXNoGravity;
+    private double rotatedValueYNoGravity;
+    private double rotatedValueZNoGravity;
     final private double rotationX;
     final private double rotationY;
     final private double rotationZ;
@@ -46,32 +43,8 @@ public class Sample {
         this.mode = mode;
     }
     
-    private void setRotatedXValues() {
+    private void rotateValues() {
         
-    }
-    
-    private void setRotatedYValues() {
-        
-    }
-    
-    private void setRotatedZValues() {
-        
-    }
-    
-    public void setNoGravityX(double x) {
-        this.noGravityX = x;
-        /**
-         * Calculates the rotated values
-         */
-        setRotatedXValues(); 
-    }
-    public void setNoGravityY(double y) {
-        this.noGravityY = y;
-        setRotatedYValues();
-    }
-    public void setNoGravityZ(double z) {
-        this.noGravityZ = z;
-        setRotatedZValues();
     }
     
     public void hasNoGravityValues() {
@@ -122,8 +95,7 @@ public class Sample {
         return trunk;
     }
     
-    private double getRotatedAxis(boolean wantX, boolean wantY, boolean wantZ, 
-            boolean useNoGravityValues) {
+    private void rotateValues(boolean useNoGravityValues) {
         
         double norm = Math.sqrt(Math.pow(rotationX, 2) + Math.pow(rotationY, 2) + 
                 Math.pow(rotationZ, 2));
@@ -221,7 +193,7 @@ public class Sample {
     
     public double getNoGravityXAndYMean() {
         return (noGravityX + noGravityY) / (double)2;
-    }
+    }*/
 
     @Override
     public String toString() {
