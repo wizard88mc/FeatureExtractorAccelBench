@@ -4,6 +4,7 @@
  */
 package featureextractor;
 
+import featureextractor.comparator.SlidingWindowComparator;
 import featureextractor.comparator.MeanComparator;
 import featureextractor.extractor.db.AccelBenchException;
 import featureextractor.extractor.db.DBTextManager;
@@ -169,50 +170,9 @@ public class FeatureExtractor {
             // create samples batches by selected mode
             batches = null;
             switch (mode) {
-                case INTERLAPPING_FIXED_SIZE:
-                    System.out.println("Selected interlapping sliding window with a fixed size of " + batch_size + " samples");
-                    batches = SamplesUtils.getInterlappingFixedSizeBatches(samplesAccelerometer, batch_size);
-                    break;
-                case INTERLAPPING_SIZE_BY_STEP_AVG:
-                    try {
-                        batch_size = db_extractor.getAvgSamplesForStep(this.linear);
-                    } catch (ArithmeticException e) { // no step detected: get average batch size by calculating on sampling delay
-                        batch_size = (int) (0.77 * (float) db_extractor.getSamplingRate(this.linear));
-                    }
-                    if (batch_size % 2 == 1) {
-                        batch_size++; // make sure it's an even number
-                    }
-                    System.out.println("Selected interlapping sliding window with a fixed size of " + batch_size + " samples (average step sampling)");
-                    batches = SamplesUtils.getInterlappingFixedSizeBatches(samplesAccelerometer, batch_size);
-                    break;
-                case NON_INTERLAPPING_SIZE_BY_STEP_AVG:
-                    batch_size = db_extractor.getAvgSamplesForStep(this.linear);
-                    System.out.println("Selected non-interlapping sliding window with a fixed size of " + batch_size + " samples (average step sampling)");
-                    batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samplesAccelerometer, batch_size);
-                    break;
-                case NON_INTERLAPPING_FIXED_SIZE:
-                    System.out.println("Selected non-interlapping sliding window with a fixed size of " + batch_size + " samples");
-                    batches = SamplesUtils.getNonInterlappingFixedSizeBatches(samplesAccelerometer, batch_size);
-                    break;
-                case RANGE:
-                    System.out.println("Selected range " + start + " - " + max);
-                    batches = SamplesUtils.getRangeBatch(samplesAccelerometer, start, max);
-                    break;
-                case RANGE_FROM_START:
-                    System.out.println("Selected first " + range + " samples");
-                    batches = SamplesUtils.getSingleFixedSizeBatch(samplesAccelerometer, range);
-                    break;
-                case FIXED_TIME_LAPSE:
-                    System.out.println("Selected fixed time range (" + time_range + " ms)");
-                    batches = SamplesUtils.getBatchesByTimeRange(samplesAccelerometer, time_range);
-                    break;
                 case BY_TRUNK:
                     System.out.println("Selected batches by trunk");
                     batches = SamplesUtils.getBatchesByTrunk(samplesAccelerometer, db_extractor, this.linear);
-                    break;
-                case BY_STEP:
-                    System.out.println("Selected batches by step");
-                    batches = SamplesUtils.getBatchesByStep(samplesAccelerometer);
                     break;
                 default:
                     throw new Exception("Unknown batch creation mode");
@@ -277,7 +237,9 @@ public class FeatureExtractor {
         return finalWindows;
     }
     
-    public void populateTextualDatabase(boolean test) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
+    public void populateTextualDatabase(boolean test) 
+            throws FileNotFoundException, ClassNotFoundException, SQLException, 
+                AccelBenchException, Exception {
         
         List<Batch> baseBatchesDownstairs = db_extractor.extractByTrunkAndAction(App.STAIR_DOWNSTAIRS, test),
                 baseBatchesUpstairs = db_extractor.extractByTrunkAndAction(App.STAIR_UPSTAIRS, test),
@@ -365,41 +327,6 @@ public class FeatureExtractor {
         }
         
         for (SlidingWindow window: windowsLinearUpstairs) {
-            new PlotForDB(window, dbDataTextManager, true);
-            if (k%20 == 0) {
-                System.out.println("pausa");
-            }
-            k++;
-        }
-    }
-    
-    private void populateTestDB() throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException, Exception {
-        
-        List<Batch> batchesNotLinear = db_extractor.extractByTrunk(false),
-                batchesLinear = db_extractor.extractByTrunk(true);
-        
-        List<SlidingWindow> windowsWithoutGravity = new ArrayList<SlidingWindow>(),
-                windowsLinear = new ArrayList<SlidingWindow>();
-        
-        for (Batch batch: batchesNotLinear) {
-            new Plot(batch, db_extractor, false, true, false, true);
-            windowsWithoutGravity.addAll(SamplesUtils.getBaseWindows(batch, false));
-        }
-        for (Batch batch: batchesLinear) {
-            new Plot(batch, db_extractor, false, false, true, true);
-            windowsLinear.addAll(SamplesUtils.getBaseWindows(batch, true));
-        }
-        
-        int k = 0;
-        for (SlidingWindow window: windowsWithoutGravity) {
-            new PlotForDB(window, dbDataTextManager, false);
-            if (k%20 == 0) {
-                System.out.println("pausa");
-            }
-            k++;
-        }
-        
-        for (SlidingWindow window: windowsLinear) {
             new PlotForDB(window, dbDataTextManager, true);
             if (k%20 == 0) {
                 System.out.println("pausa");
@@ -622,6 +549,41 @@ public class FeatureExtractor {
             featuresWindowsDownstairs = getFeatures(getOnlySuitableSlidingWindows(linearDownstairs, frequency), frequency);
             featuresWindowsUpstairs = getFeatures(getOnlySuitableSlidingWindows(linearUpstairs, frequency), frequency);
             featuresWindowsNoStairs = getFeatures(getOnlySuitableSlidingWindows(linearNoStairs, frequency), frequency);
+        }
+    }
+    
+    public void sortWindowsTestDB() {
+        
+        List<SlidingWindow> noGravityUp = new ArrayList<SlidingWindow>(), 
+                noGravityDown = new ArrayList<SlidingWindow>(),
+                noGravityNo = new ArrayList<SlidingWindow>(),
+                linearUp = new ArrayList<SlidingWindow>(),
+                linearDown = new ArrayList<SlidingWindow>(),
+                linearNo = new ArrayList<SlidingWindow>();
+        
+        dbDataTextManager.retrieveAllSlidingWindows(noGravityUp, linearUp, 
+                noGravityDown, linearDown, noGravityNo, linearNo);
+        
+        List<SlidingWindow> finalListNoGravity = new ArrayList<SlidingWindow>();
+        finalListNoGravity.addAll(noGravityUp); finalListNoGravity.addAll(noGravityDown);
+        finalListNoGravity.addAll(noGravityNo);
+        
+        List<SlidingWindow> finalListLinear = new ArrayList<SlidingWindow>();
+        finalListLinear.addAll(linearUp); finalListLinear.addAll(linearDown);
+        finalListLinear.addAll(linearNo);
+        
+        Collections.sort(finalListNoGravity, new SlidingWindowComparator());
+        
+        for (SlidingWindow window: finalListNoGravity) {
+            dbDataTextManager.addNewSlidingWindow(window, 
+                    window.getSupposedAction(), false);
+        }
+        
+        Collections.sort(finalListLinear, new SlidingWindowComparator());
+        
+        for (SlidingWindow window: finalListLinear) {
+            dbDataTextManager.addNewSlidingWindow(window, 
+                    window.getSupposedAction(), true);
         }
     }
     

@@ -6,9 +6,7 @@
 
 package featureextractor.extractor.db;
 
-import featureextractor.model.Batch;
 import featureextractor.model.DataTime;
-import featureextractor.model.Sample;
 import featureextractor.model.SingleCoordinateSet;
 import featureextractor.position_analysis.Movement;
 import java.io.File;
@@ -87,16 +85,16 @@ public class DBForLocation {
         ResultSet rs2 = get_stmt.executeQuery();
         while (rs2.next()) {
 
-            values.get(0).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("x"), -1));
-            values.get(1).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("y"), -1));
-            values.get(2).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("z"), -1));
+            values.get(0).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("x")));
+            values.get(1).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("y")));
+            values.get(2).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("z")));
 
-            rotation.get(0).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationX"), -1));
-            rotation.get(1).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationY"), -1));
-            rotation.get(2).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationZ"), -1));
+            rotation.get(0).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationX")));
+            rotation.get(1).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationY")));
+            rotation.get(2).addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("rotationZ")));
 
             if (!linear) {
-                proximity.addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("proximity"), -1));
+                proximity.addValue(new DataTime(rs2.getLong("timestamp"), rs2.getDouble("proximity")));
 
                 if (propertiesToReturn == null) {
                     propertiesToReturn = rs2.getString("start_position")

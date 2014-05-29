@@ -55,7 +55,9 @@ public class DBTextManager {
             outputSamples.println("@xPMitzell: double");outputSamples.println("@yPMitzell: double");
             outputSamples.println("@zPMitzell: double");outputSamples.println("@xHMitzell: double");
             outputSamples.println("@yHMitzell: double");outputSamples.println("@zHMitzell: double");
-            outputSamples.println("@action: string");outputSamples.println("@mode: string");
+            outputSamples.println("@sex: string");outputSamples.println("@height: string");
+            outputSamples.println("@shoes: string");outputSamples.println("@mode: string");
+            outputSamples.println("@action: string");
             outputSamples.println("@trunk: int"); outputSamples.println("@isLinear: boolean");
             outputSamples.println("@DATA");
             outputSamples.flush();
@@ -350,8 +352,8 @@ public class DBTextManager {
     }
     
     private void insertNewThreeDataTime(List<SingleCoordinateSet> values, String timestamp, String x, String y, String z) {
-        values.get(0).addValue(new DataTime(Double.valueOf(timestamp), Double.valueOf(x), -1));
-        values.get(1).addValue(new DataTime(Double.valueOf(timestamp), Double.valueOf(y), -1));
-        values.get(2).addValue(new DataTime(Double.valueOf(timestamp), Double.valueOf(z), -1));
+        values.get(0).addValue(new DataTime(Double.valueOf(timestamp), Double.valueOf(x)));
+        values.get(1).addValue(new DataTime(Double.valueOf(timestamp), Double.valueOf(y)));
+        values.get(2).addValue(new DataTime(Double.valueOf(timestamp), Double.valueOf(z)));
     }
 }

@@ -117,11 +117,11 @@ public class Movement {
                 values.get(3).addValue(new DataTime(values.get(0).getValues().get(i).getTime(), 
                     Math.sqrt(Math.pow(values.get(0).getValues().get(i).getValue(), 2) + 
                     Math.pow(values.get(1).getValues().get(i).getValue(), 2) + 
-                    Math.pow(values.get(2).getValues().get(i).getValue(), 2)), -1));
+                    Math.pow(values.get(2).getValues().get(i).getValue(), 2))));
 
                 values.get(4).addValue(new DataTime(values.get(0).getValues().get(i).getTime(), 
                     (values.get(0).getValues().get(i).getValue() + 
-                            values.get(1).getValues().get(i).getValue()) / 2, -1));
+                            values.get(1).getValues().get(i).getValue()) / 2));
             }
             else {
                 values.get(3).addValue(null);
@@ -169,11 +169,11 @@ public class Movement {
                 meanValueZ /= buffer.size();
                 
                 valuesWithoutGravity.get(0).addValue(new DataTime(valuesAccelerometer.get(0).getValues().get(index).getTime(), 
-                        valuesAccelerometer.get(0).getValues().get(index).getValue() - meanValueX, -1));
+                        valuesAccelerometer.get(0).getValues().get(index).getValue() - meanValueX));
                 valuesWithoutGravity.get(1).addValue(new DataTime(valuesAccelerometer.get(1).getValues().get(index).getTime(),
-                        valuesAccelerometer.get(1).getValues().get(index).getValue() - meanValueY, -1));
+                        valuesAccelerometer.get(1).getValues().get(index).getValue() - meanValueY));
                 valuesWithoutGravity.get(2).addValue(new DataTime((valuesAccelerometer.get(2).getValues().get(index).getTime()), 
-                        valuesAccelerometer.get(2).getValues().get(index).getValue() - meanValueZ, -1));
+                        valuesAccelerometer.get(2).getValues().get(index).getValue() - meanValueZ));
                 
                 buffer.remove(0);
                 buffer.add(index);

@@ -77,10 +77,10 @@ public class SlidingWindow {
         
         for (int i = 0; i < values.get(0).size(); i++) {
             
-            values.get(3).addValue(new DataTime(values.get(0).getValues().get(i).getTime(), calculateV(values, i), -1));
+            values.get(3).addValue(new DataTime(values.get(0).getValues().get(i).getTime(), calculateV(values, i)));
             values.get(4).addValue(new DataTime(values.get(0).getValues().get(i).getTime(),
                     (values.get(0).getValues().get(i).getValue() + 
-                    values.get(1).getValues().get(i).getValue()) / 2.0, -1));
+                    values.get(1).getValues().get(i).getValue()) / 2.0));
         }
         
         if (!linear) {
@@ -91,16 +91,16 @@ public class SlidingWindow {
 
             for (int i = 0; i < valuesPMitzell.get(0).size(); i++) {
                 valuesPMitzell.get(3).addValue(new DataTime(valuesPMitzell.get(0).getValues().get(i).getTime(), 
-                        calculateV(valuesPMitzell, i), -1));
+                        calculateV(valuesPMitzell, i)));
                 valuesHMitzell.get(3).addValue(new DataTime(valuesHMitzell.get(0).getValues().get(i).getTime(), 
-                        calculateV(valuesHMitzell, i), -1));
+                        calculateV(valuesHMitzell, i)));
 
                 valuesPMitzell.get(4).addValue(new DataTime(valuesPMitzell.get(0).getValues().get(i).getTime(),
                         (valuesPMitzell.get(0).getValues().get(i).getValue()
-                    + valuesPMitzell.get(1).getValues().get(i).getValue()) / 2.0, -1));
+                    + valuesPMitzell.get(1).getValues().get(i).getValue()) / 2.0));
                 valuesHMitzell.get(4).addValue(new DataTime(valuesHMitzell.get(0).getValues().get(i).getTime(),
                         (valuesHMitzell.get(0).getValues().get(i).getValue()
-                    + valuesHMitzell.get(1).getValues().get(i).getValue()) / 2.0, -1));
+                    + valuesHMitzell.get(1).getValues().get(i).getValue()) / 2.0));
             }
         }
     }

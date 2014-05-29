@@ -111,6 +111,8 @@ public class Batch {
     public Batch(String sex, String height, String shoes, 
             List<Sample> samplesAccelerometer, List<Sample> samplesLinear) throws Exception {
         
+        this.sex = sex; this.height = height; this.shoes = shoes;
+        
         if (samplesAccelerometer.isEmpty()) {
             throw new Exception("No element given for this batch");
         }
@@ -137,14 +139,14 @@ public class Batch {
         
         for (int axis = 0; axis < samplesAccelerometer.size(); axis++) {
             Sample sample = samplesAccelerometer.get(axis);
-            values.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
-            values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
-            values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
+            values.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX()));
+            values.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY()));
+            values.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ()));
             
             if (sample.getHasNoGravityValues()) {
-                valuesWithoutGravityRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityX(), sample.getStep()));
-                valuesWithoutGravityRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityY(), sample.getStep()));
-                valuesWithoutGravityRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityZ(), sample.getStep()));
+                valuesWithoutGravityRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityX()));
+                valuesWithoutGravityRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityY()));
+                valuesWithoutGravityRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedNoGravityZ()));
             }
         }
         
@@ -152,13 +154,13 @@ public class Batch {
             for (int i = 0; i < samplesLinear.size(); i++) {
 
                 Sample sample = samplesLinear.get(i);
-                valuesLinear.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX(), sample.getStep()));
-                valuesLinear.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY(), sample.getStep()));
-                valuesLinear.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ(), sample.getStep()));
+                valuesLinear.get(0).addValue(new DataTime(sample.getTime(), sample.getValueX()));
+                valuesLinear.get(1).addValue(new DataTime(sample.getTime(), sample.getValueY()));
+                valuesLinear.get(2).addValue(new DataTime(sample.getTime(), sample.getValueZ()));
 
-                valuesLinearRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX(), sample.getStep()));
-                valuesLinearRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY(), sample.getStep()));
-                valuesLinearRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedZ(), sample.getStep()));
+                valuesLinearRotated.get(0).addValue(new DataTime(sample.getTime(), sample.getRotatedX()));
+                valuesLinearRotated.get(1).addValue(new DataTime(sample.getTime(), sample.getRotatedY()));
+                valuesLinearRotated.get(2).addValue(new DataTime(sample.getTime(), sample.getRotatedZ()));
             }
         }
         else { throw new Exception("No linear values provided"); }
@@ -201,9 +203,9 @@ public class Batch {
                 meanValueZ /= buffer.size();
                 
                 sample.hasNoGravityValues();
-                sample.setNoGravityX(sample.getValueX() - meanValueX);
-                sample.setNoGravityY(sample.getValueY() - meanValueY);
-                sample.setNoGravityZ(sample.getValueZ() - meanValueZ);
+                sample.setNoGravityValues(sample.getValueX() - meanValueX, 
+                        sample.getValueY() - meanValueY, 
+                        sample.getValueZ() - meanValueZ);
                 
                 buffer.remove(0);
                 buffer.add(sample);
@@ -265,5 +267,17 @@ public class Batch {
     
     public boolean isSomeStairs() {
         return (this.action.equals(App.STAIR_DOWNSTAIRS) || this.action.equals(App.STAIR_UPSTAIRS));
+    }
+    
+    public String getSex() {
+        return this.sex;
+    }
+    
+    public String getHeight() {
+        return this.height;
+    }
+    
+    public String getShoes() {
+        return this.shoes;
     }
 }

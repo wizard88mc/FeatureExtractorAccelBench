@@ -13,12 +13,10 @@ public class DataTime {
     private double time;
     private Double value;
     private Double filteredValue;
-    private int step;
 
-    public DataTime(double time, Double value, int step) {
+    public DataTime(double time, Double value) {
         this.time = time;
         this.value = value;
-        this.step = step;
         
         if (Double.isInfinite(this.value) || Double.isNaN(this.value)) {
             this.value = 0.0;
@@ -51,9 +49,5 @@ public class DataTime {
 
     public void normalize(double min, double max) {
         this.value = ((this.value - min) / (max - min));
-    }
-
-    public int getStep() {
-        return step;
     }
 }

@@ -199,7 +199,9 @@ public class DbExtractor {
         }
     }
 
-    public ArrayList<Sample> extractByAction(String action, boolean linear) throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
+    public ArrayList<Sample> extractByAction(String action, boolean linear) 
+            throws FileNotFoundException, ClassNotFoundException, SQLException, AccelBenchException {
+        
         this.connect();
 
         if (action != null && checkActionExistence(action, linear)) {
@@ -220,7 +222,7 @@ public class DbExtractor {
         while (rs.next()) {
             values.add(new Sample(rs.getLong("timestamp"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), 
                     rs.getDouble("rotationX"), rs.getDouble("rotationY"), rs.getDouble("rotationZ"), 
-                    rs.getInt("trunk"), rs.getString("action"), rs.getInt("step"), rs.getString("mode")));
+                    rs.getInt("trunk"), rs.getString("action"), rs.getString("mode")));
         }
         if (values.isEmpty()) {
             throw new AccelBenchException("No sample detected");
@@ -263,7 +265,7 @@ public class DbExtractor {
             while (rs2.next()) {
                 values.add(new Sample(rs2.getLong("timestamp"), rs2.getDouble("x"), rs2.getDouble("y"), rs2.getDouble("z"), 
                         rs2.getDouble("rotationX"), rs2.getDouble("rotationY"), rs2.getDouble("rotationZ"), 
-                        rs2.getInt("trunk"), rs2.getString("action"), rs2.getInt("step"), rs2.getString("mode")));
+                        rs2.getInt("trunk"), rs2.getString("action"), rs2.getString("mode")));
                 
                 lastTimestamp = rs2.getLong("timestamp");
                 sex = rs2.getString("sex"); height = rs2.getString("height");
@@ -287,7 +289,7 @@ public class DbExtractor {
                 while (rs2Linear.next()) {
                     valuesLinear.add(new Sample(rs2Linear.getLong("timestamp"), rs2Linear.getDouble("x"), rs2Linear.getDouble("y"), rs2Linear.getDouble("z"), 
                             rs2Linear.getDouble("rotationX"), rs2Linear.getDouble("rotationY"), rs2Linear.getDouble("rotationZ"), 
-                            rs2Linear.getInt("trunk"), rs2Linear.getString("action"), rs2Linear.getInt("step"), rs2Linear.getString("mode")));
+                            rs2Linear.getInt("trunk"), rs2Linear.getString("action"), rs2Linear.getString("mode")));
 
                     if (lastTimestampLinear != 0) {
                         System.out.println("Diff: " + (rs2Linear.getLong("timestamp") - lastTimestampLinear)/ 1000000);
@@ -308,7 +310,7 @@ public class DbExtractor {
         return batches;
     }
     
-    public List<Batch> extractByTrunkAndAction(String action) 
+    public List<Batch> extractByTrunkAndAction(String action, boolean test) 
             throws FileNotFoundException, ClassNotFoundException, SQLException, 
             AccelBenchException, Exception {
         
@@ -319,16 +321,15 @@ public class DbExtractor {
         
         String dbAccelerometer = getRightDB(false);
 
-        String query = "SELECT trunk, MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + dbAccelerometer + 
-                " WHERE action = \"" + action + "\" AND testData=" + 0 + " GROUP BY trunk";
+        String query = "SELECT trunk, MIN(ROWID) as minid, MAX(ROWID) as maxid FROM " + dbAccelerometer + 
+                " WHERE action = \"" + action + "\" AND testData=" + (test?1:0) + " GROUP BY trunk";
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
-        int trunk_id = 0, min = 0, max = 0;
         while (rs.next()) {
             String sex = null, height = null, shoes = null;
-            trunk_id = rs.getInt("trunk");
-            min = rs.getInt("minid");
-            max = rs.getInt("maxid");
+            int trunk_id = rs.getInt("trunk");
+            int min = rs.getInt("minid");
+            int max = rs.getInt("maxid");
             query = "SELECT * FROM " + dbAccelerometer + " WHERE ROWID>=? AND ROWID<=?";
             PreparedStatement get_stmt = connection.prepareStatement(query);
             get_stmt.setInt(1, min);
@@ -337,7 +338,7 @@ public class DbExtractor {
             while (rs2.next()) {
                 values.add(new Sample(rs2.getLong("timestamp"), rs2.getDouble("x"), rs2.getDouble("y"), rs2.getDouble("z"), 
                         rs2.getDouble("rotationX"), rs2.getDouble("rotationY"), rs2.getDouble("rotationZ"), 
-                        rs2.getInt("trunk"), rs2.getString("action"), rs2.getInt("step"), rs2.getString("mode")));
+                        rs2.getInt("trunk"), rs2.getString("action"), rs2.getString("mode")));
                 
                 /**
                  * If details about trunk is null, getting this data 
@@ -350,7 +351,9 @@ public class DbExtractor {
             }
             
             String linearDB = getRightDB(true);
-            String queryLinear = "SELECT MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + linearDB + " WHERE trunk = " + trunk_id;
+            String queryLinear = "SELECT MIN(ROWID) as minid,MAX(ROWID) as maxid FROM " + linearDB + 
+                    " WHERE trunk = " + trunk_id + " AND action=\"" + action + 
+                    "\" AND testData=" + (test?1:0);
             PreparedStatement psLinear = connection.prepareStatement(queryLinear);
             ResultSet rsLinear = psLinear.executeQuery();
             int minLinear = 0, maxLinear = 0;
@@ -367,7 +370,7 @@ public class DbExtractor {
                     
                     valuesLinear.add(new Sample(rs2Linear.getLong("timestamp"), rs2Linear.getDouble("x"), rs2Linear.getDouble("y"), rs2Linear.getDouble("z"), 
                             rs2Linear.getDouble("rotationX"), rs2Linear.getDouble("rotationY"), rs2Linear.getDouble("rotationZ"), 
-                            rs2Linear.getInt("trunk"), rs2Linear.getString("action"), rs2Linear.getInt("step"), rs2Linear.getString("mode")));
+                            rs2Linear.getInt("trunk"), rs2Linear.getString("action"), rs2Linear.getString("mode")));
                 }
             }
             
@@ -384,44 +387,6 @@ public class DbExtractor {
             values.clear();
             valuesLinear.clear();
         }
-        
-        return batches;
-    }
-    
-    public List<Batch> extractByActionForTest(String action) throws FileNotFoundException,
-            ClassNotFoundException, SQLException {
-        
-        this.connect();
-        
-        List<Batch> batches = new ArrayList<Batch>();
-        List<Sample> values = new ArrayList<Sample>();
-        List<Sample> valuesLinear = new ArrayList<Sample>();
-        
-        String dbAccelerometer = getRightDB(false);
-        
-        String query = "SELECT * FROM " + dbAccelerometer + 
-                " WHERE action = \"" + action + "\" AND testData=1 ORDER BY ROWID";
-        PreparedStatement ps = connection.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
-        
-        
-        /**
-         * Devo costruire batch basandomi su ID della riga
-         */
-        int lastRowID = -1;
-        while (rs.next()) {
-            
-            int rowID = rs.getInt("ROWID");
-            
-            if (rowID == lastRowID + 1) {
-                /**
-                 * Same batch, only to add the new values
-                 */
-            }
-            long timestamp = rs.getLong("timestamp");
-            
-        }
-        
         
         return batches;
     }

@@ -28,9 +28,7 @@ public class App {
 
     
     final private static String[] testDBs = {
-        "accelbench_20140127113057.db", "accelbench_20140307151200.db", 
-        "accelbench_20140310155938.db"
-        };
+        "accelbench_20140513130000.db"};
     
     final public static String NO_STAIR = "NON_STAIR";
     final public static String STAIR_DOWNSTAIRS = "STAIR_DOWNSTAIRS";
@@ -127,6 +125,12 @@ public class App {
                         
                         }
                     }
+                    
+                    /**
+                     * Reorder all windows inserted into the test DB
+                     */
+                    featureExtractor.createFinalDB(true, false);
+                    featureExtractor.sortWindowsTestDB();
                     break;
                 }
                 

@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class SamplesUtils {
 
-    public static List<Batch> getSingleFixedSizeBatch(ArrayList<Sample> values, int num_samples) throws Exception {
+    /*public static List<Batch> getSingleFixedSizeBatch(ArrayList<Sample> values, int num_samples) throws Exception {
         return SamplesUtils.getRangeBatch(values, 0, num_samples);
     }
 
@@ -40,7 +40,7 @@ public class SamplesUtils {
         ArrayList<Batch> batches = new ArrayList<Batch>();
         batches.add(new Batch(values.subList(start, end + 1)));
         return batches;
-    }
+    }*/
 
     public static List<Batch> getBatchesByTrunk(ArrayList<Sample> values, DbExtractor db_extractor, boolean linear) throws Exception {
         if (values.isEmpty()) {
@@ -49,7 +49,7 @@ public class SamplesUtils {
         return db_extractor.extractByTrunk(linear);
     }
 
-    public static List<Batch> getBatchesByStep(ArrayList<Sample> values) throws Exception {
+    /*public static List<Batch> getBatchesByStep(ArrayList<Sample> values) throws Exception {
         if (values.isEmpty()) {
             throw new Exception("No sample provided");
         }
@@ -134,7 +134,7 @@ public class SamplesUtils {
         }
         // last batch skipped if dimension not big enough
         return batches;
-    }
+    }*/
     
     public static List<SlidingWindow> getBatchesWithSlidingWindowAndFixedTime(Batch batch, 
             long duration, int numberOverlappingWindows, boolean linear) throws Exception {
@@ -295,16 +295,15 @@ public class SamplesUtils {
                  * time and step are fixed values
                  */
                 double time = valuesForMizell.get(0).getValues().get(i).getTime();
-                int step = valuesForMizell.get(0).getValues().get(i).getStep();
                 
                 double value = valuesForMizell.get(0).getValues().get(i).getValue();
-                valuesWithoutGravityMizell.get(0).addValue(new DataTime(time, value - meanValueX, step));
+                valuesWithoutGravityMizell.get(0).addValue(new DataTime(time, value - meanValueX));
                 
                 value = valuesForMizell.get(1).getValues().get(i).getValue();
-                valuesWithoutGravityMizell.get(1).addValue(new DataTime(time, value - meanValueY, step));
+                valuesWithoutGravityMizell.get(1).addValue(new DataTime(time, value - meanValueY));
                 
                 value = valuesForMizell.get(2).getValues().get(i).getValue();
-                valuesWithoutGravityMizell.get(2).addValue(new DataTime(time, value - meanValueZ, step));
+                valuesWithoutGravityMizell.get(2).addValue(new DataTime(time, value - meanValueZ));
                 
             }
             
@@ -330,18 +329,16 @@ public class SamplesUtils {
                         valueZ = valuesWithoutGravityMizell.get(2).getValues().get(i).getValue(),
                         time = valuesWithoutGravityMizell.get(0).getValues().get(i).getTime();
                 
-                int step = valuesWithoutGravityMizell.get(0).getValues().get(i).getStep();
-                
                 double vectorProduct = (valueX * meanValueX + valueY * meanValueY
                          + valueZ * meanValueZ) / Math.pow(normMeanValues, 2);
                 
-                elementsPMizell.get(0).addValue(new DataTime(time, vectorProduct * meanValueX, step));
-                elementsPMizell.get(1).addValue(new DataTime(time, vectorProduct * meanValueY, step));
-                elementsPMizell.get(2).addValue(new DataTime(time, vectorProduct * meanValueZ, step));
+                elementsPMizell.get(0).addValue(new DataTime(time, vectorProduct * meanValueX));
+                elementsPMizell.get(1).addValue(new DataTime(time, vectorProduct * meanValueY));
+                elementsPMizell.get(2).addValue(new DataTime(time, vectorProduct * meanValueZ));
                 
-                elementsHMizell.get(0).addValue(new DataTime(time, valueX - elementsPMizell.get(0).getValues().get(i).getValue(), step));
-                elementsHMizell.get(1).addValue(new DataTime(time, valueY - elementsPMizell.get(1).getValues().get(i).getValue(), step));
-                elementsHMizell.get(2).addValue(new DataTime(time, valueZ - elementsPMizell.get(2).getValues().get(i).getValue(), step));
+                elementsHMizell.get(0).addValue(new DataTime(time, valueX - elementsPMizell.get(0).getValues().get(i).getValue()));
+                elementsHMizell.get(1).addValue(new DataTime(time, valueY - elementsPMizell.get(1).getValues().get(i).getValue()));
+                elementsHMizell.get(2).addValue(new DataTime(time, valueZ - elementsPMizell.get(2).getValues().get(i).getValue()));
             }
         }
     }
@@ -355,7 +352,8 @@ public class SamplesUtils {
      *          that are clearly not stairs
      * @return 
      */
-    public static List<SlidingWindow> getSlidingWindowsOfFixedDefinition(Batch batch, boolean linear, List<SlidingWindow> toAddInitialData) {
+    public static List<SlidingWindow> getSlidingWindowsOfFixedDefinition(Batch batch, 
+            boolean linear, List<SlidingWindow> toAddInitialData) {
         
         List<SlidingWindow> listOfWindows = new ArrayList<SlidingWindow>();
         
@@ -393,8 +391,10 @@ public class SamplesUtils {
         
         createWindowOfData(batch, 0, startPoint, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
                 
-        toAddInitialData.add(new SlidingWindow(App.NO_STAIR, batch.getMode(),
-            elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
+        toAddInitialData.add(new SlidingWindow(batch.getSex(), batch.getHeight(), 
+                batch.getShoes(), batch.getMode(), App.NO_STAIR,
+            elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
+                linear, batch.getTrunk()));
                 
         
         for (int i = startPoint; i < valuesForSearch.get(0).size() - 1; ) {
@@ -420,8 +420,10 @@ public class SamplesUtils {
                 
                 createWindowOfData(batch, startPoint, i, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
                 
-                listOfWindows.add(new SlidingWindow(batch.getAction(), batch.getMode(),
-                    elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
+                listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getHeight(), 
+                        batch.getShoes(), batch.getMode(), batch.getAction(),
+                    elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
+                        linear, batch.getTrunk()));
                 
                 startPoint = i+1;
                 i = startPoint + 1;
@@ -449,10 +451,13 @@ public class SamplesUtils {
             elementsHMizellWindow = null;
         }
         
-        createWindowOfData(batch, startPoint, valuesForSearch.get(0).size() - 1, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
+        createWindowOfData(batch, startPoint, valuesForSearch.get(0).size() - 1, 
+                linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
         
-        toAddInitialData.add(new SlidingWindow(App.NO_STAIR, batch.getMode(),
-            elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
+        toAddInitialData.add(new SlidingWindow(batch.getSex(), batch.getHeight(), 
+                batch.getShoes(), batch.getMode(), App.NO_STAIR,
+            elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
+                linear, batch.getTrunk()));
         
         return listOfWindows;
     }
@@ -502,8 +507,10 @@ public class SamplesUtils {
 
                     createWindowOfData(batch, startPoint, i, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
 
-                    listOfWindows.add(new SlidingWindow("", batch.getMode(),
-                        elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
+                    listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getHeight(), 
+                            batch.getShoes(), batch.getMode(), batch.getAction(),
+                        elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
+                            linear, batch.getTrunk()));
 
                     startPoint = i+1;
                     i = startPoint + 1;
@@ -532,8 +539,10 @@ public class SamplesUtils {
             createWindowOfData(batch, startPoint, valuesForSearch.size() - 1, 
                     linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
             
-            listOfWindows.add(new SlidingWindow("", batch.getMode(), 
-                elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, linear, batch.getTrunk()));
+            listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getHeight(), 
+                    batch.getShoes(), batch.getMode(), App.NO_STAIR,  
+                elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
+                    linear, batch.getTrunk()));
         }
         
         return listOfWindows;
