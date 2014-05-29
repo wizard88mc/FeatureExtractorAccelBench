@@ -93,9 +93,9 @@ public class FeatureExtractor {
         db_extractor = new DbExtractor(file);
     }
     
-    public void createFinalDB(boolean testDB, boolean openForAppend) throws IOException {
+    public void createFinalDB(boolean testDB) throws IOException {
         
-        dbDataTextManager = new DBTextManager(testDB, openForAppend);
+        dbDataTextManager = new DBTextManager(testDB);
     }
 
     public float getAverageStepDuration() throws Exception {
@@ -567,6 +567,8 @@ public class FeatureExtractor {
         List<SlidingWindow> finalListNoGravity = new ArrayList<SlidingWindow>();
         finalListNoGravity.addAll(noGravityUp); finalListNoGravity.addAll(noGravityDown);
         finalListNoGravity.addAll(noGravityNo);
+        
+        dbDataTextManager.resetOutputFile();
         
         List<SlidingWindow> finalListLinear = new ArrayList<SlidingWindow>();
         finalListLinear.addAll(linearUp); finalListLinear.addAll(linearDown);

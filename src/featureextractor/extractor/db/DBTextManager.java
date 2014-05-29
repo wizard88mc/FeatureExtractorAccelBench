@@ -34,7 +34,7 @@ public class DBTextManager {
     private PrintWriter outputSamples;
     private static int lastTrunkId = 0;
     
-    public DBTextManager(boolean testDB, boolean openForAppend) throws IOException {
+    public DBTextManager(boolean testDB) throws IOException {
         
         if (testDB) {
             DB_DATA = DB_DATA_TEST;
@@ -48,25 +48,38 @@ public class DBTextManager {
         File file = new File(BASE_FOLDER + DB_DATA);
         
         if (!file.exists()) {
-            outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, openForAppend)));
-            outputSamples.println("@FILE_FORMAT");
-            outputSamples.println("@timestamp: double");outputSamples.println("@x: double");
-            outputSamples.println("@y: double");outputSamples.println("@z: double");
-            outputSamples.println("@xPMitzell: double");outputSamples.println("@yPMitzell: double");
-            outputSamples.println("@zPMitzell: double");outputSamples.println("@xHMitzell: double");
-            outputSamples.println("@yHMitzell: double");outputSamples.println("@zHMitzell: double");
-            outputSamples.println("@sex: string");outputSamples.println("@height: string");
-            outputSamples.println("@shoes: string");outputSamples.println("@mode: string");
-            outputSamples.println("@action: string");
-            outputSamples.println("@trunk: int"); outputSamples.println("@isLinear: boolean");
-            outputSamples.println("@DATA");
-            outputSamples.flush();
+            printHeaderFile(true);
         }
 
-        outputDatabase = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_FILE, openForAppend)));
-        outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, openForAppend)));
+        outputDatabase = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_FILE, true)));
+        outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, true)));
         
         getLastTrunkIds();
+    }
+    
+    private void printHeaderFile(boolean append) throws IOException {
+        outputSamples = new PrintWriter(new BufferedWriter(new FileWriter(BASE_FOLDER + DB_DATA, append)));
+        outputSamples.println("@FILE_FORMAT");
+        outputSamples.println("@timestamp: double");outputSamples.println("@x: double");
+        outputSamples.println("@y: double");outputSamples.println("@z: double");
+        outputSamples.println("@xPMitzell: double");outputSamples.println("@yPMitzell: double");
+        outputSamples.println("@zPMitzell: double");outputSamples.println("@xHMitzell: double");
+        outputSamples.println("@yHMitzell: double");outputSamples.println("@zHMitzell: double");
+        outputSamples.println("@sex: string");outputSamples.println("@height: string");
+        outputSamples.println("@shoes: string");outputSamples.println("@mode: string");
+        outputSamples.println("@action: string");
+        outputSamples.println("@trunk: int"); outputSamples.println("@isLinear: boolean");
+        outputSamples.println("@DATA");
+        outputSamples.flush();
+    }
+    
+    public void resetOutputFile() {
+        try {
+        printHeaderFile(true);
+        }
+        catch(IOException exc) {
+            exc.printStackTrace();
+        }
     }
     
     /**
@@ -342,6 +355,9 @@ public class DBTextManager {
         }
         catch(IOException exc) {
             System.out.println("IOException for " + DB_DATA);
+            exc.printStackTrace();
+        }
+        catch(Exception exc) {
             exc.printStackTrace();
         }
     }

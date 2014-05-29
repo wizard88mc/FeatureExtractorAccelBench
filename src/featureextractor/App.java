@@ -28,7 +28,7 @@ public class App {
 
     
     final private static String[] testDBs = {
-        "accelbench_20140513130000.db"};
+        "accelbench_20140529171600.db"};
     
     final public static String NO_STAIR = "NON_STAIR";
     final public static String STAIR_DOWNSTAIRS = "STAIR_DOWNSTAIRS";
@@ -93,7 +93,7 @@ public class App {
                     
                 case BUILD_DB_SLIDING_WINDOW: {
                     
-                    featureExtractor.createFinalDB(false, true);
+                    featureExtractor.createFinalDB(false);
                     
                     for (String db: dbs) {
                         try {
@@ -111,7 +111,7 @@ public class App {
                 
                 case POPULATE_TEST_DB: {
                     
-                    featureExtractor.createFinalDB(true, true);
+                    featureExtractor.createFinalDB(true);
                     for (String db: testDBs) {
                         try {
                             if (!featureExtractor.getDBTextDataManager().checkIfDatabaseAlreadyInserted(db)) {
@@ -129,7 +129,7 @@ public class App {
                     /**
                      * Reorder all windows inserted into the test DB
                      */
-                    featureExtractor.createFinalDB(true, false);
+                    featureExtractor.createFinalDB(true);
                     featureExtractor.sortWindowsTestDB();
                     break;
                 }
@@ -138,7 +138,7 @@ public class App {
                     
                     ARFF.AddClasses(actions);
                     
-                    featureExtractor.createFinalDB(false, true);
+                    featureExtractor.createFinalDB(false);
                     featureExtractor.initializeListWindowsForFeatures();
                     
                     for (int frequency: frequencies) {
@@ -181,7 +181,7 @@ public class App {
                     }
                     
                     featureExtractor = new FeatureExtractor(true);
-                    featureExtractor.createFinalDB(false, true);
+                    featureExtractor.createFinalDB(false);
                     featureExtractor.initializeListWindowsForFeatures();
                     
                     for (int frequency: frequencies) {
