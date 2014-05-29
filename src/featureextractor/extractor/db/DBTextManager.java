@@ -232,7 +232,7 @@ public class DBTextManager {
             while ((line=reader.readLine()).contains("@")) {}
             
             // devo definire lista List<SingleCoordinateSet> per gli x y e z 
-            // che fanno aprte del trunk. Se trunk di quello che leggo e' diverso
+            // che fanno parte del trunk. Se trunk di quello che leggo e' diverso
             // dal precedente allora devo creare window e schiaffarla dentro
             int lastTrunkId = -1;
             SlidingWindow window = null;

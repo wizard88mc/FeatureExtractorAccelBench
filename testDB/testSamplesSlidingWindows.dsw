@@ -17,22 +17,3 @@
 @trunk: int
 @isLinear: boolean
 @DATA
-@FILE_FORMAT
-@timestamp: double
-@x: double
-@y: double
-@z: double
-@xPMitzell: double
-@yPMitzell: double
-@zPMitzell: double
-@xHMitzell: double
-@yHMitzell: double
-@zHMitzell: double
-@sex: string
-@height: string
-@shoes: string
-@mode: string
-@action: string
-@trunk: int
-@isLinear: boolean
-@DATA
