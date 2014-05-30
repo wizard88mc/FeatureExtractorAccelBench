@@ -28,7 +28,7 @@ public class App {
 
     
     final private static String[] testDBs = {
-        "accelbench_20140530154700.db"};
+        "accelbench_prova.db"};
     
     final public static String NO_STAIR = "NON_STAIR";
     final public static String STAIR_DOWNSTAIRS = "STAIR_DOWNSTAIRS";

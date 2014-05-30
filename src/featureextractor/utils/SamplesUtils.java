@@ -396,41 +396,62 @@ public class SamplesUtils {
             elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
                 linear, batch.getTrunk()));
                 
-        
+        int indexHalfWindow = -1;
         for (int i = startPoint; i < valuesForSearch.get(0).size() - 1; ) {
             try {
-            /**
-             * Analyzing values of the Z axis
-             */
-            if (valuesForSearch.get(2).getValues().get(i).getValue() < 0 && 
-                    valuesForSearch.get(2).getValues().get(i + 1).getValue() >= 0) {
                 /**
-                 * Sliding window is ended
-                 * First point is startPoint, endPoint is i
+                 * Analyzing values of the Z axis
                  */
-                elementsForWindow = new ArrayList<SingleCoordinateSet>();
-                if (!linear) {
-                    elementsPMizellWindow = new ArrayList<SingleCoordinateSet>();
-                    elementsHMizellWindow = new ArrayList<SingleCoordinateSet>();
+                if (valuesForSearch.get(2).getValues().get(i).getValue() < 0 && 
+                        valuesForSearch.get(2).getValues().get(i + 1).getValue() >= 0
+                        && indexHalfWindow != -1) {
+                    
+                    double durationFirstHalf = valuesForSearch.get(2).getValues().get(indexHalfWindow).getTime() - 
+                            valuesForSearch.get(2).getValues().get(startPoint).getTime();
+                    double durationSecondHalf = valuesForSearch.get(2).getValues().get(i).getTime() - 
+                            valuesForSearch.get(2).getValues().get(indexHalfWindow + 1).getTime();
+                    if (durationFirstHalf / durationSecondHalf > 1.5) {
+                        
+                        indexHalfWindow = -1;
+                        i++;
+                    }
+                    else {
+                    
+                    
+                        /**
+                         * Sliding window is ended
+                         * First point is startPoint, endPoint is i
+                         */
+                        elementsForWindow = new ArrayList<SingleCoordinateSet>();
+                        if (!linear) {
+                            elementsPMizellWindow = new ArrayList<SingleCoordinateSet>();
+                            elementsHMizellWindow = new ArrayList<SingleCoordinateSet>();
+                        }
+                        else {
+                            elementsPMizellWindow = null;
+                            elementsHMizellWindow = null;
+                        }
+
+                        createWindowOfData(batch, startPoint, i, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
+
+                        listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getAge(), 
+                                batch.getHeight(), batch.getShoes(), batch.getMode(), 
+                                batch.getAction(), elementsForWindow, elementsPMizellWindow, 
+                                elementsHMizellWindow, linear, batch.getTrunk()));
+
+                        startPoint = i+1;
+                        i = startPoint + 1;
+                        indexHalfWindow = -1;
+                    }
+                }
+                else if (valuesForSearch.get(2).getValues().get(i).getValue() >= 0 && 
+                            valuesForSearch.get(2).getValues().get(i + 1).getValue() < 0) {
+                    indexHalfWindow = i;
+                    i++;
                 }
                 else {
-                    elementsPMizellWindow = null;
-                    elementsHMizellWindow = null;
+                    i++;
                 }
-                
-                createWindowOfData(batch, startPoint, i, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
-                
-                listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getAge(), 
-                        batch.getHeight(), batch.getShoes(), batch.getMode(), 
-                        batch.getAction(), elementsForWindow, elementsPMizellWindow, 
-                        elementsHMizellWindow, linear, batch.getTrunk()));
-                
-                startPoint = i+1;
-                i = startPoint + 1;
-            }
-            else {
-                i++;
-            }
             }
         catch(Exception exc) {
             exc.printStackTrace();

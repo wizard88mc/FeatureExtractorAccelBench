@@ -102,7 +102,7 @@ public class PlotForDB extends javax.swing.JFrame {
         java.util.List<SingleCoordinateSet> axes = window.getValues();
         
         dataset = new XYSeriesCollection();
-        for (int axis = 0; axis < axes.size(); axis++) {
+        for (int axis = 0; axis < axes.size() - 2; axis++) {
             XYSeries series = new XYSeries(axes.get(axis).getTitle());
             for (DataTime dt : axes.get(axis).getValues()) {
                 series.add(dt.getTime() / time_divisor, dt.getValue());
@@ -140,7 +140,6 @@ public class PlotForDB extends javax.swing.JFrame {
         checkX = new javax.swing.JCheckBox();
         checkY = new javax.swing.JCheckBox();
         checkZ = new javax.swing.JCheckBox();
-        checkV = new javax.swing.JCheckBox();
         jPanel4 = new javax.swing.JPanel();
         btnDeleteTrunk = new javax.swing.JButton();
         btnDeleteLastMarker = new javax.swing.JButton();
@@ -190,20 +189,6 @@ public class PlotForDB extends javax.swing.JFrame {
             }
         });
         jPanel3.add(checkZ);
-
-        checkV.setSelected(true);
-        checkV.setText("(X+Y) / 2");
-        checkV.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                checkVStateChanged(evt);
-            }
-        });
-        checkV.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                checkVItemStateChanged(evt);
-            }
-        });
-        jPanel3.add(checkV);
 
         jPanel2.add(jPanel3, java.awt.BorderLayout.LINE_START);
 
@@ -315,17 +300,6 @@ public class PlotForDB extends javax.swing.JFrame {
         }*/
     }//GEN-LAST:event_btnDeleteTrunkActionPerformed
 
-    private void checkVStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkVStateChanged
-    }//GEN-LAST:event_checkVStateChanged
-
-    private void checkVItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkVItemStateChanged
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            addSeries(3);
-        } else {
-            removeSeries(3);
-        }
-    }//GEN-LAST:event_checkVItemStateChanged
-
     private void checkZItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkZItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
             addSeries(2);
@@ -390,7 +364,6 @@ public class PlotForDB extends javax.swing.JFrame {
     private javax.swing.JButton btnSetInMano;
     private javax.swing.JButton btnSetInTasca;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JCheckBox checkV;
     private javax.swing.JCheckBox checkX;
     private javax.swing.JCheckBox checkY;
     private javax.swing.JCheckBox checkZ;
