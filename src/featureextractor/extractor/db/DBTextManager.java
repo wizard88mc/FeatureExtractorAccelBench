@@ -65,9 +65,9 @@ public class DBTextManager {
         outputSamples.println("@xPMitzell: double");outputSamples.println("@yPMitzell: double");
         outputSamples.println("@zPMitzell: double");outputSamples.println("@xHMitzell: double");
         outputSamples.println("@yHMitzell: double");outputSamples.println("@zHMitzell: double");
-        outputSamples.println("@sex: string");outputSamples.println("@height: string");
-        outputSamples.println("@shoes: string");outputSamples.println("@mode: string");
-        outputSamples.println("@action: string");
+        outputSamples.println("@sex: string"); outputSamples.println("@age: string");
+        outputSamples.println("@height: string"); outputSamples.println("@shoes: string");
+        outputSamples.println("@mode: string"); outputSamples.println("@action: string");
         outputSamples.println("@trunk: int"); outputSamples.println("@isLinear: boolean");
         outputSamples.println("@DATA");
         outputSamples.flush();
@@ -251,8 +251,8 @@ public class DBTextManager {
                 initializeList(vectorHMitzell); initializeList(vectorPMitzell);
             }
             
-            window = new SlidingWindow(elements[10], elements[11], elements[12],
-                    elements[13], elements[14], valuesForWindow, 
+            window = new SlidingWindow(elements[10], elements[11], elements[12], 
+                    elements[13], elements[14], elements[15], valuesForWindow, 
                     vectorPMitzell, vectorHMitzell, 
                     elements[elements.length - 1].equals("1"), 
                     Integer.valueOf(elements[elements.length - 2]));
@@ -276,6 +276,7 @@ public class DBTextManager {
                      * elements[4,5,6]: xPMitzell, yPMitzell, zPMitzell
                      * elements[7,8,9]: xHMitzell, yHMitzell, zHMitzell
                      * elements[10]]: sex
+                     * elements[11]: age
                      * elements[11]: height
                      * elements[12]: shoes
                      * elements[13]: mode
@@ -329,8 +330,8 @@ public class DBTextManager {
                             vectorPMitzell = null; vectorHMitzell = null;
                         }
                         
-                        window = new SlidingWindow(elements[10], elements[11], 
-                                elements[12], elements[13], elements[14],
+                        window = new SlidingWindow(elements[10], elements[11],  
+                                elements[12], elements[13], elements[14], elements[15],
                                 valuesForWindow, vectorPMitzell, vectorHMitzell, 
                                 elements[elements.length - 1].equals("1"), 
                                 Integer.valueOf(elements[elements.length - 2]));

@@ -391,8 +391,8 @@ public class SamplesUtils {
         
         createWindowOfData(batch, 0, startPoint, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
                 
-        toAddInitialData.add(new SlidingWindow(batch.getSex(), batch.getHeight(), 
-                batch.getShoes(), batch.getMode(), App.NO_STAIR,
+        toAddInitialData.add(new SlidingWindow(batch.getSex(), batch.getAction(),
+                batch.getHeight(), batch.getShoes(), batch.getMode(), App.NO_STAIR,
             elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
                 linear, batch.getTrunk()));
                 
@@ -420,10 +420,10 @@ public class SamplesUtils {
                 
                 createWindowOfData(batch, startPoint, i, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
                 
-                listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getHeight(), 
-                        batch.getShoes(), batch.getMode(), batch.getAction(),
-                    elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
-                        linear, batch.getTrunk()));
+                listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getAge(), 
+                        batch.getHeight(), batch.getShoes(), batch.getMode(), 
+                        batch.getAction(), elementsForWindow, elementsPMizellWindow, 
+                        elementsHMizellWindow, linear, batch.getTrunk()));
                 
                 startPoint = i+1;
                 i = startPoint + 1;
@@ -454,8 +454,8 @@ public class SamplesUtils {
         createWindowOfData(batch, startPoint, valuesForSearch.get(0).size() - 1, 
                 linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
         
-        toAddInitialData.add(new SlidingWindow(batch.getSex(), batch.getHeight(), 
-                batch.getShoes(), batch.getMode(), App.NO_STAIR,
+        toAddInitialData.add(new SlidingWindow(batch.getSex(), batch.getAge(), 
+                batch.getHeight(), batch.getShoes(), batch.getMode(), App.NO_STAIR,
             elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
                 linear, batch.getTrunk()));
         
@@ -507,10 +507,10 @@ public class SamplesUtils {
 
                     createWindowOfData(batch, startPoint, i, linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
 
-                    listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getHeight(), 
-                            batch.getShoes(), batch.getMode(), batch.getAction(),
-                        elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
-                            linear, batch.getTrunk()));
+                    listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getAge(), 
+                            batch.getHeight(), batch.getShoes(), batch.getMode(), 
+                            batch.getAction(), elementsForWindow, elementsPMizellWindow, 
+                            elementsHMizellWindow, linear, batch.getTrunk()));
 
                     startPoint = i+1;
                     i = startPoint + 1;
@@ -539,8 +539,8 @@ public class SamplesUtils {
             createWindowOfData(batch, startPoint, valuesForSearch.size() - 1, 
                     linear, elementsForWindow, elementsPMizellWindow, elementsHMizellWindow);
             
-            listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getHeight(), 
-                    batch.getShoes(), batch.getMode(), App.NO_STAIR,  
+            listOfWindows.add(new SlidingWindow(batch.getSex(), batch.getAge(), 
+                    batch.getHeight(), batch.getShoes(), batch.getMode(), App.NO_STAIR,  
                 elementsForWindow, elementsPMizellWindow, elementsHMizellWindow, 
                     linear, batch.getTrunk()));
         }

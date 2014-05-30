@@ -24,6 +24,7 @@ public class Batch {
     private List<IntervalMarker> markers = new ArrayList<IntervalMarker>();
     private String title;
     private String sex;
+    private String age;
     private String height;
     private String shoes; 
     private String mode;
@@ -108,10 +109,10 @@ public class Batch {
         return valuesHMitzell;
     }
 
-    public Batch(String sex, String height, String shoes, 
+    public Batch(String sex, String age, String height, String shoes, 
             List<Sample> samplesAccelerometer, List<Sample> samplesLinear) throws Exception {
         
-        this.sex = sex; this.height = height; this.shoes = shoes;
+        this.sex = sex; this.age = age; this.height = height; this.shoes = shoes;
         
         if (samplesAccelerometer.isEmpty()) {
             throw new Exception("No element given for this batch");
@@ -166,8 +167,9 @@ public class Batch {
         else { throw new Exception("No linear values provided"); }
     }
     
-    public Batch(String sex, String height, String shoes, List<Sample> samples) throws Exception {
-        this(sex, height, shoes, samples, null);
+    public Batch(String sex, String age, String height, String shoes, 
+            List<Sample> samples) throws Exception {
+        this(sex, age, height, shoes, samples, null);
     }
     
     public void removeGravity(List<Sample> samplesAccelerometer) {
@@ -271,6 +273,10 @@ public class Batch {
     
     public String getSex() {
         return this.sex;
+    }
+    
+    public String getAge() {
+        return this.age;
     }
     
     public String getHeight() {

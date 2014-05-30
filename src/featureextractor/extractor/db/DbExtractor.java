@@ -251,9 +251,8 @@ public class DbExtractor {
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         int trunk_id = 0, min = 0, max = 0;
-        long lastTimestamp = 0;
         while (rs.next()) {
-            String sex = null, height = null, shoes = null;
+            String sex = null, age = null, height = null, shoes = null;
             trunk_id = rs.getInt("trunk");
             min = rs.getInt("minid");
             max = rs.getInt("maxid");
@@ -267,9 +266,8 @@ public class DbExtractor {
                         rs2.getDouble("rotationX"), rs2.getDouble("rotationY"), rs2.getDouble("rotationZ"), 
                         rs2.getInt("trunk"), rs2.getString("action"), rs2.getString("mode")));
                 
-                lastTimestamp = rs2.getLong("timestamp");
-                sex = rs2.getString("sex"); height = rs2.getString("height");
-                shoes = rs2.getString("shoes");
+                sex = rs2.getString("sex"); age = rs2.getString("age");
+                height = rs2.getString("height"); shoes = rs2.getString("shoes");
             }
             
             String linearDB = getRightDB(true);
@@ -277,7 +275,6 @@ public class DbExtractor {
             PreparedStatement psLinear = connection.prepareStatement(queryLinear);
             ResultSet rsLinear = psLinear.executeQuery();
             int minLinear = 0, maxLinear = 0;
-            long lastTimestampLinear = 0;
             while (rsLinear.next()) {
                 minLinear = rsLinear.getInt("minid");
                 maxLinear = rsLinear.getInt("maxid");
@@ -291,14 +288,10 @@ public class DbExtractor {
                             rs2Linear.getDouble("rotationX"), rs2Linear.getDouble("rotationY"), rs2Linear.getDouble("rotationZ"), 
                             rs2Linear.getInt("trunk"), rs2Linear.getString("action"), rs2Linear.getString("mode")));
 
-                    if (lastTimestampLinear != 0) {
-                        System.out.println("Diff: " + (rs2Linear.getLong("timestamp") - lastTimestampLinear)/ 1000000);
-                    }
-                    lastTimestamp = rs2Linear.getLong("timestamp");
                 }
             }
             
-            Batch batch = new Batch(sex, height, shoes, values, valuesLinear);
+            Batch batch = new Batch(sex, age, height, shoes, values, valuesLinear);
             batch.setTrunk(trunk_id);
             batch.setMode(values.get(0).getMode());
             batch.setAction(values.get(0).getAction());
@@ -326,7 +319,7 @@ public class DbExtractor {
         PreparedStatement ps = connection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            String sex = null, height = null, shoes = null;
+            String sex = null, age = null, height = null, shoes = null;
             int trunk_id = rs.getInt("trunk");
             int min = rs.getInt("minid");
             int max = rs.getInt("maxid");
@@ -345,8 +338,8 @@ public class DbExtractor {
                  * from the first record
                  */
                 if (sex == null) {
-                    sex = rs2.getString("sex"); height = rs2.getString("height");
-                    shoes = rs2.getString("shoes");
+                    sex = rs2.getString("sex"); age = rs2.getString("age");
+                    height = rs2.getString("height"); shoes = rs2.getString("shoes");
                 }
             }
             
@@ -374,7 +367,7 @@ public class DbExtractor {
                 }
             }
             
-            Batch batch = new Batch(sex, height, shoes, values, valuesLinear);
+            Batch batch = new Batch(sex, age, height, shoes, values, valuesLinear);
             batch.setTrunk(trunk_id);
             batch.setMode(values.get(0).getMode());
             batch.setAction(values.get(0).getAction());
