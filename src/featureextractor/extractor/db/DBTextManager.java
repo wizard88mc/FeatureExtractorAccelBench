@@ -196,7 +196,7 @@ public class DBTextManager {
                     (!linear?xPMitzell:"NULL") + ";" + (!linear?yPMitzell.toString():"NULL") + ";"
                     + (!linear?zPMitzell.toString():"NULL") + ";" + (!linear?xHMitzell.toString():"NULL") + ";" 
                     + (!linear?yHMitzell.toString():"NULL") + ";" + (!linear?zHMitzell.toString():"NULL") + ";" 
-                    + window.getSex() + ";" + window.getHeight() + ";" 
+                    + window.getSex() + ";" + window.getAge() + ";" + window.getHeight() + ";" 
                     + window.getShoes() + ";" + window.getMode() + ";"
                     + window.getSupposedAction() + ";" + 
                     (lastTrunkId) + ";" + (linear?1:0) + ")";

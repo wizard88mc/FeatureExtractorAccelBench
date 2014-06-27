@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class App {
     
-    final private static String[] dbs = {"matteo/accelbench_20140130182200.db",
+    /*final private static String[] dbs = {"matteo/accelbench_20140130182200.db",
                         "matteo/accelbench_20140127101346.db",
                         "matteo/accelbench_20140127113057.db",
                         "matteo/accelbench_20140127172252.db",
@@ -24,8 +24,12 @@ public class App {
                         "matteo/accelbench_20140307151200.db",
                         "matteo/accelbench_20140312103900.db",
                         "michele/accelbench_20140127092832.db",
-                        "michele/accelbench_20140128090735.db"};
+                        "michele/accelbench_20140128090735.db"};*/
 
+    
+    final private static String[] dbs = {"datiCompleti/accelbench_20140606181600.db", 
+        "datiCompleti/accelbench_20140610150000.db",
+        "datiCompleti/accelbench_20142706190000.db"};
     
     final private static String[] testDBs = {
         "accelbench_prova.db"};
@@ -47,7 +51,7 @@ public class App {
         FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
         MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
-    private static MODE mode = MODE.POPULATE_TEST_DB;
+    private static MODE mode = MODE.TRUNK_PLOTTER;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor(false);
@@ -75,7 +79,7 @@ public class App {
             switch (mode) {
                 
                 case TRUNK_PLOTTER:
-                    String db2 = "data/completo/matteo/accelbench_20140312103900.db";
+                    String db2 = "data/completo/datiCompleti/accelbench_20140606181600.db";
                     //db2 = "michele/accelbench_20140128090735.db";
                     //featureExtractor.setDb("data/completo/" + db2);
                     //System.out.println("data/completo/" + db2);

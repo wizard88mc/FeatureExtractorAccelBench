@@ -301,6 +301,10 @@ public class SlidingWindow {
         return this.sex;
     }
     
+    public String getAge() {
+        return this.age;
+    }
+    
     public String getHeight() {
         return this.height;
     }

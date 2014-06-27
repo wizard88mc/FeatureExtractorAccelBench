@@ -1,0 +1,3 @@
+accelbench_20140606181600.db: Matteo (primo file di dati raccolti)
+accelbench_20140610150000.db: Matteo
+accelbench_20142706190000.db: Gaggi
