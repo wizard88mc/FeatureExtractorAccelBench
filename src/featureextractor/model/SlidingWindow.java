@@ -49,12 +49,12 @@ public class SlidingWindow {
         this.values = values;
     }
     
-    public SlidingWindow(List<SingleCoordinateSet> values, boolean linear, int trunk) {
+    protected SlidingWindow(List<SingleCoordinateSet> values, boolean linear, int trunk) {
         this(values); this.linear = linear;
         this.trunk = trunk;
     }
     
-    public SlidingWindow(String sex, String age, String height, String shoes, String mode,  
+    protected SlidingWindow(String sex, String age, String height, String shoes, String mode,  
             String action, List<SingleCoordinateSet> values, boolean linear, int trunk) {
         this(values); 
         this.sex = sex; this.age = age; this.height = height; this.shoes = shoes;
@@ -70,10 +70,10 @@ public class SlidingWindow {
         this(sex, age, height, shoes, mode, action, values, linear, trunk);
         this.valuesPMitzell = vectorPMitzell; this.valuesHMitzell = vectorHMitzell;
         
-        completeSlidingWindow();
+        //completeSlidingWindow();
     }
     
-    private void completeSlidingWindow() {
+    public void completeSlidingWindow() {
         values.add(new SingleCoordinateSet(coordinates.get(3)));
         values.add(new SingleCoordinateSet(coordinates.get(4)));
         

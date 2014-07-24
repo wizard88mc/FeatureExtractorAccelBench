@@ -17,11 +17,11 @@ public class FeaturesSlidingWindow {
     private List<FeatureSet> featuresPMitzell = new ArrayList<FeatureSet>();
     private List<FeatureSet> featuresHMitzell = new ArrayList<FeatureSet>();
     private double magnitudeMean = 0.0;
-    private double magnitudeMeanPMitzell;
-    private double magnitudeMeanHMitzell;
+    private double magnitudeMeanPMitzell = 0.0;
+    private double magnitudeMeanHMitzell = 0.0;
     private double signalMagnitudeArea = 0.0;
-    private double signalMagnitudeAreaPMitzell;
-    private double signalMagnitudeAreaHMitzell;
+    private double signalMagnitudeAreaPMitzell = 0.0;
+    private double signalMagnitudeAreaHMitzell = 0.0;
     private String action;
     private List<Double> correlations = new ArrayList<Double>();
     private List<Double> correlationsPMitzell = new ArrayList<Double>();
@@ -52,46 +52,57 @@ public class FeaturesSlidingWindow {
         
         calculateIntelligentRatiosMinsMaxes(mins, maxes, intelligentRatios);
         
-        means = window.getMeansPVector(frequency);
-        variances = window.getVariancesPVector(frequency);
-        stds = window.getStdsPVector(frequency);
-        mins = window.getMinsPVector(frequency);
-        maxes = window.getMaxesPVector(frequency);
-        
-        for (int i = 0; i < means.size(); i++) {
-            featuresPMitzell.add(new FeatureSet(means.get(i), variances.get(i), stds.get(i), mins.get(i), maxes.get(i)));
+        if (!window.isLinear()) {
+            means = window.getMeansPVector(frequency);
+            variances = window.getVariancesPVector(frequency);
+            stds = window.getStdsPVector(frequency);
+            mins = window.getMinsPVector(frequency);
+            maxes = window.getMaxesPVector(frequency);
+
+            for (int i = 0; i < means.size(); i++) {
+                featuresPMitzell.add(new FeatureSet(means.get(i), variances.get(i), stds.get(i), mins.get(i), maxes.get(i)));
+            }
+
+            calculateIntelligentRatiosMinsMaxes(mins, maxes, intelligentRatiosPMitzell);
+
+            means = window.getMeansHVector(frequency);
+            variances = window.getVariancesHVector(frequency);
+            stds = window.getStdsHVector(frequency);
+            mins = window.getMinsHVector(frequency);
+            maxes = window.getMaxsHVector(frequency);
+
+            for (int i = 0; i < means.size(); i++) {
+                featuresHMitzell.add(new FeatureSet(means.get(i), variances.get(i), stds.get(i), mins.get(i), maxes.get(i)));
+            }
+
+            calculateIntelligentRatiosMinsMaxes(mins, maxes, intelligentRatiosHMitzell);
         }
-        
-        calculateIntelligentRatiosMinsMaxes(mins, maxes, intelligentRatiosPMitzell);
-        
-        means = window.getMeansHVector(frequency);
-        variances = window.getVariancesHVector(frequency);
-        stds = window.getStdsHVector(frequency);
-        mins = window.getMinsHVector(frequency);
-        maxes = window.getMaxsHVector(frequency);
-        
-        for (int i = 0; i < means.size(); i++) {
-            featuresHMitzell.add(new FeatureSet(means.get(i), variances.get(i), stds.get(i), mins.get(i), maxes.get(i)));
-        }
-        
-        calculateIntelligentRatiosMinsMaxes(mins, maxes, intelligentRatiosHMitzell);
         
         calculateRatios(features, ratios); ratios.addAll(intelligentRatios);
-        calculateRatios(featuresPMitzell, ratiosPMitzell); ratiosPMitzell.addAll(intelligentRatiosPMitzell);
-        calculateRatios(featuresHMitzell, ratiosHMitzell); ratiosHMitzell.addAll(intelligentRatiosHMitzell);
+        
+        if (!window.isLinear()) {
+            calculateRatios(featuresPMitzell, ratiosPMitzell); ratiosPMitzell.addAll(intelligentRatiosPMitzell);
+            calculateRatios(featuresHMitzell, ratiosHMitzell); ratiosHMitzell.addAll(intelligentRatiosHMitzell);
+        }
         
         magnitudeMean = calculateMagnitudeMean(features);
-        magnitudeMeanPMitzell = calculateMagnitudeMean(featuresPMitzell);
-        magnitudeMeanHMitzell = calculateMagnitudeMean(featuresHMitzell);
+        
+        if (!window.isLinear()) {
+            magnitudeMeanPMitzell = calculateMagnitudeMean(featuresPMitzell);
+            magnitudeMeanHMitzell = calculateMagnitudeMean(featuresHMitzell);
+        }
         
         signalMagnitudeArea = calculateSingalMagnitudeArea(window.getValues(), frequency);
-        signalMagnitudeAreaPMitzell = calculateSingalMagnitudeArea(window.getPMitzellValues(), frequency);
-        signalMagnitudeAreaHMitzell = calculateSingalMagnitudeArea(window.getHMitzellValues(), frequency);
+        if (!window.isLinear()) {
+            signalMagnitudeAreaPMitzell = calculateSingalMagnitudeArea(window.getPMitzellValues(), frequency);
+            signalMagnitudeAreaHMitzell = calculateSingalMagnitudeArea(window.getHMitzellValues(), frequency);
+        }
         
-        calculateCorrelations(window.getValues(), frequency, correlations);
-        calculateCorrelations(window.getPMitzellValues(), frequency, correlationsPMitzell);
-        calculateCorrelations(window.getHMitzellValues(), frequency, correlationsHMitzell);
-        
+        if (!window.isLinear()) {
+            calculateCorrelations(window.getValues(), frequency, correlations);
+            calculateCorrelations(window.getPMitzellValues(), frequency, correlationsPMitzell);
+            calculateCorrelations(window.getHMitzellValues(), frequency, correlationsHMitzell);
+        }
     }
     
     /**
@@ -158,6 +169,7 @@ public class FeaturesSlidingWindow {
         for (int i = 0; i < values.size() - 1; i++) {
             for (int j = i+1; j < values.size(); j++) {
                 
+                try {
                 Double covariance = calculateCovariance(values.get(i).getValues(), 
                         values.get(j).getValues(), frequency);
                 
@@ -169,6 +181,10 @@ public class FeaturesSlidingWindow {
                 }
                 
                 correlationsResult.add(correlation);
+                }
+                catch(Exception exc) {
+                    exc.printStackTrace();
+                }
             }
         }
     }
@@ -187,7 +203,7 @@ public class FeaturesSlidingWindow {
         Double covariance = 0.0, sumX = 0.0, sumY = 0.0, product = 0.0; 
         double minDelta = (double)1000000000 / frequency;
         double lastTimestamp = 0.0; int numberOfElements = 0;
-      
+        
         for (int i = 0; i < first.size(); i++) {
             if (first.get(i).getTime() - lastTimestamp >= minDelta) {
                 product += (first.get(i).getValue() * second.get(i).getValue());
@@ -198,7 +214,7 @@ public class FeaturesSlidingWindow {
                 lastTimestamp = first.get(i).getTime();
             }
         }
-        
+
         covariance = (product / numberOfElements) - 
                 ((sumX * sumY) / Math.pow(numberOfElements, 2));
         
@@ -236,6 +252,24 @@ public class FeaturesSlidingWindow {
                 ratiosWhereAdd.add(ratioMinMax);
             }
         }
+        
+        // std(X) ^ 2 / std(V)
+        ratios.add(Math.pow(features.get(0).getStd(), 2) / featuresToUse.get(3).getStd());
+        
+        // std(Y) ^ 2 / std(V)
+        ratios.add(Math.pow(features.get(1).getStd(), 2) / featuresToUse.get(3).getStd());
+        
+        // std(Z) ^ 2 / std(V)
+        ratios.add(Math.pow(features.get(2).getStd(), 2) / featuresToUse.get(3).getStd());
+        
+        //std(X) + std(Y) / std(V)
+        ratios.add(Math.pow(features.get(0).getStd() + features.get(1).getStd(), 2) 
+                / features.get(2).getStd());
+        
+        //std(X) + std(Y) / std(V)
+        ratios.add(Math.pow(features.get(0).getStd() + features.get(1).getStd(), 2) 
+                / featuresToUse.get(3).getStd());
+    
     }
     
     public List<FeatureSet> getBaseFeatures() {
@@ -316,6 +350,15 @@ public class FeaturesSlidingWindow {
         
         attributes.add("RATIO:MAX(Z)_MAX(X+Y/2)");
         attributes.add("RATIO:|MIN(Z)_MIN(X+Y/2)|");
+        
+        /**
+         * Intelligent ratios section
+         */
+        attributes.add("STD_X_2__STD_V");
+        attributes.add("STD_Y_2__STD_V");
+        attributes.add("STD_Z_2__STD_V");
+        attributes.add("STD_XY_2__STD_Z");
+        attributes.add("STD_XY_2__STD_V");
         
         /**
          * Covariance attributes

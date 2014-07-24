@@ -429,79 +429,10 @@ public class FeatureExtractor {
         
         return ratios;
     }
-
+    
     public void dumpARFF(File file) throws IOException {
         System.out.println("\nWriting ARFF file to " + file.getAbsolutePath());
         arff.writeToFile(file);
-    }
-
-    private void initialize_std_ARFF(int axes, boolean std, boolean mean, boolean variance, 
-            boolean vFeatures, boolean timeFeatures, boolean ratioMean, 
-            boolean ratioVariance, boolean ratioStd, boolean ratioMinMax) {
-        // default ARFF attributes and initializazion 
-        List<ARFFAttribute> attributes = new ArrayList<ARFFAttribute>();
-
-        for (int i = 0; i < axes; i++) {
-            if (std) {
-                attributes.add(new ARFFAttribute(features_types[0] + i, "REAL"));
-            }
-            if (mean) {
-                attributes.add(new ARFFAttribute(features_types[1] + i, "REAL"));
-            }
-            if (variance) {
-                attributes.add(new ARFFAttribute(features_types[2] + i, "REAL"));
-            }
-        }
-        
-        if (vFeatures) {
-            if (std) {
-                attributes.add(new ARFFAttribute(features_types[0] + "_V", "REAL"));
-            }
-            if (mean) {
-                attributes.add(new ARFFAttribute(features_types[1] + "_V", "REAL"));
-            }
-            if (variance) {
-                attributes.add(new ARFFAttribute(features_types[2] + "_V ", "REAL"));
-            }
-        }
-        
-        if (timeFeatures) {
-            attributes.add(new ARFFAttribute("MAGNITUDE_MEAN", "REAL"));
-            attributes.add(new ARFFAttribute("SIGNAL_MAGNITUDE_AREA", "REAL"));
-
-            for (int i = 0; i < axes - 1; i++) {
-                for (int j = i+1; j < axes; j++) {
-                    attributes.add(new ARFFAttribute("CORRELATION_" + i + "_" + j, "REAL"));
-                }
-            }
-        }
-        
-        if (ratioMean || ratioVariance || ratioStd) {
-            for (int i = 0; i < axes - 1; i++) {
-                for (int j = i+1; j < axes; j++) {
-                    if (ratioMean) {
-                        attributes.add(new ARFFAttribute("RATIO_MEAN_" + i + "_" + j, "REAL"));
-                    }
-                    if (ratioVariance) {
-                        attributes.add(new ARFFAttribute("RATIO_VARIANCE_" + i + "_" + j, "REAL"));
-                    }
-                    if (ratioStd) {
-                        attributes.add(new ARFFAttribute("RATIO_STD_" + i + "_" + j, "REAL"));
-                    }
-                }
-            }
-        }
-        
-        if (ratioMinMax) {
-            for (int i = 0; i < axes - 1; i++) {
-                for (int j = i + 1; j < axes; j++) {
-                    attributes.add(new ARFFAttribute("RATIO_DIFF_MINMAX_" + i + "_" + j, "REAL"));
-                }
-            }
-        }
-
-        // new ARFF document instance
-        arff = new ARFF(ARFF_RELATION, attributes);
     }
 
     public ARFF getARFF() {
@@ -522,6 +453,8 @@ public class FeatureExtractor {
         for (int i = 0; i < attributesString.size(); i++) {
             attributes.add(new ARFFAttribute(attributesString.get(i), "REAL"));
         }
+        
+        
         
         arff = new ARFF(ARFF_RELATION, attributes);
     }

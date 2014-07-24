@@ -51,7 +51,7 @@ public class App {
         FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
         MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
-    private static MODE mode = MODE.TRUNK_PLOTTER;
+    private static MODE mode = MODE.FEATURES_FROM_TEXT_DB;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor(false);
@@ -79,7 +79,7 @@ public class App {
             switch (mode) {
                 
                 case TRUNK_PLOTTER:
-                    String db2 = "data/completo/datiCompleti/accelbench_20140606181600.db";
+                    String db2 = "data/completo/datiCompleti/accelbench_test.db";
                     //db2 = "michele/accelbench_20140128090735.db";
                     //featureExtractor.setDb("data/completo/" + db2);
                     //System.out.println("data/completo/" + db2);
@@ -154,14 +154,14 @@ public class App {
                              * Accelerometer data + UP/DOWN distinction
                              */
                             featureExtractor.createARFFDataFromExtractedFeatures(false, false);
-                            featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSW"+frequency+".arff"));
+                            featureExtractor.dumpARFF(new File("featuresVSW_20140724/StairDetectionVSW"+frequency+".arff"));
                             featureExtractor.getARFF().resetData();
                             
                             /**
                              * Accelerometer data + NO distinction
                              */
                             featureExtractor.createARFFDataFromExtractedFeatures(false, true);
-                            featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSW"+frequency+"OS.arff"));
+                            featureExtractor.dumpARFF(new File("featuresVSW_20140724/StairDetectionVSW"+frequency+"OS.arff"));
                             featureExtractor.getARFF().resetData();
                             
                             featureExtractor.extractUsingFrequency(frequency, true);
@@ -170,14 +170,14 @@ public class App {
                              * Linear data + UP/DOWN distinction
                              */
                             featureExtractor.createARFFDataFromExtractedFeatures(false, false);
-                            featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSW"+frequency+"Linear.arff"));
+                            featureExtractor.dumpARFF(new File("featuresVSW_20140724/StairDetectionVSW"+frequency+"Linear.arff"));
                             featureExtractor.getARFF().resetData();
                             
                             /**
                              * Linear data + NO distinction
                              */
                             featureExtractor.createARFFDataFromExtractedFeatures(false, true);
-                            featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSW"+frequency+"OSLinear.arff"));
+                            featureExtractor.dumpARFF(new File("featuresVSW_20140724/StairDetectionVSW"+frequency+"OSLinear.arff"));
                         }
                         catch(IOException exc) {
                             exc.printStackTrace();
@@ -196,13 +196,13 @@ public class App {
                          */
                         featureExtractor.extractUsingFrequency(frequency, false);
                         featureExtractor.createARFFDataFromExtractedFeatures(true, false);
-                        featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSWMizell"+frequency+".arff"));
+                        featureExtractor.dumpARFF(new File("featuresVSW_20140724/StairDetectionVSWMizell"+frequency+".arff"));
                         featureExtractor.getARFF().resetData();
                         /**
                          * Mizell data + NO distinction
                          */
                         featureExtractor.createARFFDataFromExtractedFeatures(true, true);
-                        featureExtractor.dumpARFF(new File("featuresVSW/StairDetectionVSWMizell"+frequency+"OS.arff"));
+                        featureExtractor.dumpARFF(new File("featuresVSW_20140724/StairDetectionVSWMizell"+frequency+"OS.arff"));
                     }
                     
                     break;

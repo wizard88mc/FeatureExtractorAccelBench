@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.event.ChartProgressEvent;
 import org.jfree.chart.event.ChartProgressListener;
 import org.jfree.chart.plot.IntervalMarker;
@@ -95,6 +96,8 @@ public class Plot extends javax.swing.JFrame {
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);
+        //NumberAxis range = (NumberAxis) xyplot.getRangeAxis();
+        //range.setRange(-6.0, 8.0);
 
         for (IntervalMarker marker : batch.getMarkers()) {
             System.out.println("Adding pre-existing marker @trunk " + batch.getTrunk() + ": " + (long) marker.getStartValue() + " - " + (long) marker.getEndValue());

@@ -23,7 +23,7 @@ import java.util.List;
 public class DBTextManager {
     
     private static String BASE_FOLDER;
-    private static String BASE_FOLDER_INPUT = "textualDB/";
+    private static String BASE_FOLDER_INPUT = "textualDB - Copy/";
     private static String BASE_FOLDER_TEST_DB = "testDB/";
     private static String DB_FILE = "databasesInserted.txt";
     private static String DB_DATA;
@@ -234,7 +234,7 @@ public class DBTextManager {
             // devo definire lista List<SingleCoordinateSet> per gli x y e z 
             // che fanno parte del trunk. Se trunk di quello che leggo e' diverso
             // dal precedente allora devo creare window e schiaffarla dentro
-            int lastTrunkId = -1;
+            int lastTrunkId = 0;
             SlidingWindow window = null;
             List<SingleCoordinateSet> valuesForWindow = new ArrayList<SingleCoordinateSet>(),
                     vectorPMitzell = null,
@@ -251,9 +251,14 @@ public class DBTextManager {
                 initializeList(vectorHMitzell); initializeList(vectorPMitzell);
             }
             
-            window = new SlidingWindow(elements[10], elements[11], elements[12], 
-                    elements[13], elements[14], elements[15], valuesForWindow, 
-                    vectorPMitzell, vectorHMitzell, 
+            window = new SlidingWindow(
+                    elements.length == 18?elements[10]:"", 
+                    elements.length == 18?elements[11]:"", 
+                    elements.length == 18?elements[12]:"", 
+                    elements.length == 18?elements[13]:"", 
+                    elements.length == 18?elements[14]:elements[11], 
+                    elements.length == 18?elements[15]:elements[10], 
+                    valuesForWindow, vectorPMitzell, vectorHMitzell, 
                     elements[elements.length - 1].equals("1"), 
                     Integer.valueOf(elements[elements.length - 2]));
             
@@ -291,7 +296,7 @@ public class DBTextManager {
                      */
                     if (Integer.valueOf(elements[elements.length - 2]) != lastTrunkId) {
                         
-                        //window.completeSlidingWindow();
+                        window.completeSlidingWindow();
                         if (window.isLinear()) {
                             if (window.getSupposedAction().equals(App.NO_STAIR)) {
                                 linearNoStairs.add(window);
@@ -330,8 +335,13 @@ public class DBTextManager {
                             vectorPMitzell = null; vectorHMitzell = null;
                         }
                         
-                        window = new SlidingWindow(elements[10], elements[11],  
-                                elements[12], elements[13], elements[14], elements[15],
+                        window = new SlidingWindow(
+                                elements.length == 18?elements[10]:"", 
+                                elements.length == 18?elements[11]:"", 
+                                elements.length == 18?elements[12]:"", 
+                                elements.length == 18?elements[13]:"", 
+                                elements.length == 18?elements[14]:elements[11], 
+                                elements.length == 18?elements[15]:elements[10], 
                                 valuesForWindow, vectorPMitzell, vectorHMitzell, 
                                 elements[elements.length - 1].equals("1"), 
                                 Integer.valueOf(elements[elements.length - 2]));
