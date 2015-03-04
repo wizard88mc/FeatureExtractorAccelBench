@@ -366,7 +366,8 @@ public class FeatureExtractor {
                 //new Plot(batch, this.db_extractor, true, false, false, true);
                 //new Plot(batch, this.db_extractor, false, true, false, false);
                 if (gravity) {
-                    new Plot(batch, this.db_extractor, false, true, false, true);
+                    new Plot(batch, this.db_extractor, true, false, false, false);
+                    new Plot(batch, this.db_extractor, true, true, true, true);
                 }
                 //new Plot(batch, this.db_extractor, false, false, true, false);
                 if (linear) {
@@ -375,12 +376,15 @@ public class FeatureExtractor {
             }
             else {
                 if (gravity) {
-                    new Plot(batch, this.db_extractor, false, true, false, true);
+                    new Plot(batch, this.db_extractor, true, true, true, true);
                 }
                 if (linear) {
-                    new Plot(batch, this.db_extractor, false, false, true, true);
+                    new Plot(batch, this.db_extractor, true, true, true, true);
                 }
             }
+            //new Plot(batch, this.db_extractor, true, false, false, false);
+            //new Plot(batch, this.db_extractor, true, false, false, true);
+            //new Plot(batch, this.db_extractor, false, true, false, false);
 //            GralPlot plot2 = new GralPlot(batch);
 //            plot2.setVisible(true);
         }

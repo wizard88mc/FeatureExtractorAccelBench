@@ -4,7 +4,6 @@
  */
 package featureextractor;
 
-import featureextractor.position_analysis.MovementsAnalyzer;
 import featureextractor.weka.ARFF;
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +14,7 @@ import java.io.IOException;
  */
 public class App {
     
-    /*final private static String[] dbs = {"matteo/accelbench_20140130182200.db",
+    final private static String[] dbs = {"matteo/accelbench_20140130182200.db",
                         "matteo/accelbench_20140127101346.db",
                         "matteo/accelbench_20140127113057.db",
                         "matteo/accelbench_20140127172252.db",
@@ -23,13 +22,18 @@ public class App {
                         "matteo/accelbench_20140128182904.db",
                         "matteo/accelbench_20140307151200.db",
                         "matteo/accelbench_20140312103900.db",
+                        "matteo/accelbench_20140314103609.db",
+                        "matteo/accelbench_20140314104200.db",
+                        "matteo/accelbench_20140314112405.db",
+                        "matteo/accelbench_20140314112800.db",
+                        "matteo/accelbench_20150216100024.db",
                         "michele/accelbench_20140127092832.db",
-                        "michele/accelbench_20140128090735.db"};*/
+                        "michele/accelbench_20140128090735.db"};
 
     
-    final private static String[] dbs = {"datiCompleti/accelbench_20140606181600.db", 
+    /*final private static String[] dbs = {"datiCompleti/accelbench_20140606181600.db", 
         "datiCompleti/accelbench_20140610150000.db",
-        "datiCompleti/accelbench_20142706190000.db"};
+        "datiCompleti/accelbench_20142706190000.db"};*/
     
     final private static String[] testDBs = {
         "accelbench_prova.db"};
@@ -49,9 +53,8 @@ public class App {
         CLEAN_DB_SLIDING_WINDOW, // Cleans SlidingWindow DB from possible copies
         POPULATE_TEST_DB, // populates the DB that contains windows as test set
         FEATURES_FROM_TEXT_DB, // features calculated from the textual DB
-        MOVEMENTS_ANALYZER // to analyze movements to get accelerometer position
     };
-    private static MODE mode = MODE.FEATURES_FROM_TEXT_DB;
+    private static MODE mode = MODE.TRUNK_PLOTTER;
 
     private static long getAverageStepForAllDb() throws Exception {
         FeatureExtractor featureExtractor = new FeatureExtractor(false);
@@ -84,6 +87,9 @@ public class App {
                     //featureExtractor.setDb("data/completo/" + db2);
                     //System.out.println("data/completo/" + db2);
                     //                  featureExtractor.setTrunkIDs();
+                    //db2 = "data/completo/matteo/accelbench_20140127172252.db";
+                    
+                    db2 = "data/completo/matteo/accelbench_step.db";
                     featureExtractor.setDb(db2);
                     featureExtractor.setArffEnabled(false); // disable ARFF creation
                     featureExtractor.setFeatureEnabled(false); // disable feature calculation
@@ -91,7 +97,7 @@ public class App {
                     //featureExtractor.createFinalDB();
                     //featureExtractor.populateDatabase();
                     featureExtractor.extract();
-                    featureExtractor.plot(true, true, false);
+                    featureExtractor.plot(true, true, true);
 //                    }
                     break;
                     
@@ -206,28 +212,6 @@ public class App {
                     }
                     
                     break;
-                }
-                
-                case MOVEMENTS_ANALYZER: {
-                    
-                    ARFF.AddClasses(new String[]{"TASCA", "NO_TASCA"});
-                    Double[] bufferDurationForMovements = new Double[]
-                        {500000000.0, 1000000000.0, 1500000000.0, 2000000000.0}; // 1/2 secondo, 1 secondo, 1secondo e 1/2, 2 secondi
-                    
-                    for (int frequency: frequencies) {
-                        
-                        MovementsAnalyzer analyzer  = new MovementsAnalyzer(frequency);
-
-                        for (Double duration: bufferDurationForMovements) {
-                            featureExtractor.getARFF().resetData();
-                            
-                            analyzer.analyzeMovements(duration);
-                            analyzer.dumpARFF(featureExtractor.getARFF(), false);
-                            
-                            featureExtractor.getARFF().writeToFile(new File("featuresMovements/MovementDU"+duration / 1000000
-                                + "FREQ"+frequency+".arff"));
-                        }
-                    }
                 }
             }
         } catch (Exception e) {

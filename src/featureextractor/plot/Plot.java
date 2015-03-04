@@ -1,13 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package featureextractor.plot;
 
 import featureextractor.extractor.db.DbExtractor;
 import featureextractor.model.Batch;
 import featureextractor.model.DataTime;
 import featureextractor.model.SingleCoordinateSet;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -21,13 +18,13 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.event.ChartProgressEvent;
 import org.jfree.chart.event.ChartProgressListener;
 import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -103,6 +100,13 @@ public class Plot extends javax.swing.JFrame {
             System.out.println("Adding pre-existing marker @trunk " + batch.getTrunk() + ": " + (long) marker.getStartValue() + " - " + (long) marker.getEndValue());
             xyplot.addDomainMarker(marker);
         }
+        XYItemRenderer renderer = (XYItemRenderer) xyplot.getRenderer();
+        renderer.setSeriesStroke(0, new BasicStroke(2.0f));
+        renderer.setSeriesPaint(0, new Color(168,168,168));
+        renderer.setSeriesStroke(1, new BasicStroke(2.0f));
+        renderer.setSeriesPaint(1, new Color(72,72,72));
+        renderer.setSeriesStroke(2, new BasicStroke(2.0f));
+        renderer.setSeriesPaint(2, new Color(0,0,0));
         this.mainPanel.add(chartPanel, BorderLayout.CENTER);
         this.setVisible(true);
         

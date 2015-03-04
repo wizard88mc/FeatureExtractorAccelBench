@@ -266,8 +266,8 @@ public class DbExtractor {
                         rs2.getDouble("rotationX"), rs2.getDouble("rotationY"), rs2.getDouble("rotationZ"), 
                         rs2.getInt("trunk"), rs2.getString("action"), rs2.getString("mode")));
                 
-                sex = rs2.getString("sex"); age = rs2.getString("age");
-                height = rs2.getString("height"); shoes = rs2.getString("shoes");
+                //sex = rs2.getString("sex"); age = rs2.getString("age");
+                //height = rs2.getString("height"); shoes = rs2.getString("shoes");
             }
             
             String linearDB = getRightDB(true);
